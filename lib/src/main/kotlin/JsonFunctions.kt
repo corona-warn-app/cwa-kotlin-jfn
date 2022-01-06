@@ -2,7 +2,7 @@ package de.rki.jfn
 
 import com.fasterxml.jackson.databind.JsonNode
 
-interface JsonFunctionsApi {
+interface JsonFunctions {
 
     fun registerFunction(
         name: String,
