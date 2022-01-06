@@ -30,6 +30,6 @@ configure<SpotlessExtension> {
     kotlin {
         target("**/*.kt")
         targetExclude("$buildDir/**/*.kt", "**/*.gradle.kts")
-        ktlint("0.43.0")
+        ktlint("0.43.2")
     }
 }
