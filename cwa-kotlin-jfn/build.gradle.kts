@@ -1,4 +1,5 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.6.10"
@@ -22,6 +23,12 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
 
     testImplementation(kotlin("test"))
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 tasks.test {
