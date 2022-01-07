@@ -1,3 +1,5 @@
+[![Java CI with Gradle](https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml)
+
 # cwa-kotlin-jfn
 
  - #### IDE 
