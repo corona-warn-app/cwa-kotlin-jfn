@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
     `java-library`
     id("com.diffplug.spotless").version("6.0.0")
+    jacoco
 }
 
 group = "de.rki.jfn"
@@ -25,6 +26,10 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+jacoco {
+    toolVersion = "0.8.7"
+}
+
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         jvmTarget = "11"
@@ -33,6 +38,15 @@ tasks.withType<KotlinCompile>().configureEach {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // Report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // Tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
 
 configure<SpotlessExtension> {
