@@ -1,7 +1,7 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SampleTest {
+class JsonFunctionsTest {
 
     @Test
     fun test() {
