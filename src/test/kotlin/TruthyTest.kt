@@ -7,7 +7,8 @@ import kotlin.test.assertTrue
 class TruthyTest {
 
     @Test
-    fun `test isTruthy`() {
+    fun `test isTruthy()`() {
+        // TODO: add attribution for certlogic - this code was copied from it
         JsonFunctionsEngine().run {
             assertFalse(isTruthy(NullNode.instance))
             assertFalse(isTruthy(BooleanNode.FALSE))
