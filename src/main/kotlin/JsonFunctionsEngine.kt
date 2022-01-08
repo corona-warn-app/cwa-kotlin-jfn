@@ -19,25 +19,46 @@ class JsonFunctionsEngine : JsonFunctions {
         val functionDescriptorParameters = functionDescriptor.get("parameters") as ArrayNode
         val functionDescriptorLogic = functionDescriptor.get("logic") as ObjectNode
 
-        return if (functionDescriptorParameters.size() == 0) {
-            val emptyNode = ObjectMapper().readTree("{}")
-            evaluate(functionDescriptorLogic, emptyNode)
+        val result = if (functionDescriptorParameters.size() == 0) {
+            evaluate(functionDescriptorLogic, parameters)
         } else {
-            TODO()
-            // val data = determineData(functionDescriptor, parameters)
+            val data = determineData(functionDescriptorParameters, parameters)
+            evaluate(functionDescriptorLogic, data)
+        }
+
+        return when (result) {
+            is BooleanNode -> result.booleanValue()
+            is TextNode -> result.textValue()
+            is IntNode -> result.textValue()
+            else -> throw RuntimeException("evaluate() returned invalid node type")
         }
     }
 
-    fun determineData(functionDescriptor: JsonNode, parameters: JsonNode): JsonNode {
-        nodeFactory.objectNode().apply {
-            // functionDescriptor.filter {  }
+    fun determineData(parameters: ArrayNode, input: JsonNode): JsonNode {
+        return nodeFactory.objectNode().apply {
+            val iterator = parameters.elements()
+            while (iterator.hasNext()) {
+                val currentParameter = iterator.next()
+                if (currentParameter is ObjectNode) {
+                    val name = currentParameter["name"]
+                    val defaultValue = currentParameter["default"]
+                    if (name is TextNode) {
+                        val nameValue = name.textValue()
+                        if (input.has(nameValue)) {
+                            put(nameValue, input.get(nameValue).textValue())
+                        } else if (defaultValue is TextNode) {
+                            put(nameValue, defaultValue.textValue())
+                        } else {
+                            throw RuntimeException("No value for parameter ${name.textValue()} specified and no default value can be found for it!")
+                        }
+                    } else {
+                        throw RuntimeException("name property in object in parameter array must be text!")
+                    }
+                }
+            }
         }
-
-        TODO()
-
     }
 
-    // TODO: add attribution for certlogic - this code was copied from it
     override fun isTruthy(value: JsonNode) = when (value) {
         is BooleanNode -> value == BooleanNode.TRUE
         is TextNode -> value.textValue().isNotEmpty()
@@ -47,29 +68,73 @@ class JsonFunctionsEngine : JsonFunctions {
         else -> false
     }
 
+    internal fun isFalsy(value: JsonNode): Boolean = when (value) {
+        is BooleanNode -> value == BooleanNode.FALSE
+        is NullNode -> true
+        is TextNode -> value.textValue().isEmpty()
+        is IntNode -> value.intValue() == 0
+        is ArrayNode -> value.size() == 0
+        is ObjectNode -> value.size() == 0
+        else -> false
+    }
+
     override fun evaluate(logic: JsonNode, data: JsonNode) = when (logic) {
-        is TextNode -> logic.textValue()
-        is IntNode -> logic.intValue()
-        is BooleanNode -> logic.booleanValue()
-        is NullNode -> null
+        is TextNode -> logic
+        is IntNode -> logic
+        is BooleanNode -> logic
+        is NullNode -> logic
         is ObjectNode -> {
             if (logic.size() != 1) {
                 throw RuntimeException("unrecognised expression object encountered")
             }
-
             val (operator, args) = logic.fields().next()
-            if (!(args is ArrayNode && args.size() > 0)) {
-                throw RuntimeException("operation not of the form { \"<operator>\": [ <args...> ] }")
-            }
-            when (operator) {
-                "<" -> evaluateInfix(operator, args).booleanValue()
-                else -> TODO()
+            if (operator == "var") {
+                evaluateVar(args, data)
+            } else {
+                if (!(args is ArrayNode && args.size() > 0)) {
+                    throw RuntimeException("operation not of the form { \"<operator>\": [ <args...> ] }")
+                }
+                when (operator) {
+                    "if" -> evaluateIf(args[0], args[1], args[2], data)
+                    "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after", "not-before" -> evaluateInfix(
+                        operator,
+                        args,
+                        data
+                    )
+                    "!" -> evaluateNot(args[0], data)
+                    // "plusTime" -> evaluatePlusTime(args[0], args[1], args[2], data)
+                    "reduce" -> evaluateReduce(args[0], args[1], args[2], data)
+                    // "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
+                    else -> throw RuntimeException("unrecognised operator: \"$operator\"")
+                }
             }
         }
-        else -> TODO()
+        else -> throw RuntimeException("invalid JsonFunctions expression: $logic")
     }
 
-    internal fun evaluateInfix(operator: String, args: ArrayNode): JsonNode {
+    internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
+        if (args !is TextNode) {
+            throw RuntimeException("not of the form { \"var\": \"<path>\" }")
+        }
+        val path = args.asText()
+        if (path == "") {  // "it"
+            return data
+        }
+        return path.split(".").fold(data) { acc, fragment ->
+            if (acc is NullNode) {
+                acc
+            } else {
+                try {
+                    val index = Integer.parseInt(fragment, 10)
+                    if (acc is ArrayNode) acc[index] else null
+                } catch (e: NumberFormatException) {
+                    if (acc is ObjectNode) acc[fragment] else null
+                } ?: NullNode.instance
+            }
+        }
+    }
+
+    internal fun evaluateInfix(operator: String, args: ArrayNode, data: JsonNode): JsonNode {
         when (operator) {
             "and" -> if (args.size() < 2) throw RuntimeException("an \"and\" operation must have at least 2 operands")
             "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" -> if (args.size() < 2 || args.size() > 3) throw RuntimeException(
@@ -77,39 +142,91 @@ class JsonFunctionsEngine : JsonFunctions {
             )
             else -> if (args.size() != 2) throw RuntimeException("an operation with operator \"$operator\" must have 2 operands")
         }
-        // val evalArgs = args.map { arg -> evaluate(arg, data) }
+        val evalArgs = args.map { arg -> evaluate(arg, data) }
         return when (operator) {
+            "===" -> BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
+            "in" -> {
+                val r = evalArgs[1]
+                if (r !is ArrayNode) {
+                    throw RuntimeException("right-hand side of an \"in\" operation must be an array")
+                }
+                BooleanNode.valueOf(r.contains(evalArgs[0]))
+            }
+            "+" -> {
+                val l = evalArgs[0]
+                val r = evalArgs[1]
+                if (l !is IntNode || r !is IntNode) {
+                    throw RuntimeException("operands of a " + " operator must both be integers")
+                }
+                IntNode.valueOf(evalArgs[0].intValue() + evalArgs[1].intValue())
+            }
+            "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
+                when {
+                    isFalsy(acc) -> acc
+                    isTruthy(acc) -> evaluate(current, data)
+                    else -> throw RuntimeException("all operands of an \"and\" operation must be either truthy or falsy")
+                }
+            }
             "<", ">", "<=", ">=" -> {
-                if (!args.all { it is IntNode }) {
+                if (!evalArgs.all { it is IntNode }) {
                     throw RuntimeException("all operands of a comparison operator must be of integer type")
                 }
                 BooleanNode.valueOf(
-                    compare(operator, args.map { (it as IntNode).intValue() })
+                    compare(operator, evalArgs.map { (it as IntNode).intValue() })
                 )
             }
-            else -> TODO()
+            /*"after", "before", "not-after", "not-before" -> {
+                if (!evalArgs.all { it is JsonDateTime }) {
+                    throw RuntimeException("all operands of a date-time comparsion must be date-times")
+                }
+                BooleanNode.valueOf(
+                    compare(comparisonOperatorForDateTimeComparison(operator), evalArgs.map { (it as JsonDateTime).temporalValue() })
+                )
+            }*/
+            else -> throw RuntimeException("unhandled infix operator \"$operator\"")
         }
     }
 
-    internal fun <T : Comparable<T>> compare(operator: String, args: List<T>): Boolean =
-        when (args.size) {
-            2 -> intCompare(operator, args[0].compareTo(args[1]), 0)
-            3 -> intCompare(operator, args[0].compareTo(args[1]), 0) && intCompare(
-                operator,
-                args[1].compareTo(args[2]),
-                0
-            )
-            else -> throw RuntimeException("invalid number of operands to a \"$operator\" operation")
+    internal fun evaluateIf(guard: JsonNode, then: JsonNode, else_: JsonNode, data: JsonNode): JsonNode {
+        val evalGuard = evaluate(guard, data)
+        if (isTruthy(evalGuard)) {
+            return evaluate(then, data)
         }
+        if (isFalsy(evalGuard)) {
+            return evaluate(else_, data)
+        }
+        throw RuntimeException("if-guard evaluates to something neither truthy, nor falsy: $evalGuard")
+    }
 
-    internal fun intCompare(operator: String, l: Int, r: Int): Boolean =
-        when (operator) {
-            "<" -> l < r
-            ">" -> l > r
-            "<=" -> l <= r
-            ">=" -> l >= r
-            else -> throw RuntimeException("unhandled comparison operator \"$operator\"")
+    internal fun evaluateNot(operandExpr: JsonNode, data: JsonNode): JsonNode {
+        val operand = evaluate(operandExpr, data)
+        if (isFalsy(operand)) {
+            return BooleanNode.TRUE
         }
+        if (isTruthy(operand)) {
+            return BooleanNode.FALSE
+        }
+        throw RuntimeException("operand of ! evaluates to something neither truthy, nor falsy: $operand")
+    }
+
+    internal fun evaluateReduce(operand: JsonNode, lambda: JsonNode, initial: JsonNode, data: JsonNode): JsonNode {
+        val evalOperand = evaluate(operand, data)
+        val evalInitial = { evaluate(initial, data) }
+        if (evalOperand == NullNode.instance) {
+            return evalInitial()
+        }
+        if (evalOperand !is ArrayNode) {
+            throw RuntimeException("operand of reduce evaluated to a non-null non-array")
+        }
+        return evalOperand.fold(evalInitial()) { accumulator, current ->
+            evaluate(
+                lambda,
+                JsonNodeFactory.instance.objectNode()
+                    .set<ObjectNode>("accumulator", accumulator)
+                    .set<ObjectNode>("current", current)
+            )
+        }
+    }
 }
 
 class NoSuchFunctionException : Throwable("No such function was registered in the engine")

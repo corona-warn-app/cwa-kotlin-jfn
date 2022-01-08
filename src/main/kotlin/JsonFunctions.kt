@@ -16,5 +16,5 @@ interface JsonFunctions {
 
     fun isTruthy(value: JsonNode): Boolean
 
-    fun evaluate(logic: JsonNode, data: JsonNode): Any?
+    fun evaluate(logic: JsonNode, data: JsonNode): JsonNode
 }
