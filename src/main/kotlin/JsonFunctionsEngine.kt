@@ -45,7 +45,11 @@ class JsonFunctionsEngine : JsonFunctions {
                     if (name is TextNode) {
                         val nameValue = name.textValue()
                         if (input.has(nameValue)) {
-                            put(nameValue, input.get(nameValue).textValue())
+                            when (val value = input.get(nameValue)) {
+                                is TextNode -> put(nameValue, value.textValue())
+                                is BooleanNode -> put(nameValue, value.booleanValue())
+                                else -> throw RuntimeException("Unsupported type")
+                            }
                         } else if (defaultValue is TextNode) {
                             put(nameValue, defaultValue.textValue())
                         } else {

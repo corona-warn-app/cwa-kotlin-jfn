@@ -28,10 +28,10 @@ class JsonFunctionsTest {
             val parameters = ObjectMapper().readTree(
                 """[
                         { 
-                            "name": "key" 
+                            "name": "string" 
                         },
                         { 
-                            "name": "lang" 
+                            "name": "boolean"
                         }, 
                         { 
                             "name": "defaultLang", 
@@ -44,16 +44,16 @@ class JsonFunctionsTest {
             val input = ObjectMapper().readTree(
                 """
                 { 
-                    "key": "GREETING", 
-                    "lang": "de"
+                    "string": "GREETING", 
+                    "boolean": true
                 }"""
             )
 
             val expectedData = ObjectMapper().readTree(
                 """
                 {
-                    "key": "GREETING",
-                    "lang": "de",
+                    "string": "GREETING",
+                    "boolean": true,
                     "defaultLang": "en"
                 }"""
             )
@@ -126,6 +126,7 @@ class JsonFunctionsTest {
             ]
             """
             )
+
             val result1 = evaluate(logic, dataTrueFalse)
             assertEquals(BooleanNode.FALSE, result1)
 
@@ -139,6 +140,55 @@ class JsonFunctionsTest {
             )
             val result2 = evaluate(logic, dataTrueTrue)
             assertEquals(BooleanNode.TRUE, result2)
+        }
+    }
+
+    @Test
+    fun `evaluateFunction() test simple 'and' logic with parameters`() {
+        JsonFunctionsEngine().run {
+
+            registerFunction(
+                "simpleAndLogic", ObjectMapper().readTree(
+                    """
+                {
+                  "parameters": [
+                    { "name": "firstValue" },
+                    { "name": "secondValue" }
+                  ],
+                 "logic": {
+                    "and": [
+                    {
+                        "var": "firstValue"
+                    },
+                    {
+                        "var": "secondValue"
+                    }
+                    ]
+                }
+            }
+            """
+                )
+            )
+
+            val dataTrueFalse = ObjectMapper().readTree(
+                """
+                    {
+                        "firstValue": true,
+                        "secondValue": false
+                    }"""
+            )
+            val result1 = evaluateFunction("simpleAndLogic", dataTrueFalse)
+            assertEquals(false, result1)
+
+            val dataTrueTrue = ObjectMapper().readTree(
+                """
+                    {
+                        "firstValue": true,
+                        "secondValue": true
+                    }"""
+            )
+            val result2 = evaluateFunction("simpleAndLogic", dataTrueTrue)
+            assertEquals(true, result2)
         }
     }
 }
