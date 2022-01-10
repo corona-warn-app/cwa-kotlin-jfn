@@ -16,7 +16,7 @@ class JsonFunctionsTest {
     fun `evaluateFunction() should throw NoSuchFunctionException() when no function was registered before`() {
         JsonFunctionsEngine().run {
             assertThrows<NoSuchFunctionException> {
-                evaluateFunction("unregisteredFunctionName", nodeFactory.nullNode())
+                evaluateFunction("unregisteredFunctionName", nodeFactory.objectNode())
             }
         }
     }
@@ -66,7 +66,41 @@ class JsonFunctionsTest {
     }
 
     @Test
-    fun `eval() test simple 'and' logic`() {
+    fun `eval() test simple 'and' logic without parameters`() {
+        JsonFunctionsEngine().run {
+
+            val logic = ObjectMapper().readTree(
+                """
+            {
+                "<": [
+                1,
+                1
+              ]
+            }
+            """
+            )
+
+            val result1 = evaluate(logic, nodeFactory.objectNode())
+            assertEquals(BooleanNode.FALSE, result1)
+
+            val logic2 = ObjectMapper().readTree(
+                """
+            {
+                "<": [
+                1,
+                2
+              ]
+            }
+            """
+            )
+
+            val result2 = evaluate(logic2, nodeFactory.objectNode())
+            assertEquals(BooleanNode.TRUE, result2)
+        }
+    }
+
+    @Test
+    fun `eval() test simple 'and' logic with parameters`() {
         JsonFunctionsEngine().run {
 
             val logic = ObjectMapper().readTree(
