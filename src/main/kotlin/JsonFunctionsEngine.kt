@@ -238,4 +238,4 @@ class JsonFunctionsEngine : JsonFunctions {
     }
 }
 
-class NoSuchFunctionException : Throwable("No such function was registered in the engine")
+class NoSuchFunctionException : Exception("No such function was registered in the engine")
