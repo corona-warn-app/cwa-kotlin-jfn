@@ -18,7 +18,7 @@ class JsonFunctionsEngine : JsonFunctions {
         val functionDescriptorParameters = functionDescriptor.get("parameters") as ArrayNode
         val functionDescriptorLogic = functionDescriptor.get("logic") as ObjectNode
 
-        return evaluate(functionDescriptorLogic, determineData(functionDescriptorParameters, functionDescriptorLogic))
+        return evaluate(functionDescriptorLogic, determineData(functionDescriptorParameters, parameters))
     }
 
     fun determineData(parameters: ArrayNode, input: JsonNode): JsonNode {
