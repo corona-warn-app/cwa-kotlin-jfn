@@ -13,6 +13,31 @@ class JsonFunctionsTest {
     private val nodeFactory = JsonNodeFactory.instance
 
     @Test
+    fun `registerFunction() should throw RuntimeException() on invlid input`() {
+        JsonFunctionsEngine().run {
+            assertThrows<RuntimeException> {
+                // empty object
+                registerFunction("name", ObjectMapper().readTree("{}"))
+
+                // no logic
+                registerFunction("name", ObjectMapper().readTree("""{ "parameters": [] }"""))
+
+                // no parameters
+                registerFunction("name", ObjectMapper().readTree("""{ "logic": {}} }"""))
+
+                // parameters as object instead of array
+                registerFunction("name", ObjectMapper().readTree("""{ "parameters": {} }"""))
+
+                // no parameters
+                registerFunction("name", ObjectMapper().readTree("""{ "logic": []]} }"""))
+            }
+
+            // parameters as array, logic as object
+            registerFunction("name", ObjectMapper().readTree("""{ "parameters": [], "logic": {}} }"""))
+        }
+    }
+
+    @Test
     fun `evaluateFunction() should throw NoSuchFunctionException() when no function was registered before`() {
         JsonFunctionsEngine().run {
             assertThrows<NoSuchFunctionException> {
@@ -39,7 +64,7 @@ class JsonFunctionsTest {
                         }
                     ]
                 }"""
-            )
+            ) as ArrayNode
 
             val input = ObjectMapper().readTree(
                 """
@@ -60,8 +85,19 @@ class JsonFunctionsTest {
 
             assertEquals(
                 expectedData,
-                determineData(parameters as ArrayNode, input)
+                determineData(parameters, input)
             )
+
+            // "boolean" missing
+            val invalidInput = ObjectMapper().readTree(
+                """
+                { 
+                    "string": "GREETING"
+                }"""
+            )
+            assertThrows<RuntimeException> {
+                determineData(parameters, invalidInput)
+            }
         }
     }
 
