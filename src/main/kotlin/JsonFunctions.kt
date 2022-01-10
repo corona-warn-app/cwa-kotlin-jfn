@@ -12,7 +12,7 @@ interface JsonFunctions {
     fun evaluateFunction(
         name: String,
         parameters: JsonNode
-    ): Any?
+    ): JsonNode
 
     fun isTruthy(value: JsonNode): Boolean
 

@@ -178,7 +178,7 @@ class JsonFunctionsTest {
                     }"""
             )
             val result1 = evaluateFunction("simpleAndLogic", dataTrueFalse)
-            assertEquals(false, result1)
+            assertEquals(BooleanNode.FALSE, result1)
 
             val dataTrueTrue = ObjectMapper().readTree(
                 """
@@ -188,7 +188,7 @@ class JsonFunctionsTest {
                     }"""
             )
             val result2 = evaluateFunction("simpleAndLogic", dataTrueTrue)
-            assertEquals(true, result2)
+            assertEquals(BooleanNode.TRUE, result2)
         }
     }
 }

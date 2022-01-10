@@ -13,24 +13,17 @@ class JsonFunctionsEngine : JsonFunctions {
         registeredFunctions[name] = descriptor
     }
 
-    override fun evaluateFunction(name: String, parameters: JsonNode): Any? {
+    override fun evaluateFunction(name: String, parameters: JsonNode): JsonNode {
         val functionDescriptor = registeredFunctions[name] ?: throw NoSuchFunctionException()
 
         val functionDescriptorParameters = functionDescriptor.get("parameters") as ArrayNode
         val functionDescriptorLogic = functionDescriptor.get("logic") as ObjectNode
 
-        val result = if (functionDescriptorParameters.size() == 0) {
+        return if (functionDescriptorParameters.size() == 0) {
             evaluate(functionDescriptorLogic, parameters)
         } else {
             val data = determineData(functionDescriptorParameters, parameters)
             evaluate(functionDescriptorLogic, data)
-        }
-
-        return when (result) {
-            is BooleanNode -> result.booleanValue()
-            is TextNode -> result.textValue()
-            is IntNode -> result.textValue()
-            else -> throw RuntimeException("evaluate() returned invalid node type")
         }
     }
 
