@@ -13,9 +13,10 @@ class JsonFunctionsTest {
     private val nodeFactory = JsonNodeFactory.instance
 
     @Test
-    fun `registerFunction() should throw RuntimeException() on invlid input`() {
+    fun `registerFunction() should throw RuntimeException() on invalid input`() {
         JsonFunctionsEngine().run {
             assertThrows<RuntimeException> {
+
                 // empty object
                 registerFunction("name", ObjectMapper().readTree("{}"))
 
@@ -32,7 +33,7 @@ class JsonFunctionsTest {
                 registerFunction("name", ObjectMapper().readTree("""{ "logic": []]} }"""))
             }
 
-            // parameters as array, logic as object
+            // correct: parameters as array, logic as object
             registerFunction("name", ObjectMapper().readTree("""{ "parameters": [], "logic": {}} }"""))
         }
     }
@@ -51,19 +52,19 @@ class JsonFunctionsTest {
         JsonFunctionsEngine().run {
 
             val parameters = ObjectMapper().readTree(
-                """[
-                        { 
-                            "name": "string" 
-                        },
-                        { 
-                            "name": "boolean"
-                        }, 
-                        { 
-                            "name": "defaultLang", 
-                            "default": "en"
-                        }
-                    ]
-                }"""
+                """
+                [
+                    { 
+                        "name": "string" 
+                    },
+                    { 
+                        "name": "boolean"
+                    }, 
+                    { 
+                        "name": "defaultLang", 
+                        "default": "en"
+                    }
+                ]"""
             ) as ArrayNode
 
             val input = ObjectMapper().readTree(
@@ -109,11 +110,10 @@ class JsonFunctionsTest {
                 """
             {
                 "<": [
-                1,
-                1
-              ]
-            }
-            """
+                    1,
+                    1
+                ]
+            }"""
             )
 
             val result1 = evaluate(logic, nodeFactory.objectNode())
@@ -123,11 +123,10 @@ class JsonFunctionsTest {
                 """
             {
                 "<": [
-                1,
-                2
-              ]
-            }
-            """
+                    1,
+                    2
+                ]
+            }"""
             )
 
             val result2 = evaluate(logic2, nodeFactory.objectNode())
@@ -143,24 +142,22 @@ class JsonFunctionsTest {
                 """
             {
                 "and": [
-                {
-                    "var": "0"
-                },
-                {
-                    "var": "1"
-                }
+                    {
+                        "var": "0"
+                    },
+                    {
+                        "var": "1"
+                    }
                 ]
-            }
-            """
+            }"""
             )
 
             val dataTrueFalse = ObjectMapper().readTree(
                 """
-            [
-                true,
-                false
-            ]
-            """
+                [
+                    true,
+                    false
+                ]"""
             )
 
             val result1 = evaluate(logic, dataTrueFalse)
@@ -168,11 +165,10 @@ class JsonFunctionsTest {
 
             val dataTrueTrue = ObjectMapper().readTree(
                 """
-            [
-                true,
-                true
-            ]
-            """
+                [
+                    true,
+                    true
+                ]"""
             )
             val result2 = evaluate(logic, dataTrueTrue)
             assertEquals(BooleanNode.TRUE, result2)
@@ -187,22 +183,25 @@ class JsonFunctionsTest {
                 "simpleAndLogic", ObjectMapper().readTree(
                     """
                 {
-                  "parameters": [
-                    { "name": "firstValue" },
-                    { "name": "secondValue" }
-                  ],
-                 "logic": {
-                    "and": [
-                    {
-                        "var": "firstValue"
-                    },
-                    {
-                        "var": "secondValue"
+                    "parameters": [
+                        { 
+                            "name": "firstValue" 
+                        },
+                        { 
+                            "name": "secondValue" 
+                        }
+                    ],
+                    "logic": {
+                        "and": [
+                            {
+                                "var": "firstValue"
+                            },
+                            {
+                                "var": "secondValue"
+                            }
+                        ]
                     }
-                    ]
-                }
-            }
-            """
+                }"""
                 )
             )
 
