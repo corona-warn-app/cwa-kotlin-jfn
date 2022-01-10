@@ -1,5 +1,27 @@
 package de.rki.jfn
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.*
+
+internal fun isValueTruthy(value: JsonNode) = when (value) {
+    is BooleanNode -> value == BooleanNode.TRUE
+    is TextNode -> value.textValue().isNotEmpty()
+    is IntNode -> value.intValue() != 0
+    is ArrayNode -> value.size() > 0
+    is ObjectNode -> value.size() > 0
+    else -> false
+}
+
+internal fun isValueFalsy(value: JsonNode): Boolean = when (value) {
+    is BooleanNode -> value == BooleanNode.FALSE
+    is NullNode -> true
+    is TextNode -> value.textValue().isEmpty()
+    is IntNode -> value.intValue() == 0
+    is ArrayNode -> value.size() == 0
+    is ObjectNode -> value.size() == 0
+    else -> false
+}
+
 internal fun <T : Comparable<T>> compare(operator: String, args: List<T>): Boolean =
     when (args.size) {
         2 -> intCompare(operator, args[0].compareTo(args[1]), 0)
