@@ -1,7 +1,6 @@
 package de.rki.jfn
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.*
 
 class JsonFunctionsEngine : JsonFunctions {
@@ -19,39 +18,19 @@ class JsonFunctionsEngine : JsonFunctions {
         val functionDescriptorParameters = functionDescriptor.get("parameters") as ArrayNode
         val functionDescriptorLogic = functionDescriptor.get("logic") as ObjectNode
 
-        return if (functionDescriptorParameters.size() == 0) {
-            evaluate(functionDescriptorLogic, parameters)
-        } else {
-            val data = determineData(functionDescriptorParameters, parameters)
-            evaluate(functionDescriptorLogic, data)
-        }
+        return evaluate(functionDescriptorLogic, determineData(functionDescriptorParameters, functionDescriptorLogic))
     }
 
     fun determineData(parameters: ArrayNode, input: JsonNode): JsonNode {
         return nodeFactory.objectNode().apply {
-            val iterator = parameters.elements()
-            while (iterator.hasNext()) {
-                val currentParameter = iterator.next()
-                if (currentParameter is ObjectNode) {
-                    val name = currentParameter["name"]
-                    val defaultValue = currentParameter["default"]
-                    if (name is TextNode) {
-                        val nameValue = name.textValue()
-                        if (input.has(nameValue)) {
-                            when (val value = input.get(nameValue)) {
-                                is TextNode -> put(nameValue, value.textValue())
-                                is BooleanNode -> put(nameValue, value.booleanValue())
-                                else -> throw RuntimeException("Unsupported type")
-                            }
-                        } else if (defaultValue is TextNode) {
-                            put(nameValue, defaultValue.textValue())
-                        } else {
-                            throw RuntimeException("No value for parameter ${name.textValue()} specified and no default value can be found for it!")
-                        }
-                    } else {
-                        throw RuntimeException("name property in object in parameter array must be text!")
-                    }
+            parameters.forEach {
+                val propertyName = it.get("name").textValue()
+                val propertyValue = if (input.has(propertyName)) {
+                    input.get(propertyName)
+                } else {
+                    it.get("default")
                 }
+                set<JsonNode>(propertyName, propertyValue)
             }
         }
     }
