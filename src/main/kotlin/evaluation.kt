@@ -107,15 +107,10 @@ internal fun evaluateInfix(operator: String, args: ArrayNode, data: JsonNode): J
                 compare(operator, evalArgs.map { (it as IntNode).intValue() })
             )
         }
+        "diffTime" -> evaluateDiffTime(evalArgs)
+        "plusTime" -> evaluatePlusTime(evalArgs)
         // TODO by other subtask
-        /*"after", "before", "not-after", "not-before" -> {
-            if (!evalArgs.all { it is JsonDateTime }) {
-                throw RuntimeException("all operands of a date-time comparsion must be date-times")
-            }
-            BooleanNode.valueOf(
-                compare(comparisonOperatorForDateTimeComparison(operator), evalArgs.map { (it as JsonDateTime).temporalValue() })
-            )
-        }*/
+        /*"after", "before", "not-after", "not-before"*/
         else -> throw RuntimeException("unhandled infix operator \"$operator\"")
     }
 }
