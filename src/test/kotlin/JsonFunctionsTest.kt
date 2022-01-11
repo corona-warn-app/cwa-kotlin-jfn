@@ -34,12 +34,15 @@ class JsonFunctionsTest {
             }
 
             // correct: parameters as array, logic as object
-            registerFunction("name", ObjectMapper().readTree("""{ "parameters": [], "logic": {}} }"""))
+            registerFunction(
+                "name",
+                ObjectMapper().readTree("""{ "parameters": [], "logic": {}} }""")
+            )
         }
     }
 
     @Test
-    fun `evaluateFunction() should throw NoSuchFunctionException() when no function was registered before`() {
+    fun `evaluateFunction throws NoSuchFunctionException when no function was registered`() {
         JsonFunctionsEngine().run {
             assertThrows<NoSuchFunctionException> {
                 evaluateFunction("unregisteredFunctionName", nodeFactory.objectNode())
