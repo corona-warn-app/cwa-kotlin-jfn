@@ -1,4 +1,8 @@
-import com.fasterxml.jackson.databind.node.*
+import com.fasterxml.jackson.databind.node.BooleanNode
+import com.fasterxml.jackson.databind.node.IntNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.extractFromUVCI
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
