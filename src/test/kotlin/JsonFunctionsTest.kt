@@ -180,7 +180,8 @@ class JsonFunctionsTest {
         JsonFunctionsEngine().run {
 
             registerFunction(
-                "simpleAndLogic", ObjectMapper().readTree(
+                "simpleAndLogic",
+                ObjectMapper().readTree(
                     """
                 {
                     "parameters": [

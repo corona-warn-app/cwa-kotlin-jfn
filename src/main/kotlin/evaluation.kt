@@ -49,7 +49,7 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
         throw RuntimeException("not of the form { \"var\": \"<path>\" }")
     }
     val path = args.asText()
-    if (path == "") {  // "it"
+    if (path == "") { // "it"
         return data
     }
     return path.split(".").fold(data) { acc, fragment ->

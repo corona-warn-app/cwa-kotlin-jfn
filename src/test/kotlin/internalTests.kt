@@ -53,7 +53,6 @@ internal class TruthyFalsyTests {
         assertFalse(isValueFalsy(IntNode.valueOf(42)))
         assertTrue(isValueFalsy(IntNode.valueOf(0)))
     }
-
 }
 
 /**
@@ -98,7 +97,7 @@ internal class ExtractFromUVCITests {
                 -1 to null,
                 0 to "foo",
                 1 to "bar",
-                2 to "",    // not null, but still falsy
+                2 to "", // not null, but still falsy
                 3 to "baz",
                 4 to "999lizards",
                 5 to null
@@ -114,7 +113,7 @@ internal class ExtractFromUVCITests {
                 -1 to null,
                 0 to "foo",
                 1 to "bar",
-                2 to "",    // not null, but still falsy
+                2 to "", // not null, but still falsy
                 3 to "baz",
                 4 to "999lizards",
                 5 to null
@@ -137,5 +136,4 @@ internal class ExtractFromUVCITests {
             )
         )
     }
-
 }
