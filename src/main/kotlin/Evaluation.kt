@@ -28,7 +28,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode) = when (logic) {
                 )
             }
             when (operator) {
-                "if" -> evaluateIf(args[0], args[1], args[2], data)
+                "if" -> evaluateIf(args, data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
                 "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
@@ -131,24 +131,6 @@ internal fun evaluateInfix(
         }*/
         else -> throw RuntimeException("unhandled infix operator \"$operator\"")
     }
-}
-
-internal fun evaluateIf(
-    guard: JsonNode,
-    then: JsonNode,
-    else_: JsonNode,
-    data: JsonNode
-): JsonNode {
-    val evalGuard = evaluateLogic(guard, data)
-    if (isValueTruthy(evalGuard)) {
-        return evaluateLogic(then, data)
-    }
-    if (isValueFalsy(evalGuard)) {
-        return evaluateLogic(else_, data)
-    }
-    throw RuntimeException(
-        "if-guard evaluates to something neither truthy, nor falsy: $evalGuard"
-    )
 }
 
 internal fun evaluateNot(
