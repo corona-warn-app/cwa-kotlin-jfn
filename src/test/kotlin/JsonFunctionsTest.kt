@@ -3,7 +3,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import com.fasterxml.jackson.databind.node.ObjectNode
 import de.rki.jfn.JsonFunctionsEngine
 import de.rki.jfn.NoSuchFunctionException
 import org.junit.jupiter.api.assertThrows
@@ -234,7 +233,7 @@ class JsonFunctionsTest {
                     }"""
             )
             val result1 = evaluateFunction("simpleAndLogic", dataTrueFalse)
-            assertEquals(BooleanNode.FALSE, result1)
+            assertEquals(BooleanNode.FALSE, result1.first())
 
             val dataTrueTrue = ObjectMapper().readTree(
                 """
@@ -244,7 +243,7 @@ class JsonFunctionsTest {
                     }"""
             )
             val result2 = evaluateFunction("simpleAndLogic", dataTrueTrue)
-            assertEquals(BooleanNode.TRUE, result2)
+            assertEquals(BooleanNode.TRUE, result2.first())
         }
     }
 }

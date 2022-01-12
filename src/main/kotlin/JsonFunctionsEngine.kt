@@ -44,7 +44,7 @@ class JsonFunctionsEngine : JsonFunctions {
             val functionDescriptorParameters = functionDescriptor.get(parametersPropertyName) as ArrayNode
             val functionDescriptorLogic = functionDescriptor.get(logicPropertyName) as ArrayNode
 
-            evaluate(functionDescriptorLogic.first(), determineData(functionDescriptorParameters, parameters))
+            evaluate(functionDescriptorLogic, determineData(functionDescriptorParameters, parameters))
         }
     }
 
@@ -54,7 +54,10 @@ class JsonFunctionsEngine : JsonFunctions {
                 val propertyName = it.get("name").textValue()
                 when {
                     input.has(propertyName) -> set<JsonNode>(propertyName, input[propertyName])
-                    input.has("default") -> set<JsonNode>(propertyName, input["default"])
+                    it.has("default") -> set<JsonNode>(propertyName, it["default"])
+                    else -> {
+                        throw RuntimeException("No value provided for $propertyName and also no default value defined.")
+                    }
                 }
             }
         }
