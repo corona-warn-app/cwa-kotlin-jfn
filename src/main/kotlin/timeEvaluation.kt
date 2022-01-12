@@ -78,10 +78,10 @@ internal fun evaluateAfter(arguments: List<JsonNode>): JsonNode {
         throw IllegalArgumentException("There must be exactly 2 arguments.")
     }
 
-    val date = DateTime.parse(arguments[0].asText())
-    val date2 = DateTime.parse(arguments[1].asText())
+    val firstDate = DateTime.parse(arguments[0].asText())
+    val secondDate = DateTime.parse(arguments[1].asText())
 
-    return BooleanNode.valueOf(date.millis > date2.millis)
+    return BooleanNode.valueOf(firstDate.isAfter(secondDate))
 }
 
 internal fun evaluateNotAfter(arguments: List<JsonNode>): JsonNode {
@@ -93,10 +93,10 @@ internal fun evaluateBefore(arguments: List<JsonNode>): JsonNode {
         throw IllegalArgumentException("There must be exactly 2 arguments.")
     }
 
-    val date = DateTime.parse(arguments[0].asText())
-    val date2 = DateTime.parse(arguments[1].asText())
+    val firstDate = DateTime.parse(arguments[0].asText())
+    val secondDate = DateTime.parse(arguments[1].asText())
 
-    return BooleanNode.valueOf(date.millis < date2.millis)
+    return BooleanNode.valueOf(firstDate.isBefore(secondDate))
 }
 
 internal fun evaluateNotBefore(arguments: List<JsonNode>): JsonNode {
