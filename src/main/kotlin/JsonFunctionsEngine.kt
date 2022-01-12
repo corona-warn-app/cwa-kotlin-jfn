@@ -69,7 +69,6 @@ class JsonFunctionsEngine : JsonFunctions {
         }
     }
 
-
     override fun evaluate(logic: JsonNode, data: JsonNode): JsonNode {
         return evaluateLogic(logic, data)
     }

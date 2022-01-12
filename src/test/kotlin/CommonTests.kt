@@ -41,7 +41,8 @@ class CommonTests {
         if (name !is TextNode) {
             fail("Invalid testcase - value of property 'name' is not a string")
         }
-        val parameters = function["parameters"] ?: fail("Invalid testcase - property 'parameters' missing")
+        val parameters =
+            function["parameters"] ?: fail("Invalid testcase - property 'parameters' missing")
 
         when {
             testCase.has("throws") -> {
@@ -66,7 +67,8 @@ class CommonTests {
         if (name !is TextNode) {
             fail("Invalid testcase - value of property 'name' is not a string")
         }
-        val definition = it["definition"] ?: fail("Invalid testcase - property 'definition' missing")
+        val definition =
+            it["definition"] ?: fail("Invalid testcase - property 'definition' missing")
 
         engine.registerFunction(name.textValue(), definition)
     }

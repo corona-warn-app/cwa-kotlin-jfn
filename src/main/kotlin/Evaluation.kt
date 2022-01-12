@@ -14,7 +14,9 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is IntNode -> logic
     is BooleanNode -> logic
     is NullNode -> logic
-    is ArrayNode -> JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(it, data) })
+    is ArrayNode -> {
+        JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(it, data) })
+    }
     is ObjectNode -> {
         if (logic.size() != 1) {
             throw RuntimeException("unrecognised expression object encountered")

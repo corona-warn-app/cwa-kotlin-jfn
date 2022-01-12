@@ -51,13 +51,15 @@ class JsonFunctionsTest {
     }
 
     @Test
-    fun `determineData() should return empty node when function has no parameters`() = JsonFunctionsEngine().run {
-        val parameters = ObjectMapper().readTree("[]") as ArrayNode
-        val input = ObjectMapper().readTree("{}")
-        assertEquals(
-            ObjectMapper().readTree("{}"),
-            determineData(parameters, input)
-        )
+    fun `determineData() should return empty node when function has no parameters`() {
+        JsonFunctionsEngine().run {
+            val parameters = ObjectMapper().readTree("[]") as ArrayNode
+            val input = ObjectMapper().readTree("{}")
+            assertEquals(
+                ObjectMapper().readTree("{}"),
+                determineData(parameters, input)
+            )
+        }
     }
 
     @Test
