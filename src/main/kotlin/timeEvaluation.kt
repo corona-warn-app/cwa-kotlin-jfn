@@ -15,7 +15,7 @@ import org.joda.time.format.ISODateTimeFormat
 
 private enum class TimeUnit(val string: String) {
     SECOND("second"),
-    MINUTE( "minute"),
+    MINUTE("minute"),
     HOUR("hour"),
     DAY("day"),
     MONTH("month"),
