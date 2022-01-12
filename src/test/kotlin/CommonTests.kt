@@ -17,7 +17,7 @@ class CommonTests {
 
         val engine = JsonFunctionsEngine()
 
-        println(" Executing TestCase: ${testCase.toPrettyString()}")
+        println("Executing TestCase: ${testCase.toPrettyString()}")
 
         when {
             testCase.has("functions") -> {
