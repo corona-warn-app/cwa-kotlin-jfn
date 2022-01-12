@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
@@ -35,12 +34,15 @@ class JsonFunctionsTest {
             }
 
             // correct: parameters as array, logic as object
-            registerFunction("name", ObjectMapper().readTree("""{ "parameters": [], "logic": [] }"""))
+            registerFunction(
+                "name",
+                ObjectMapper().readTree("""{ "parameters": [], "logic": [] }""")
+            )
         }
     }
 
     @Test
-    fun `evaluateFunction() should throw NoSuchFunctionException() when no function was registered before`() {
+    fun `evaluateFunction throws NoSuchFunctionException when no function was registered`() {
         JsonFunctionsEngine().run {
             assertThrows<NoSuchFunctionException> {
                 evaluateFunction("unregisteredFunctionName", nodeFactory.objectNode())

@@ -59,6 +59,6 @@ configure<SpotlessExtension> {
     kotlin {
         target("**/*.kt")
         targetExclude("$buildDir/**/*.kt", "**/*.gradle.kts")
-        ktlint("0.43.2")
+        ktlint("0.43.2").userData(mapOf("max_line_length" to "100"))
     }
 }

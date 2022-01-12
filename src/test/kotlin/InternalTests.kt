@@ -12,7 +12,8 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * Should be in sync with the `describe("truthy and falsy", ...`-part of `test-internals.ts` from `certlogic-js`.
+ * Should be in sync with the `describe("truthy and falsy", ...`-part of
+ * `test-internals.ts` from `certlogic-js`.
  */
 internal class TruthyFalsyTests {
 
@@ -28,7 +29,10 @@ internal class TruthyFalsyTests {
             "non-empty array"
         )
         assertFalse(isValueTruthy(JsonNodeFactory.instance.objectNode()), "empty object")
-        assertTrue(isValueTruthy(JsonNodeFactory.instance.objectNode().put("foo", "bar")), "non-empty object")
+        assertTrue(
+            isValueTruthy(JsonNodeFactory.instance.objectNode().put("foo", "bar")),
+            "non-empty object"
+        )
         assertTrue(isValueTruthy(TextNode.valueOf("foo")))
         assertFalse(isValueTruthy(TextNode.valueOf("")))
         assertTrue(isValueTruthy(IntNode.valueOf(42)))
@@ -47,7 +51,10 @@ internal class TruthyFalsyTests {
             "non-empty array"
         )
         assertTrue(isValueFalsy(JsonNodeFactory.instance.objectNode()), "empty object")
-        assertTrue(isValueTruthy(JsonNodeFactory.instance.objectNode().put("foo", "bar")), "non-empty object")
+        assertTrue(
+            isValueTruthy(JsonNodeFactory.instance.objectNode().put("foo", "bar")),
+            "non-empty object"
+        )
         assertFalse(isValueFalsy(TextNode.valueOf("foo")))
         assertTrue(isValueFalsy(TextNode.valueOf("")))
         assertFalse(isValueFalsy(IntNode.valueOf(42)))
@@ -56,7 +63,8 @@ internal class TruthyFalsyTests {
 }
 
 /**
- * Should be in sync with the `describe("extractFromUVCI", ...`-part of `test-internals.ts` from `certlogic-js`.
+ * Should be in sync with the `describe("extractFromUVCI", ...`-part of `test-internals.ts` from
+ * `certlogic-js`.
  */
 internal class ExtractFromUVCITests {
 
