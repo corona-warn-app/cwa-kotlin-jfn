@@ -5,6 +5,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class CommonTests {
 
@@ -14,85 +15,78 @@ class CommonTests {
 
         val engine = JsonFunctionsEngine()
 
-        if (!testCase.has("title") || testCase["title"] !is TextNode) {
-            println("Invalid testcase - no title defined or title is not a string")
-            return
-        }
-
         println(" Executing TestCase: ${testCase.toPrettyString()}")
 
-        if (testCase.has("functions")) {
-            testCase["functions"].forEach {
-                val name = it["name"] ?: run {
-                    println("Invalid testcase - property 'name' missing")
-                    return
+        when {
+            testCase.has("functions") -> {
+                testCase["functions"].forEach {
+                    registerFunction(it, engine)
                 }
-                if (name !is TextNode) {
-                    println("Invalid testcase - value of property 'name' is not a string")
-                    return
-                }
-                val definition = it["definition"] ?: run {
-                    println("Invalid testcase - property 'definition' missing")
-                    return
-                }
+                evaluateFunction(testCase, engine)
+            }
 
-                engine.registerFunction(name.textValue(), definition)
+            testCase.has("logic") && testCase.has("data") -> {
+                evaluate(testCase, engine)
+            }
+
+            else -> fail("Test case has wrong format")
+        }
+    }
+
+    private fun evaluateFunction(testCase: JsonNode, engine: JsonFunctionsEngine) {
+        val function = testCase["evaluateFunction"]
+        val name = function["name"] ?: fail("Invalid testcase - property 'name' missing")
+        if (name !is TextNode) {
+            fail("Invalid testcase - value of property 'name' is not a string")
+        }
+        val parameters = function["parameters"] ?: fail("Invalid testcase - property 'parameters' missing")
+
+        when {
+            testCase.has("throws") -> {
+                assertThrows<Exception> {
+                    engine.evaluateFunction(name.textValue(), parameters)
+                }
+            }
+            testCase.has("exp") -> {
+                assertEquals(
+                    testCase["exp"],
+                    engine.evaluateFunction(name.textValue(), parameters)
+                )
+            }
+            else -> {
+                println("Invalid testcase - no property with name 'exp' or 'throws' found")
             }
         }
+    }
 
-        if (testCase.has("evaluateFunction")) {
-            val ef = testCase["evaluateFunction"]
-            val name = ef["name"] ?: run {
-                println("Invalid testcase - property 'name' missing")
-                return
-            }
-            if (name !is TextNode) {
-                println("Invalid testcase - value of property 'name' is not a string")
-                return
-            }
-            val parameters = ef["parameters"] ?: run {
-                println("Invalid testcase - property 'parameters' missing")
-                return
-            }
-
-            when {
-                testCase.has("throws") -> {
-                    assertThrows<Exception> {
-                        engine.evaluateFunction(name.textValue(), parameters)
-                    }
-                }
-                testCase.has("exp") -> {
-                    assertEquals(
-                        testCase["exp"],
-                        engine.evaluateFunction(name.textValue(), parameters)
-                    )
-                }
-                else -> {
-                    println("Invalid testcase - no property with name 'exp' or 'throws' found")
-                }
-            }
+    private fun registerFunction(it: JsonNode, engine: JsonFunctionsEngine) {
+        val name = it["name"] ?: fail("Invalid testcase - property 'name' missing")
+        if (name !is TextNode) {
+            fail("Invalid testcase - value of property 'name' is not a string")
         }
+        val definition = it["definition"] ?: fail("Invalid testcase - property 'definition' missing")
 
-        if (testCase.has("logic") && testCase.has("data")) {
+        engine.registerFunction(name.textValue(), definition)
+    }
 
-            val logic = testCase["logic"]
-            val data = testCase["data"]
+    private fun evaluate(testCase: JsonNode, engine: JsonFunctionsEngine) {
+        val logic = testCase["logic"]
+        val data = testCase["data"]
 
-            when {
-                testCase.has("throws") -> {
-                    assertThrows<Exception> {
-                        engine.evaluate(logic, data)
-                    }
+        when {
+            testCase.has("throws") -> {
+                assertThrows<Exception> {
+                    engine.evaluate(logic, data)
                 }
-                testCase.has("exp") -> {
-                    assertEquals(
-                        testCase["exp"],
-                        engine.evaluate(logic, data)
-                    )
-                }
-                else -> {
-                    println("Invalid testcase - no property with name 'exp' or 'throws' found")
-                }
+            }
+            testCase.has("exp") -> {
+                assertEquals(
+                    testCase["exp"],
+                    engine.evaluate(logic, data)
+                )
+            }
+            else -> {
+                println("Invalid testcase - no property with name 'exp' or 'throws' found")
             }
         }
     }
