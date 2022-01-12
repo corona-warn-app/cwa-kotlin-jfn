@@ -22,15 +22,9 @@ private enum class TimeUnit(val string: String) {
     YEAR("year");
 }
 
-private fun String.asTimeUnit(): TimeUnit = when (this) {
-    TimeUnit.SECOND.string -> TimeUnit.SECOND
-    TimeUnit.MINUTE.string -> TimeUnit.MINUTE
-    TimeUnit.HOUR.string -> TimeUnit.HOUR
-    TimeUnit.DAY.string -> TimeUnit.DAY
-    TimeUnit.MONTH.string -> TimeUnit.MONTH
-    TimeUnit.YEAR.string -> TimeUnit.YEAR
-    else -> throw IllegalArgumentException("Time unit $this is not supported")
-}
+private fun String.asTimeUnit(): TimeUnit =
+    TimeUnit.values().find { it.string == this }
+        ?: throw IllegalArgumentException("Time unit $this is not supported.")
 
 /* returns the difference between two dates or timestamps in a specific unit of time */
 internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
