@@ -46,7 +46,7 @@ internal class AfterTimeTest {
         val secondDate = 126837738789
         val arguments = listOf(LongNode(firstDate), LongNode(secondDate))
         assertFailsWith<IllegalArgumentException>(
-                message = "wrong type of arguments"
+            message = "wrong type of arguments"
         ) { evaluateNotAfter(arguments).booleanValue() }
     }
 
@@ -56,7 +56,7 @@ internal class AfterTimeTest {
         val secondDate = "126837738789"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate))
         assertFailsWith<IllegalArgumentException>(
-                message = "wrong date format"
+            message = "wrong date format"
         ) { evaluateNotAfter(arguments).booleanValue() }
     }
 }
