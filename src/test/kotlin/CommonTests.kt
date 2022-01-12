@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.JsonFunctionsEngine
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
@@ -11,6 +12,7 @@ class CommonTests {
 
     @ParameterizedTest(name = "{index}: {0}")
     @ArgumentsSource(CommonTestCaseProvider::class)
+    @Disabled
     fun `execute all tests from specification`(testCase: JsonNode) {
 
         val engine = JsonFunctionsEngine()
