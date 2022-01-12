@@ -73,7 +73,7 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
     return TextNode(resultDate.toString(ISODateTimeFormat.dateTime()))
 }
 
-internal fun evaluateAfter(arguments: List<JsonNode>): JsonNode {
+internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
     if (arguments.size != 2) {
         throw IllegalArgumentException("There must be exactly 2 arguments.")
     }
@@ -84,11 +84,11 @@ internal fun evaluateAfter(arguments: List<JsonNode>): JsonNode {
     return BooleanNode.valueOf(firstDate.isAfter(secondDate))
 }
 
-internal fun evaluateNotAfter(arguments: List<JsonNode>): JsonNode {
+internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
     return BooleanNode.valueOf(!evaluateAfter(arguments).asBoolean())
 }
 
-internal fun evaluateBefore(arguments: List<JsonNode>): JsonNode {
+internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
     if (arguments.size != 2) {
         throw IllegalArgumentException("There must be exactly 2 arguments.")
     }
@@ -99,6 +99,6 @@ internal fun evaluateBefore(arguments: List<JsonNode>): JsonNode {
     return BooleanNode.valueOf(firstDate.isBefore(secondDate))
 }
 
-internal fun evaluateNotBefore(arguments: List<JsonNode>): JsonNode {
+internal fun evaluateNotBefore(arguments: List<JsonNode>): BooleanNode {
     return BooleanNode.valueOf(!evaluateBefore(arguments).asBoolean())
 }
