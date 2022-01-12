@@ -59,4 +59,20 @@ internal class AfterTimeTest {
             message = "wrong date format"
         ) { evaluateNotAfter(arguments).booleanValue() }
     }
+
+    @Test
+    fun `supports date only`() {
+        val firstDate = "2013-08-11" // resolves to 2013-08-11T00:00:00.00+00:00
+        val secondDate = "2013-08-11T00:00:04.51+02:00"
+        val arguments = listOf(TextNode(firstDate), TextNode(secondDate))
+        assertEquals(true, evaluateAfter(arguments).booleanValue())
+    }
+
+    @Test
+    fun `supports date only 2`() {
+        val firstDate = "2013-08-11" // resolves to 2013-08-11T00:00:00.00+00:00
+        val secondDate = "2013-08-11T00:00:04.51+00:00"
+        val arguments = listOf(TextNode(firstDate), TextNode(secondDate))
+        assertEquals(false, evaluateAfter(arguments).booleanValue())
+    }
 }

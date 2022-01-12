@@ -59,4 +59,12 @@ internal class BeforeTimeTest {
             message = "wrong date format"
         ) { evaluateBefore(arguments).booleanValue() }
     }
+
+    @Test
+    fun `supports date only`() {
+        val firstDate = "2013-08-11" // resolves to 2013-08-11T00:00:00.00+00:00
+        val secondDate = "2013-08-11T12:00:04.51+00:00"
+        val arguments = listOf(TextNode(firstDate), TextNode(secondDate))
+        assertEquals(true, evaluateBefore(arguments).booleanValue())
+    }
 }
