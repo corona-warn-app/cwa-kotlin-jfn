@@ -109,8 +109,10 @@ internal fun evaluateInfix(operator: String, args: ArrayNode, data: JsonNode): J
         }
         "diffTime" -> evaluateDiffTime(evalArgs)
         "plusTime" -> evaluatePlusTime(evalArgs)
-        // TODO by other subtask
-        /*"after", "before", "not-after", "not-before"*/
+        "after" -> evaluateAfter(evalArgs)
+        "before" -> evaluateBefore(evalArgs)
+        "not-after" -> evaluateNotAfter(evalArgs)
+        "not-before" -> evaluateNotBefore(evalArgs)
         else -> throw RuntimeException("unhandled infix operator \"$operator\"")
     }
 }

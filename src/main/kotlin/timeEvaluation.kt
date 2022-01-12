@@ -1,6 +1,7 @@
 package de.rki.jfn
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
 import org.joda.time.DateTime
@@ -31,7 +32,7 @@ private fun String.asTimeUnit(): TimeUnit = when (this) {
     else -> throw IllegalArgumentException("Time unit $this is not supported")
 }
 
-// returns the difference between two dates or timestamps in a specific unit of time
+/* returns the difference between two dates or timestamps in a specific unit of time */
 internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
     if (arguments.size != 3) {
         throw IllegalArgumentException("There must be exactly 3 arguments.")
@@ -51,7 +52,7 @@ internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
     return IntNode.valueOf(diff)
 }
 
-// adds a certain amount of a unit of time to a date or timestamp
+/* adds a certain amount of a unit of time to a date or timestamp */
 internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
     if (arguments.size != 3) {
         throw IllegalArgumentException("There must be exactly 3 arguments.")
@@ -70,4 +71,34 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
     }
 
     return TextNode(resultDate.toString(ISODateTimeFormat.dateTime()))
+}
+
+internal fun evaluateAfter(arguments: List<JsonNode>): JsonNode {
+    if (arguments.size != 2) {
+        throw IllegalArgumentException("There must be exactly 2 arguments.")
+    }
+
+    val date = DateTime.parse(arguments[0].asText())
+    val date2 = DateTime.parse(arguments[1].asText())
+
+    return BooleanNode.valueOf(date.millis > date2.millis)
+}
+
+internal fun evaluateNotAfter(arguments: List<JsonNode>): JsonNode {
+    return BooleanNode.valueOf(!evaluateAfter(arguments).asBoolean())
+}
+
+internal fun evaluateBefore(arguments: List<JsonNode>): JsonNode {
+    if (arguments.size != 2) {
+        throw IllegalArgumentException("There must be exactly 2 arguments.")
+    }
+
+    val date = DateTime.parse(arguments[0].asText())
+    val date2 = DateTime.parse(arguments[1].asText())
+
+    return BooleanNode.valueOf(date.millis < date2.millis)
+}
+
+internal fun evaluateNotBefore(arguments: List<JsonNode>): JsonNode {
+    return BooleanNode.valueOf(!evaluateBefore(arguments).asBoolean())
 }
