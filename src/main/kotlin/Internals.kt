@@ -35,7 +35,9 @@ internal fun <T : Comparable<T>> compare(operator: String, args: List<T>): Boole
             args[1].compareTo(args[2]),
             0
         )
-        else -> throw RuntimeException("invalid number of operands to a \"$operator\" operation")
+        else -> throw RuntimeException(
+            "invalid number of operands to a \"$operator\" operation"
+        )
     }
 
 internal fun intCompare(operator: String, l: Int, r: Int): Boolean =
@@ -47,12 +49,13 @@ internal fun intCompare(operator: String, l: Int, r: Int): Boolean =
         else -> throw RuntimeException("unhandled comparison operator \"$operator\"")
     }
 
-internal val optionalPrefix = "URN:UVCI:"
+internal const val OPTIONAL_PREFIX = "URN:UVCI:"
 internal fun extractFromUVCI(uvci: String?, index: Int): String? {
     if (uvci == null || index < 0) {
         return null
     }
-    val prefixlessUvci = if (uvci.startsWith(optionalPrefix)) uvci.substring(optionalPrefix.length) else uvci
+    val prefixlessUvci =
+        if (uvci.startsWith(OPTIONAL_PREFIX)) uvci.substring(OPTIONAL_PREFIX.length) else uvci
     val fragments = prefixlessUvci.split(Regex("[/#:]"))
     return if (index < fragments.size) fragments[index] else null
 }

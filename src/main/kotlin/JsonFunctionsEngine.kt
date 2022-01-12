@@ -42,10 +42,14 @@ class JsonFunctionsEngine : JsonFunctions {
         mutex.withLock {
             val functionDescriptor = registeredFunctions[name] ?: throw NoSuchFunctionException()
 
-            val functionDescriptorParameters = functionDescriptor.get(parametersPropertyName) as ArrayNode
+            val functionDescriptorParameters =
+                functionDescriptor.get(parametersPropertyName) as ArrayNode
             val functionDescriptorLogic = functionDescriptor.get(logicPropertyName) as ObjectNode
 
-            evaluate(functionDescriptorLogic, determineData(functionDescriptorParameters, parameters))
+            evaluate(
+                functionDescriptorLogic,
+                determineData(functionDescriptorParameters, parameters)
+            )
         }
     }
 
@@ -58,7 +62,9 @@ class JsonFunctionsEngine : JsonFunctions {
                 } else if (it.has("default")) {
                     it.get("default")
                 } else {
-                    throw RuntimeException("No value provided for $propertyName and also no default value defined.")
+                    throw RuntimeException(
+                        "No value provided for $propertyName and also no default value defined."
+                    )
                 }
                 set<JsonNode>(propertyName, propertyValue)
             }
