@@ -23,6 +23,12 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.13.1")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
+
+    // Testing - jUnit5
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
 
     testImplementation(kotlin("test"))
 }
