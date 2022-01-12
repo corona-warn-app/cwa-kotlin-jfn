@@ -38,16 +38,16 @@ internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
         throw IllegalArgumentException("There must be exactly 3 arguments.")
     }
 
-    val left = DateTime.parse(arguments[0].asText())
-    val right = DateTime.parse(arguments[1].asText())
+    val firstDate = DateTime.parse(arguments[0].asText())
+    val secondDate = DateTime.parse(arguments[1].asText())
 
     val diff = when (arguments[2].asText().asTimeUnit()) {
-        TimeUnit.SECOND -> Seconds.secondsBetween(left, right).seconds
-        TimeUnit.MINUTE -> Minutes.minutesBetween(left, right).minutes
-        TimeUnit.HOUR -> Hours.hoursBetween(left, right).hours
-        TimeUnit.DAY -> Days.daysBetween(left, right).days
-        TimeUnit.MONTH -> Months.monthsBetween(left, right).months
-        TimeUnit.YEAR -> Years.yearsBetween(left, right).years
+        TimeUnit.SECOND -> Seconds.secondsBetween(firstDate, secondDate).seconds
+        TimeUnit.MINUTE -> Minutes.minutesBetween(firstDate, secondDate).minutes
+        TimeUnit.HOUR -> Hours.hoursBetween(firstDate, secondDate).hours
+        TimeUnit.DAY -> Days.daysBetween(firstDate, secondDate).days
+        TimeUnit.MONTH -> Months.monthsBetween(firstDate, secondDate).months
+        TimeUnit.YEAR -> Years.yearsBetween(firstDate, secondDate).years
     }
     return IntNode.valueOf(diff)
 }
