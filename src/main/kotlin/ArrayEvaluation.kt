@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 
-
 sealed interface Operator {
     operator fun contains(operator: String): Boolean
     operator fun invoke(operator: String, args: ArrayNode, data: JsonNode): JsonNode
@@ -27,12 +26,12 @@ enum class ArrayOperator {
             if (evalOperand !is ArrayNode) return evalInitial()
             return evalOperand.foldIndexed(evalInitial()) { index, accumulator, current ->
                 evaluateLogic(
-                        lambda,
-                        JsonNodeFactory.instance.objectNode()
-                                .set<ObjectNode>("accumulator", accumulator)
-                                .set<ObjectNode>("current", current)
-                                .set<ObjectNode>("__index__", IntNode.valueOf(index))
-                                .setAll(data as ObjectNode) // Add other `var` values in `data`
+                    lambda,
+                    JsonNodeFactory.instance.objectNode()
+                        .set<ObjectNode>("accumulator", accumulator)
+                        .set<ObjectNode>("current", current)
+                        .set<ObjectNode>("__index__", IntNode.valueOf(index))
+                        .setAll(data as ObjectNode) // Add other `var` values in `data`
                 )
             }
         }
@@ -110,13 +109,13 @@ enum class ArrayOperator {
 
     companion object : Operator {
         override operator fun contains(
-                operator: String
+            operator: String
         ): Boolean = findOperator(operator) != null
 
         override operator fun invoke(
-                operator: String,
-                args: ArrayNode,
-                data: JsonNode
+            operator: String,
+            args: ArrayNode,
+            data: JsonNode
         ): JsonNode {
             val op = findOperator(operator) ?: error("Check `contains` first")
             return op(args, data)
