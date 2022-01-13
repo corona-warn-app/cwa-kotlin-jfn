@@ -77,7 +77,7 @@ internal fun evaluateInfix(
         "and" -> if (args.size() < 2) throw RuntimeException(
                 "an \"and\" operation must have at least 2 operands"
         )
-        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before", "+"->
+        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before", "+" ->
             if (args.size() !in 2..3) throw RuntimeException(
                     "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
@@ -96,12 +96,15 @@ internal fun evaluateInfix(
             BooleanNode.valueOf(r.contains(evalArgs[0]))
         }
         "+" -> {
-            val l = evalArgs[0]
-            val r = evalArgs[1]
-            if (l !is IntNode || r !is IntNode) {
-                throw RuntimeException("operands of a " + " operator must both be integers")
+            evalArgs.forEach { operand ->
+                if (operand !is IntNode) {
+                    throw RuntimeException(
+                            "operands of a \" + \" operator must be integer operand=$operand"
+                    )
+                }
             }
-            IntNode.valueOf(evalArgs[0].intValue() + evalArgs[1].intValue())
+
+            IntNode.valueOf(evalArgs.sumOf { it.intValue() })
         }
         "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
             when {
@@ -182,6 +185,7 @@ internal fun evaluateReduce(
         return evalInitial()
     }
     return evalOperand.foldIndexed(evalInitial()) { index, accumulator, current ->
+        println("index=$index, accumulator=$accumulator, current=$current")
         evaluateLogic(
                 lambda,
                 JsonNodeFactory.instance.objectNode()
