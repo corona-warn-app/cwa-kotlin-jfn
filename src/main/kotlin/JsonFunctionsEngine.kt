@@ -3,7 +3,6 @@ package de.rki.jfn
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import com.fasterxml.jackson.databind.node.ObjectNode
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -30,8 +29,8 @@ class JsonFunctionsEngine : JsonFunctions {
             if (!descriptor.has(logicPropertyName)) {
                 throw RuntimeException("descriptor must have a '$logicPropertyName' property!")
             }
-            if (descriptor.get(logicPropertyName) !is ObjectNode) {
-                throw RuntimeException("'$logicPropertyName' of descriptor must be an object!")
+            if (descriptor.get(logicPropertyName) !is ArrayNode) {
+                throw RuntimeException("'$logicPropertyName' of descriptor must be an array!")
             }
 
             registeredFunctions[name] = descriptor
@@ -44,7 +43,7 @@ class JsonFunctionsEngine : JsonFunctions {
 
             val functionDescriptorParameters =
                 functionDescriptor.get(parametersPropertyName) as ArrayNode
-            val functionDescriptorLogic = functionDescriptor.get(logicPropertyName) as ObjectNode
+            val functionDescriptorLogic = functionDescriptor.get(logicPropertyName) as ArrayNode
 
             evaluate(
                 functionDescriptorLogic,
@@ -57,16 +56,15 @@ class JsonFunctionsEngine : JsonFunctions {
         return nodeFactory.objectNode().apply {
             parameters.forEach {
                 val propertyName = it.get("name").textValue()
-                val propertyValue = if (input.has(propertyName)) {
-                    input.get(propertyName)
-                } else if (it.has("default")) {
-                    it.get("default")
-                } else {
-                    throw RuntimeException(
-                        "No value provided for $propertyName and also no default value defined."
-                    )
+                when {
+                    input.has(propertyName) -> set<JsonNode>(propertyName, input[propertyName])
+                    it.has("default") -> set<JsonNode>(propertyName, it["default"])
+                    else -> {
+                        throw RuntimeException(
+                            "No value provided for $propertyName and also no default value defined."
+                        )
+                    }
                 }
-                set<JsonNode>(propertyName, propertyValue)
             }
         }
     }
