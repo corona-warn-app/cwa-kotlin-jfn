@@ -24,19 +24,19 @@ class JsonFunctionsTest {
                 registerFunction("name", ObjectMapper().readTree("""{ "parameters": [] }"""))
 
                 // no parameters
-                registerFunction("name", ObjectMapper().readTree("""{ "logic": {}} }"""))
+                registerFunction("name", ObjectMapper().readTree("""{ "logic": []]} }"""))
 
                 // parameters as object instead of array
                 registerFunction("name", ObjectMapper().readTree("""{ "parameters": {} }"""))
 
                 // no parameters
-                registerFunction("name", ObjectMapper().readTree("""{ "logic": []]} }"""))
+                registerFunction("name", ObjectMapper().readTree("""{ "logic": [] }"""))
             }
 
             // correct: parameters as array, logic as object
             registerFunction(
                 "name",
-                ObjectMapper().readTree("""{ "parameters": [], "logic": {}} }""")
+                ObjectMapper().readTree("""{ "parameters": [], "logic": [] }""")
             )
         }
     }
@@ -47,6 +47,18 @@ class JsonFunctionsTest {
             assertThrows<NoSuchFunctionException> {
                 evaluateFunction("unregisteredFunctionName", nodeFactory.objectNode())
             }
+        }
+    }
+
+    @Test
+    fun `determineData() should return empty node when function has no parameters`() {
+        JsonFunctionsEngine().run {
+            val parameters = ObjectMapper().readTree("[]") as ArrayNode
+            val input = ObjectMapper().readTree("{}")
+            assertEquals(
+                ObjectMapper().readTree("{}"),
+                determineData(parameters, input)
+            )
         }
     }
 
@@ -111,28 +123,32 @@ class JsonFunctionsTest {
 
             val logic = ObjectMapper().readTree(
                 """
-            {
-                "<": [
-                    1,
-                    1
-                ]
-            }"""
+            [
+                {
+                    "<": [
+                        1,
+                        1
+                    ]
+                }
+            ]"""
             )
 
-            val result1 = evaluate(logic, nodeFactory.objectNode())
+            val result1 = evaluate(logic.first(), nodeFactory.objectNode())
             assertEquals(BooleanNode.FALSE, result1)
 
             val logic2 = ObjectMapper().readTree(
                 """
-            {
-                "<": [
-                    1,
-                    2
-                ]
-            }"""
+            [
+                {
+                    "<": [
+                        1,
+                        2
+                    ]
+                }
+            ]"""
             )
 
-            val result2 = evaluate(logic2, nodeFactory.objectNode())
+            val result2 = evaluate(logic2.first(), nodeFactory.objectNode())
             assertEquals(BooleanNode.TRUE, result2)
         }
     }
@@ -143,16 +159,18 @@ class JsonFunctionsTest {
 
             val logic = ObjectMapper().readTree(
                 """
-            {
-                "and": [
-                    {
-                        "var": "0"
-                    },
-                    {
-                        "var": "1"
-                    }
-                ]
-            }"""
+            [
+                {
+                    "and": [
+                        {
+                            "var": "0"
+                        },
+                        {
+                            "var": "1"
+                        }
+                    ]
+                }
+            ]"""
             )
 
             val dataTrueFalse = ObjectMapper().readTree(
@@ -163,7 +181,7 @@ class JsonFunctionsTest {
                 ]"""
             )
 
-            val result1 = evaluate(logic, dataTrueFalse)
+            val result1 = evaluate(logic.first(), dataTrueFalse)
             assertEquals(BooleanNode.FALSE, result1)
 
             val dataTrueTrue = ObjectMapper().readTree(
@@ -173,7 +191,7 @@ class JsonFunctionsTest {
                     true
                 ]"""
             )
-            val result2 = evaluate(logic, dataTrueTrue)
+            val result2 = evaluate(logic.first(), dataTrueTrue)
             assertEquals(BooleanNode.TRUE, result2)
         }
     }
@@ -195,16 +213,18 @@ class JsonFunctionsTest {
                             "name": "secondValue" 
                         }
                     ],
-                    "logic": {
-                        "and": [
-                            {
-                                "var": "firstValue"
-                            },
-                            {
-                                "var": "secondValue"
-                            }
-                        ]
-                    }
+                    "logic": [
+                        {
+                            "and": [
+                                {
+                                    "var": "firstValue"
+                                },
+                                {
+                                    "var": "secondValue"
+                                }
+                            ]
+                        }
+                    ]
                 }"""
                 )
             )
@@ -217,7 +237,7 @@ class JsonFunctionsTest {
                     }"""
             )
             val result1 = evaluateFunction("simpleAndLogic", dataTrueFalse)
-            assertEquals(BooleanNode.FALSE, result1)
+            assertEquals(BooleanNode.FALSE, result1.first())
 
             val dataTrueTrue = ObjectMapper().readTree(
                 """
@@ -227,7 +247,7 @@ class JsonFunctionsTest {
                     }"""
             )
             val result2 = evaluateFunction("simpleAndLogic", dataTrueTrue)
-            assertEquals(BooleanNode.TRUE, result2)
+            assertEquals(BooleanNode.TRUE, result2.first())
         }
     }
 }

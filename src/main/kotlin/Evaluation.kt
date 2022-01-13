@@ -9,11 +9,14 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 
-fun evaluateLogic(logic: JsonNode, data: JsonNode) = when (logic) {
+fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
     is IntNode -> logic
     is BooleanNode -> logic
     is NullNode -> logic
+    is ArrayNode -> {
+        JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(it, data) })
+    }
     is ObjectNode -> {
         if (logic.size() != 1) {
             throw RuntimeException("unrecognised expression object encountered")
