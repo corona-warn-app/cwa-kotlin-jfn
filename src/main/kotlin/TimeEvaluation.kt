@@ -81,12 +81,14 @@ internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(if (arguments.size == 2) {
-        firstDate.isAfter(secondDate)
-    } else {
-        val thirdDate = arguments[2].asText().parseAsDateTime()
-        firstDate.isAfter(secondDate) && secondDate.isAfter(thirdDate)
-    })
+    return BooleanNode.valueOf(
+        if (arguments.size == 2) {
+            firstDate.isAfter(secondDate)
+        } else {
+            val thirdDate = arguments[2].asText().parseAsDateTime()
+            firstDate.isAfter(secondDate) && secondDate.isAfter(thirdDate)
+        }
+    )
 }
 
 internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
@@ -101,12 +103,14 @@ internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(if (arguments.size == 2) {
-        !firstDate.isAfter(secondDate)
-    } else {
-        val thirdDate = arguments[2].asText().parseAsDateTime()
-        !firstDate.isAfter(secondDate) && !secondDate.isAfter(thirdDate)
-    })
+    return BooleanNode.valueOf(
+        if (arguments.size == 2) {
+            !firstDate.isAfter(secondDate)
+        } else {
+            val thirdDate = arguments[2].asText().parseAsDateTime()
+            !firstDate.isAfter(secondDate) && !secondDate.isAfter(thirdDate)
+        }
+    )
 }
 
 internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
@@ -138,8 +142,8 @@ private enum class TimeUnit(val string: String) {
 }
 
 private fun String.asTimeUnit(): TimeUnit =
-        TimeUnit.values().find { it.string == this }
-                ?: throw IllegalArgumentException("Time unit $this is not supported.")
+    TimeUnit.values().find { it.string == this }
+        ?: throw IllegalArgumentException("Time unit $this is not supported.")
 
 private fun String.parseAsDateTime(): DateTime {
     return if (pattern.matches(this))
@@ -147,8 +151,6 @@ private fun String.parseAsDateTime(): DateTime {
     else
         DateTime.parse(this, ISODateTimeFormat.dateTimeParser().withZoneUTC())
 }
-
-
 
 private const val TIME_ZONE_REGEX = ".*[+|-][0-1][0-9]:[0-5][0-9]\$"
 private val pattern = Regex(TIME_ZONE_REGEX)
