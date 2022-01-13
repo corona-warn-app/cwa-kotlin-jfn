@@ -77,10 +77,12 @@ internal fun evaluateInfix(
         "and" -> if (args.size() < 2) throw RuntimeException(
                 "an \"and\" operation must have at least 2 operands"
         )
-        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before", "+" ->
+        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
             if (args.size() !in 2..3) throw RuntimeException(
                     "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
+
+        "+", "*" -> Unit // `n` args are allowed
         else -> if (args.size() != 2) throw RuntimeException(
                 "an operation with operator \"$operator\" must have 2 operands"
         )
@@ -96,15 +98,16 @@ internal fun evaluateInfix(
             BooleanNode.valueOf(r.contains(evalArgs[0]))
         }
         "+" -> {
-            evalArgs.forEach { operand ->
-                if (operand !is IntNode) {
-                    throw RuntimeException(
+            val sum = evalArgs.sumOf { operand ->
+                when (operand) {
+                    !is IntNode -> throw RuntimeException(
                             "operands of a \" + \" operator must be integer operand=$operand"
                     )
+                    else -> operand.intValue()
                 }
             }
 
-            IntNode.valueOf(evalArgs.sumOf { it.intValue() })
+            IntNode.valueOf(sum)
         }
         "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
             when {
