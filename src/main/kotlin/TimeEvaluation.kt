@@ -95,12 +95,14 @@ internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(if (arguments.size ==2) {
-        firstDate.isAfter(secondDate)
-    } else {
-        val thirdDate = arguments[1].asText().parseAsDateTime()
-        firstDate.isAfter(secondDate) && firstDate.isAfter(thirdDate)
-    })
+    return BooleanNode.valueOf(
+        if (arguments.size == 2) {
+            firstDate.isAfter(secondDate)
+        } else {
+            val thirdDate = arguments[1].asText().parseAsDateTime()
+            firstDate.isAfter(secondDate) && firstDate.isAfter(thirdDate)
+        }
+    )
 }
 
 internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
@@ -119,12 +121,14 @@ internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(if (arguments.size ==2) {
-        firstDate.isBefore(secondDate)
-    } else {
-        val thirdDate = arguments[1].asText().parseAsDateTime()
-        firstDate.isBefore(secondDate) && firstDate.isBefore(thirdDate)
-    })
+    return BooleanNode.valueOf(
+        if (arguments.size == 2) {
+            firstDate.isBefore(secondDate)
+        } else {
+            val thirdDate = arguments[1].asText().parseAsDateTime()
+            firstDate.isBefore(secondDate) && firstDate.isBefore(thirdDate)
+        }
+    )
 }
 
 internal fun evaluateNotBefore(arguments: List<JsonNode>): BooleanNode {
