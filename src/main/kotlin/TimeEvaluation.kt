@@ -13,19 +13,6 @@ import org.joda.time.Seconds
 import org.joda.time.Years
 import org.joda.time.format.ISODateTimeFormat
 
-private enum class TimeUnit(val string: String) {
-    SECOND("second"),
-    MINUTE("minute"),
-    HOUR("hour"),
-    DAY("day"),
-    MONTH("month"),
-    YEAR("year");
-}
-
-private fun String.asTimeUnit(): TimeUnit =
-    TimeUnit.values().find { it.string == this }
-        ?: throw IllegalArgumentException("Time unit $this is not supported.")
-
 /* returns the difference between two dates or timestamps in a specific unit of time */
 internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
     if (arguments.size != 3) {
@@ -84,10 +71,9 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
 }
 
 internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
-    if (arguments.size !in 2..3) {
-        throw IllegalArgumentException("There must be exactly 2 or 3 arguments.")
+    if (arguments.size != 2) {
+        throw IllegalArgumentException("There must be exactly 2 arguments.")
     }
-
     if (!arguments.all { it.isTextual }) {
         throw IllegalArgumentException("All arguments must be textual.")
     }
@@ -95,21 +81,15 @@ internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(
-        if (arguments.size == 2) {
-            firstDate.isAfter(secondDate)
-        } else {
-            val thirdDate = arguments[1].asText().parseAsDateTime()
-            firstDate.isAfter(secondDate) && firstDate.isAfter(thirdDate)
-        }
-    )
+    return BooleanNode.valueOf(if (arguments.size == 2) {
+        firstDate.isAfter(secondDate)
+    } else {
+        val thirdDate = arguments[2].asText().parseAsDateTime()
+        firstDate.isAfter(secondDate) && secondDate.isAfter(thirdDate)
+    })
 }
 
 internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
-    return BooleanNode.valueOf(!evaluateAfter(arguments).asBoolean())
-}
-
-internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
     if (arguments.size !in 2..3) {
         throw IllegalArgumentException("There must be exactly 2 or 3 arguments.")
     }
@@ -121,19 +101,45 @@ internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(
-        if (arguments.size == 2) {
-            firstDate.isBefore(secondDate)
-        } else {
-            val thirdDate = arguments[1].asText().parseAsDateTime()
-            firstDate.isBefore(secondDate) && firstDate.isBefore(thirdDate)
-        }
-    )
+    return BooleanNode.valueOf(if (arguments.size == 2) {
+        !firstDate.isAfter(secondDate)
+    } else {
+        val thirdDate = arguments[2].asText().parseAsDateTime()
+        !firstDate.isAfter(secondDate) && !secondDate.isAfter(thirdDate)
+    })
+}
+
+internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
+    if (arguments.size != 2) {
+        throw IllegalArgumentException("There must be exactly 2 arguments.")
+    }
+
+    if (!arguments.all { it.isTextual }) {
+        throw IllegalArgumentException("All arguments must be textual.")
+    }
+
+    val firstDate = arguments[0].asText().parseAsDateTime()
+    val secondDate = arguments[1].asText().parseAsDateTime()
+
+    return BooleanNode.valueOf(firstDate.isBefore(secondDate))
 }
 
 internal fun evaluateNotBefore(arguments: List<JsonNode>): BooleanNode {
     return BooleanNode.valueOf(!evaluateBefore(arguments).asBoolean())
 }
+
+private enum class TimeUnit(val string: String) {
+    SECOND("second"),
+    MINUTE("minute"),
+    HOUR("hour"),
+    DAY("day"),
+    MONTH("month"),
+    YEAR("year");
+}
+
+private fun String.asTimeUnit(): TimeUnit =
+        TimeUnit.values().find { it.string == this }
+                ?: throw IllegalArgumentException("Time unit $this is not supported.")
 
 private fun String.parseAsDateTime(): DateTime {
     return if (pattern.matches(this))
@@ -141,6 +147,8 @@ private fun String.parseAsDateTime(): DateTime {
     else
         DateTime.parse(this, ISODateTimeFormat.dateTimeParser().withZoneUTC())
 }
+
+
 
 private const val TIME_ZONE_REGEX = ".*[+|-][0-1][0-9]:[0-5][0-9]\$"
 private val pattern = Regex(TIME_ZONE_REGEX)

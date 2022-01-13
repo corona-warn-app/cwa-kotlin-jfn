@@ -25,15 +25,6 @@ internal class AfterTimeTest {
     }
 
     @Test
-    fun `after is true for 3 dates`() {
-        val firstDate = "2013-08-11T21:22:04.51+01:00"
-        val secondDate = "2013-08-11T20:20:04.51+00:00"
-        val thirdDate = "2013-08-11T19:20:04.51+00:00"
-        val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode(thirdDate))
-        assertEquals(true, evaluateAfter(arguments).booleanValue())
-    }
-
-    @Test
     fun `not after is false`() {
         val firstDate = "2013-08-11T19:22:04.51+01:00"
         val secondDate = "2013-08-11T17:22:04.51+00:00"
