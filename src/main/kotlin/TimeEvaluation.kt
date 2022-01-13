@@ -84,8 +84,8 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
 }
 
 internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
-    if (arguments.size != 2) {
-        throw IllegalArgumentException("There must be exactly 2 arguments.")
+    if (arguments.size !in 2..3) {
+        throw IllegalArgumentException("There must be exactly 2 or 3 arguments.")
     }
 
     if (!arguments.all { it.isTextual }) {
@@ -95,7 +95,12 @@ internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(firstDate.isAfter(secondDate))
+    return BooleanNode.valueOf(if (arguments.size ==2) {
+        firstDate.isAfter(secondDate)
+    } else {
+        val thirdDate = arguments[1].asText().parseAsDateTime()
+        firstDate.isAfter(secondDate) && firstDate.isAfter(thirdDate)
+    })
 }
 
 internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
@@ -103,8 +108,8 @@ internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
 }
 
 internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
-    if (arguments.size != 2) {
-        throw IllegalArgumentException("There must be exactly 2 arguments.")
+    if (arguments.size !in 2..3) {
+        throw IllegalArgumentException("There must be exactly 2 or 3 arguments.")
     }
 
     if (!arguments.all { it.isTextual }) {
@@ -114,7 +119,12 @@ internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
-    return BooleanNode.valueOf(firstDate.isBefore(secondDate))
+    return BooleanNode.valueOf(if (arguments.size ==2) {
+        firstDate.isBefore(secondDate)
+    } else {
+        val thirdDate = arguments[1].asText().parseAsDateTime()
+        firstDate.isBefore(secondDate) && firstDate.isBefore(thirdDate)
+    })
 }
 
 internal fun evaluateNotBefore(arguments: List<JsonNode>): BooleanNode {

@@ -25,6 +25,15 @@ internal class BeforeTimeTest {
     }
 
     @Test
+    fun `before is true for 3 dates`() {
+        val firstDate = "2013-08-11T20:22:04.51+01:00"
+        val secondDate = "2013-08-11T20:22:04.51+00:00"
+        val thirdDate = "2013-08-11T20:22:04.51-04:00"
+        val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode(thirdDate))
+        assertEquals(true, evaluateBefore(arguments).booleanValue())
+    }
+
+    @Test
     fun `not before is false`() {
         val firstDate = "2013-08-11T20:22:04.51+01:00"
         val secondDate = "2013-08-11T20:22:04.51+00:00"
@@ -37,6 +46,15 @@ internal class BeforeTimeTest {
         val firstDate = "2013-08-11T20:20:04.51+00:00"
         val secondDate = "2013-08-11T20:20:04.51+01:00"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate))
+        assertEquals(true, evaluateNotBefore(arguments).booleanValue())
+    }
+
+    @Test
+    fun `not before is true for 3 dates`() {
+        val firstDate = "2013-08-11T20:20:04.51+00:00"
+        val secondDate = "2013-08-11T20:20:04.51+01:00"
+        val thirdDate = "2013-08-11T11:22:04.51-04:00"
+        val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode(thirdDate))
         assertEquals(true, evaluateNotBefore(arguments).booleanValue())
     }
 
