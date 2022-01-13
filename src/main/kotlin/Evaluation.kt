@@ -36,8 +36,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
-                // "plusTime" -> evaluatePlusTime(args[0], args[1], args[2], data)
-                "reduce" -> evaluateReduce(args[0], args[1], args[2], data)
+                in ArrayOperator -> ArrayOperator(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }
@@ -174,30 +173,6 @@ internal fun evaluateNot(
     throw RuntimeException(
             "operand of ! evaluates to something neither truthy, nor falsy: $operand"
     )
-}
-
-internal fun evaluateReduce(
-        operand: JsonNode,
-        lambda: JsonNode,
-        initial: JsonNode,
-        data: JsonNode
-): JsonNode {
-    val evalOperand = evaluateLogic(operand, data)
-    val evalInitial = { evaluateLogic(initial, data) }
-    if (evalOperand !is ArrayNode) {
-        return evalInitial()
-    }
-    return evalOperand.foldIndexed(evalInitial()) { index, accumulator, current ->
-        println("index=$index, accumulator=$accumulator, current=$current")
-        evaluateLogic(
-                lambda,
-                JsonNodeFactory.instance.objectNode()
-                        .set<ObjectNode>("accumulator", accumulator)
-                        .set<ObjectNode>("current", current)
-                        .set<ObjectNode>("__index__", IntNode.valueOf(index))
-        )
-
-    }
 }
 
 internal fun evaluateExtractFromUVCI(
