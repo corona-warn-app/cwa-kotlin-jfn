@@ -36,8 +36,8 @@ internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
         throw IllegalArgumentException("All arguments must be textual.")
     }
 
-    val firstDate = arguments[0].asText().parseAsDateTimeUtc()
-    val secondDate = arguments[1].asText().parseAsDateTimeUtc()
+    val firstDate = arguments[0].asText().parseAsDateTime()
+    val secondDate = arguments[1].asText().parseAsDateTime()
 
     val diff = when (arguments[2].asText().asTimeUnit()) {
         TimeUnit.SECOND -> Seconds.secondsBetween(secondDate, firstDate).seconds
@@ -68,7 +68,7 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
         throw IllegalArgumentException("Third argument must be textual.")
     }
 
-    val date = arguments[0].asText().parseAsDateTimeUtc()
+    val date = arguments[0].asText().parseAsDateTime()
     val amount = arguments[1].asInt()
 
     val resultDate = when (arguments[2].asText().asTimeUnit()) {
@@ -78,7 +78,7 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
         TimeUnit.DAY -> date.plusDays(amount)
         TimeUnit.MONTH -> date.plusMonths(amount)
         TimeUnit.YEAR -> date.plusYears(amount)
-    }.toDateTime(date.zone)
+    }
 
     return TextNode(resultDate.toString(ISODateTimeFormat.dateTimeNoMillis()))
 }
@@ -92,8 +92,8 @@ internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
         throw IllegalArgumentException("All arguments must be textual.")
     }
 
-    val firstDate = arguments[0].asText().parseAsDateTimeUtc()
-    val secondDate = arguments[1].asText().parseAsDateTimeUtc()
+    val firstDate = arguments[0].asText().parseAsDateTime()
+    val secondDate = arguments[1].asText().parseAsDateTime()
 
     return BooleanNode.valueOf(firstDate.isAfter(secondDate))
 }
@@ -111,8 +111,8 @@ internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
         throw IllegalArgumentException("All arguments must be textual.")
     }
 
-    val firstDate = arguments[0].asText().parseAsDateTimeUtc()
-    val secondDate = arguments[1].asText().parseAsDateTimeUtc()
+    val firstDate = arguments[0].asText().parseAsDateTime()
+    val secondDate = arguments[1].asText().parseAsDateTime()
 
     return BooleanNode.valueOf(firstDate.isBefore(secondDate))
 }
@@ -121,9 +121,9 @@ internal fun evaluateNotBefore(arguments: List<JsonNode>): BooleanNode {
     return BooleanNode.valueOf(!evaluateBefore(arguments).asBoolean())
 }
 
-private fun String.parseAsDateTimeUtc(): DateTime {
+private fun String.parseAsDateTime(): DateTime {
     return if (pattern.matches(this))
-        DateTime.parse(this, ISODateTimeFormat.dateTimeParser())
+        DateTime.parse(this)
     else
         DateTime.parse(this, ISODateTimeFormat.dateTimeParser().withZoneUTC())
 }
