@@ -76,7 +76,8 @@ internal fun evaluateInfix(
         "and" -> if (args.size() < 2) throw RuntimeException(
             "an \"and\" operation must have at least 2 operands"
         )
-        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before", "diffTime", "plusTime"->
+        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before",
+        "diffTime", "plusTime" ->
             if (args.size() < 2 || args.size() > 3) throw RuntimeException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )

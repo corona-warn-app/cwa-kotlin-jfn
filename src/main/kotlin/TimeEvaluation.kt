@@ -121,11 +121,11 @@ internal fun evaluateNotBefore(arguments: List<JsonNode>): BooleanNode {
     return BooleanNode.valueOf(!evaluateBefore(arguments).asBoolean())
 }
 
-private fun String.parseAsDateTimeUtc() : DateTime {
+private fun String.parseAsDateTimeUtc(): DateTime {
     return if (pattern.matches(this))
-        DateTime.parse(this,ISODateTimeFormat.dateTimeParser())
+        DateTime.parse(this, ISODateTimeFormat.dateTimeParser())
     else
-        DateTime.parse(this,ISODateTimeFormat.dateTimeParser().withZoneUTC())
+        DateTime.parse(this, ISODateTimeFormat.dateTimeParser().withZoneUTC())
 }
 
 private const val TIME_ZONE_REGEX = ".*[+|-][0-1][0-9]:[0-5][0-9]\$"
