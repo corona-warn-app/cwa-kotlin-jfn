@@ -33,7 +33,8 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
-                "not-before" -> evaluateInfix(operator, args, data)
+                "split", "replaceAll", "concatenate", "trim", "toLowerCase", "toUpperCase",
+                "substr", "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
                 // "plusTime" -> evaluatePlusTime(args[0], args[1], args[2], data)
@@ -74,10 +75,14 @@ internal fun evaluateInfix(
     data: JsonNode
 ): JsonNode {
     when (operator) {
-        "and" -> if (args.size() < 2) throw RuntimeException(
-            "an \"and\" operation must have at least 2 operands"
+        "trim", "toLowerCase", "toUpperCase" -> if (args.size() > 1) throw RuntimeException(
+                "an \"$operator\"  operation must have 1 operand"
         )
-        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
+        "and", "concatenate" -> if (args.size() < 2) throw RuntimeException(
+                "an \"$operator\"  operation must have at least 2 operands"
+        )
+        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before",
+        "replaceAll", "substr" ->
             if (args.size() < 2 || args.size() > 3) throw RuntimeException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
@@ -122,6 +127,13 @@ internal fun evaluateInfix(
                 compare(operator, evalArgs.map { (it as IntNode).intValue() })
             )
         }
+        "split" -> evaluateSplit(evalArgs)
+        "replaceAll" -> evaluateReplaceAll(evalArgs)
+        "concatenate" -> evaluateConcatenate(evalArgs)
+        "trim" -> evaluateTrim(evalArgs)
+        "toLowerCase" -> evaluateToLowerCase(evalArgs)
+        "toUpperCase" -> evaluateToUpperCase(evalArgs)
+        "substr" -> evaluateSubstr(evalArgs)
         // TODO by other subtask
         /*"after", "before", "not-after", "not-before" -> {
             if (!evalArgs.all { it is JsonDateTime }) {
