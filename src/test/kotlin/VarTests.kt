@@ -11,7 +11,7 @@ class VarTests {
     @Test
     fun `var should return data on empty array`() {
         val logic = jacksonObjectMapper().readTree(
-                """
+            """
             {
                 "var" : [ ]
             }"""
@@ -24,7 +24,7 @@ class VarTests {
     @Test
     fun `var should return data on blank string`() {
         val logic = jacksonObjectMapper().readTree(
-                """
+            """
             {
                 "var" : ""
             }"""
@@ -37,7 +37,7 @@ class VarTests {
     @Test
     fun `var should return data on null`() {
         val logic = jacksonObjectMapper().readTree(
-                """
+            """
             {
                 "var" : null
             }"""
@@ -50,7 +50,7 @@ class VarTests {
     @Test
     fun `var should be able to declare operations`() {
         val logic = jacksonObjectMapper().readTree(
-                """
+            """
             {
                 "var" : [ 
                     {

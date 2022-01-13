@@ -141,7 +141,8 @@ class JsonFunctionsTest {
                         1,
                         2
                     ]
-                }""")
+                }"""
+            )
 
             val result2 = evaluate(logic2, nodeFactory.objectNode())
             assertEquals(BooleanNode.TRUE, result2)
@@ -163,7 +164,8 @@ class JsonFunctionsTest {
                             "var": "1"
                         }
                     ]
-                }""")
+                }"""
+            )
 
             val dataTrueFalse = ObjectMapper().readTree(
                 """
