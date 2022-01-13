@@ -102,6 +102,46 @@ enum class ArrayOperator {
             // TODO
             return JsonNodeFactory.instance.objectNode()
         }
+    },
+
+    Sort {
+        override val operator = "sort"
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            // TODO
+            return JsonNodeFactory.instance.objectNode()
+        }
+    },
+
+    Merge {
+        override val operator = "merge"
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            // TODO
+            return JsonNodeFactory.instance.objectNode()
+        }
+    },
+
+    Max {
+        override val operator = "max"
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            // TODO
+            return JsonNodeFactory.instance.objectNode()
+        }
+    },
+
+    Min {
+        override val operator = "min"
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            // TODO
+            return JsonNodeFactory.instance.objectNode()
+        }
+    },
+
+    Cat {
+        override val operator = "cat"
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            // TODO
+            return JsonNodeFactory.instance.objectNode()
+        }
     };
 
     abstract operator fun invoke(args: ArrayNode, data: JsonNode): JsonNode
