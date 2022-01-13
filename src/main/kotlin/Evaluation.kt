@@ -23,9 +23,9 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
         }
         val (operator, args) = logic.fields().next()
         if (operator == "var") {
-            if (args.isArray && args.first().isObject) {
+            if (args.isArray && !args.isEmpty && args.first().isObject) {
                 // var declares an operation
-                evaluateLogic(args, data)
+                evaluateLogic(args.first(), data)
             } else {
                 evaluateVar(args, data)
             }
