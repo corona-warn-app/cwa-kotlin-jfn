@@ -36,7 +36,6 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 "not-before", "diffTime", "plusTime" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
-                // "plusTime" -> evaluatePlusTime(args[0], args[1], args[2], data)
                 "reduce" -> evaluateReduce(args[0], args[1], args[2], data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
@@ -77,7 +76,7 @@ internal fun evaluateInfix(
         "and" -> if (args.size() < 2) throw RuntimeException(
             "an \"and\" operation must have at least 2 operands"
         )
-        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
+        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before", "diffTime", "plusTime"->
             if (args.size() < 2 || args.size() > 3) throw RuntimeException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )

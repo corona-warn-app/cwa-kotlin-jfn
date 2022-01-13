@@ -12,6 +12,14 @@ internal class DiffTimeTest {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
         val secondDate = "2013-08-11T20:29:04.51+00:00"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode("hour"))
+        assertEquals(-4, evaluateDiffTime(arguments).intValue())
+    }
+
+    @Test
+    fun `diff time in hours vice versa`() {
+        val firstDate = "2013-08-11T20:29:04.51+00:00"
+        val secondDate = "2013-08-11T17:22:04.51+01:00"
+        val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode("hour"))
         assertEquals(4, evaluateDiffTime(arguments).intValue())
     }
 
@@ -20,7 +28,7 @@ internal class DiffTimeTest {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
         val secondDate = "2013-08-11T17:22:04.51+00:00"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode("second"))
-        assertEquals(60 * 60, evaluateDiffTime(arguments).intValue())
+        assertEquals(-60 * 60, evaluateDiffTime(arguments).intValue())
     }
 
     @Test
@@ -28,7 +36,7 @@ internal class DiffTimeTest {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
         val secondDate = "2013-08-14T16:34:04.51+00:00"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode("day"))
-        assertEquals(3, evaluateDiffTime(arguments).intValue())
+        assertEquals(-3, evaluateDiffTime(arguments).intValue())
     }
 
     @Test
@@ -36,7 +44,7 @@ internal class DiffTimeTest {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
         val secondDate = "2013-08-11T20:29:06.51+00:00"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode("minute"))
-        assertEquals(4 * 60 + 7, evaluateDiffTime(arguments).intValue())
+        assertEquals(-4 * 60 - 7, evaluateDiffTime(arguments).intValue())
     }
 
     @Test
@@ -52,7 +60,7 @@ internal class DiffTimeTest {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
         val secondDate = "2019-08-10T16:22:04.51+00:00"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode("year"))
-        assertEquals(5, evaluateDiffTime(arguments).intValue())
+        assertEquals(-5, evaluateDiffTime(arguments).intValue())
     }
 
     @Test
