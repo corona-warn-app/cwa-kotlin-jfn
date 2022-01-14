@@ -200,8 +200,16 @@ enum class ArrayOperator : Operator {
     Merge {
         override val operator = "merge"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val scopedData = evaluateLogic(args, data)
+
+            val arrayNode = JsonNodeFactory.instance.arrayNode()
+            scopedData.forEach { jsonNode ->
+                when (jsonNode) {
+                    is ArrayNode -> arrayNode.addAll(jsonNode)
+                    else -> arrayNode.add(jsonNode)
+                }
+            }
+            return arrayNode
         }
     },
 
@@ -209,7 +217,7 @@ enum class ArrayOperator : Operator {
         override val operator = "max"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val scopedData = evaluateLogic(args, data)
-            return IntNode.valueOf(scopedData.maxOf { it.intValue() })
+            return scopedData.maxByOrNull { it.asInt() } ?: NullNode.instance
         }
     },
 
@@ -217,7 +225,7 @@ enum class ArrayOperator : Operator {
         override val operator = "min"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val scopedData = evaluateLogic(args, data)
-            return IntNode.valueOf(scopedData.minOf { it.intValue() })
+            return scopedData.minByOrNull { it.asInt() } ?: NullNode.instance
         }
     },
 
