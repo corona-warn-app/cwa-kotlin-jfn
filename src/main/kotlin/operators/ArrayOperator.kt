@@ -156,8 +156,9 @@ enum class ArrayOperator : Operator {
     Count {
         override val operator = "count"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val scopedData = evaluateLogic(args[0], data)
+            val size = if (scopedData is ArrayNode) scopedData.size() else 0
+            return IntNode.valueOf(size)
         }
     },
 
