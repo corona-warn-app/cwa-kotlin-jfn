@@ -34,7 +34,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             }
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
-                "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
+                "and", ">", "<", ">=", "<=", "+", "after", "before", "not-after",
                 "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
@@ -91,14 +91,6 @@ internal fun evaluateInfix(
     }
     val evalArgs = args.map { arg -> evaluateLogic(arg, data) }
     return when (operator) {
-        "===" -> BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
-        "in" -> {
-            val r = evalArgs[1]
-            if (r !is ArrayNode) {
-                BooleanNode.FALSE
-            }
-            BooleanNode.valueOf(r.contains(evalArgs[0]))
-        }
         "+" -> {
             val sum = evalArgs.sumOf { operand ->
                 when (operand) {
