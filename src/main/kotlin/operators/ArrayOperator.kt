@@ -51,9 +51,7 @@ enum class ArrayOperator : Operator {
 
             val filterResult = when {
                 it != null -> scopedData.filter { jsonNode ->
-                    val mergedData = JsonNodeFactory.instance.objectNode()
-                        .set<ObjectNode>(it.asText(), jsonNode)
-                        .setAll<JsonNode>(data as ObjectNode)
+                    val mergedData = mergeData(it, jsonNode, data)
                     isValueTruthy(evaluateLogic(scopedLogic, mergedData))
                 }
 
@@ -69,8 +67,25 @@ enum class ArrayOperator : Operator {
     Map {
         override val operator = "map"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val arrayNode = JsonNodeFactory.instance.arrayNode()
+            val scopedData = evaluateLogic(args[0], data)
+            val scopedLogic = args[1]
+            val it = args[2]
+
+            if (scopedData !is ArrayNode) return arrayNode
+
+            val mapResult = when {
+                it != null -> scopedData.map { jsonNode ->
+                    val mergedData = mergeData(it, jsonNode, data)
+                    evaluateLogic(scopedLogic, mergedData)
+                }
+
+                else -> scopedData.map { jsonNode ->
+                    evaluateLogic(scopedLogic, jsonNode)
+                }
+            }
+
+            return arrayNode.addAll(mapResult)
         }
     },
 
@@ -84,10 +99,7 @@ enum class ArrayOperator : Operator {
             if (scopedData !is ArrayNode) return NullNode.instance
             return when {
                 it != null -> scopedData.find { jsonNode ->
-                    val mergedData = JsonNodeFactory.instance.objectNode()
-                        .set<ObjectNode>(it.asText(), jsonNode)
-                        .setAll<JsonNode>(data as ObjectNode)
-
+                    val mergedData = mergeData(it, jsonNode, data)
                     isValueTruthy(evaluateLogic(scopedLogic, mergedData))
                 }
 
@@ -111,9 +123,7 @@ enum class ArrayOperator : Operator {
             scopedData.forEach { jsonNode ->
                 val result = when {
                     it != null -> {
-                        val mergedData = JsonNodeFactory.instance.objectNode()
-                            .set<ObjectNode>(it.asText(), jsonNode)
-                            .setAll<JsonNode>(data as ObjectNode)
+                        val mergedData = mergeData(it, jsonNode, data)
                         evaluateLogic(scopedLogic, mergedData)
                     }
                     else -> evaluateLogic(scopedLogic, jsonNode)
@@ -196,6 +206,13 @@ enum class ArrayOperator : Operator {
             return JsonNodeFactory.instance.objectNode()
         }
     };
+
+
+    fun mergeData(it: JsonNode, jsonNode: JsonNode, data: JsonNode): JsonNode {
+        return JsonNodeFactory.instance.objectNode()
+            .set<ObjectNode>(it.asText(), jsonNode)
+            .setAll(data as ObjectNode)
+    }
 
     companion object : OperatorSet {
         override val operators: Set<Operator> get() = values().toSet()
