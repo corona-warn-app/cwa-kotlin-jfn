@@ -35,6 +35,27 @@ class VarTests {
     }
 
     @Test
+    fun `var should last element of array if size of array is greater than 1`() {
+        val logic2elements = jacksonObjectMapper().readTree(
+                """
+            {
+                "var" : [1,2]
+            }"""
+        )
+
+        val data = jacksonObjectMapper().readTree("{}")
+        assertEquals(IntNode.valueOf(2), evaluateLogic(logic2elements, data))
+
+        val logic3elements = jacksonObjectMapper().readTree(
+                """
+            {
+                "var" : [1,2,3]
+            }"""
+        )
+        assertEquals(IntNode.valueOf(3), evaluateLogic(logic3elements, data))
+    }
+
+    @Test
     fun `var should return data on null`() {
         val logic = jacksonObjectMapper().readTree(
             """

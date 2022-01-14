@@ -61,6 +61,7 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
             if (args.size() == 1) {
                 args.first().asText()
             } else {
+                // return last element of array if var declares an array with more than 1 element
                 return args.last()
             }
         }
