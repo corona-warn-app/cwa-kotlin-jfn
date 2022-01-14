@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isValueTruthy
 
@@ -207,24 +208,25 @@ enum class ArrayOperator : Operator {
     Max {
         override val operator = "max"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val scopedData = evaluateLogic(args, data)
+            return IntNode.valueOf(scopedData.maxOf { it.intValue() })
         }
     },
 
     Min {
         override val operator = "min"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val scopedData = evaluateLogic(args, data)
+            return IntNode.valueOf(scopedData.minOf { it.intValue() })
         }
     },
 
     Cat {
         override val operator = "cat"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val scopedData = evaluateLogic(args, data)
+            val joinResult = scopedData.joinToString(separator = "") { it.asText() }
+            return TextNode.valueOf(joinResult)
         }
     };
 
