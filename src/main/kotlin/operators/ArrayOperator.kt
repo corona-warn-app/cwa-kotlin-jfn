@@ -37,8 +37,31 @@ enum class ArrayOperator : Operator {
     Filter {
         override val operator = "filter"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val arrayNode = JsonNodeFactory.instance.arrayNode()
+            val scopedData = evaluateLogic(args[0], data)
+            val scopedLogic = args[1]
+            val it = args[2]
+
+            if (scopedData !is ArrayNode) return arrayNode
+
+            if (it != null && !it.isTextual) {
+                throw  IllegalArgumentException("Iteratee name must be a string")
+            }
+
+            val filterResult = when {
+                it != null -> scopedData.filter { jsonNode ->
+                    val mergedData = JsonNodeFactory.instance.objectNode()
+                        .set<ObjectNode>(it.asText(), jsonNode)
+                        .setAll<JsonNode>(data as ObjectNode)
+                    isValueTruthy(evaluateLogic(scopedLogic, mergedData))
+                }
+
+                else -> scopedData.filter { jsonNode ->
+                    isValueTruthy(evaluateLogic(scopedLogic, jsonNode))
+                }
+            }
+
+            return arrayNode.addAll(filterResult)
         }
     },
 
