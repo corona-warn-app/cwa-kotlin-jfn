@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isValueTruthy
@@ -76,8 +77,25 @@ enum class ArrayOperator : Operator {
     Find {
         override val operator = "find"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val scopedData = evaluateLogic(args[0], data)
+            val scopedLogic = args[1]
+            val it = args[2]
+
+            if (scopedData !is ArrayNode) return NullNode.instance
+            return when {
+                it != null -> scopedData.find { jsonNode ->
+                    val mergedData = JsonNodeFactory.instance.objectNode()
+                        .set<ObjectNode>(it.asText(), jsonNode)
+                        .setAll<JsonNode>(data as ObjectNode)
+
+                    isValueTruthy(evaluateLogic(scopedLogic, mergedData))
+                }
+
+                else -> scopedData.find { jsonNode ->
+                    isValueTruthy(evaluateLogic(scopedLogic, jsonNode))
+                }
+
+            } ?: NullNode.instance
         }
     },
 
