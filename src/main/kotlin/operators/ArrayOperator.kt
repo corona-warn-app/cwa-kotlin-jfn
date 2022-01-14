@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import de.rki.jfn.evaluateLogic
+import de.rki.jfn.isValueTruthy
 
 enum class ArrayOperator : Operator {
     Reduce {
@@ -60,11 +61,26 @@ enum class ArrayOperator : Operator {
     All {
         override val operator = "all"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            val scopedData = evaluateLogic(args[0], data)
+            val scopedLogic = args[1]
+            val it = args[2]
 
-            val evalOperand = evaluateLogic(args[0], data)
-            if (evalOperand !is ArrayNode) return BooleanNode.FALSE
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            if (scopedData !is ArrayNode) return BooleanNode.FALSE
+
+            scopedData.forEach { jsonNode ->
+                val result = when {
+                    it != null -> {
+                        val mergedData = JsonNodeFactory.instance.objectNode()
+                            .set<ObjectNode>(it.asText(), jsonNode)
+                            .setAll<JsonNode>(data as ObjectNode)
+                        evaluateLogic(scopedLogic, mergedData)
+                    }
+                    else -> evaluateLogic(scopedLogic, jsonNode)
+                }
+
+                if (!isValueTruthy(result)) return BooleanNode.FALSE
+            }
+            return BooleanNode.TRUE
         }
     },
 
