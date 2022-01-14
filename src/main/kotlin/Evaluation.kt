@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.ArrayOperator
+import de.rki.jfn.operators.ComparisonOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
@@ -33,10 +34,11 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             }
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
-                "==","===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
+                "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
                 "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
+                in ComparisonOperator -> ComparisonOperator(operator, args, data)
                 in ArrayOperator -> ArrayOperator(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
@@ -89,7 +91,6 @@ internal fun evaluateInfix(
     }
     val evalArgs = args.map { arg -> evaluateLogic(arg, data) }
     return when (operator) {
-        "==" -> BooleanNode.valueOf(evalArgs[0].asText() == evalArgs[1].asText())
         "===" -> BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
         "in" -> {
             val r = evalArgs[1]
