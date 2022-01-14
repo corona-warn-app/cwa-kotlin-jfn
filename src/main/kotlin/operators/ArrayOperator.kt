@@ -1,4 +1,4 @@
-package de.rki.jfn
+package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -6,8 +6,7 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
-import de.rki.jfn.operator.Operator
-import de.rki.jfn.operator.OperatorSet
+import de.rki.jfn.evaluateLogic
 
 enum class ArrayOperator : Operator {
     Reduce {
