@@ -7,7 +7,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal class BasicMathTest {
+internal class MathOperatorTest {
 
     private val objectMapper = ObjectMapper()
 
@@ -78,13 +78,13 @@ internal class BasicMathTest {
     @Test
     fun `throws runtime exception if logic is faulty`() {
         var logic = createLogic(rawLogic = """{ "*": [20,"5"] }""")
-        assertThrows<RuntimeException> { evaluateLogic(logic, emptyNode) }
+        assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
 
         logic = createLogic(rawLogic = """{ "*": ["20","5"] }""")
-        assertThrows<RuntimeException> { evaluateLogic(logic, emptyNode) }
+        assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
 
         logic = createLogic(rawLogic = """{ "%": [20] }""")
-        assertThrows<RuntimeException> { evaluateLogic(logic, emptyNode) }
+        assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
     }
 
     private fun createLogic(rawLogic: String) = objectMapper.readTree(rawLogic)

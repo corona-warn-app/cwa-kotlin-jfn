@@ -8,7 +8,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
-import de.rki.jfn.common.toIntNode
+import de.rki.jfn.operators.ArrayOperator
+import de.rki.jfn.operators.MathOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
@@ -33,12 +34,12 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             }
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
-                "===", "and", ">", "<", ">=", "<=", "in", "+", "-", "/", "*", "%", "after",
+                "===", "and", ">", "<", ">=", "<=", "in", "after",
                 "before", "not-after", "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
-                // "plusTime" -> evaluatePlusTime(args[0], args[1], args[2], data)
-                "reduce" -> evaluateReduce(args[0], args[1], args[2], data)
+                in MathOperator -> MathOperator(operator, args, data)
+                in ArrayOperator -> ArrayOperator(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }
@@ -79,9 +80,11 @@ internal fun evaluateInfix(
             "an \"and\" operation must have at least 2 operands"
         )
         "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
-            if (args.size() < 2 || args.size() > 3) throw RuntimeException(
+            if (args.size() !in 2..3) throw RuntimeException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
+
+        "+", "*" -> Unit // `n` args are allowed
         else -> if (args.size() != 2) throw RuntimeException(
             "an operation with operator \"$operator\" must have 2 operands"
         )
@@ -95,16 +98,6 @@ internal fun evaluateInfix(
                 throw RuntimeException("right-hand side of an \"in\" operation must be an array")
             }
             BooleanNode.valueOf(r.contains(evalArgs[0]))
-        }
-        "+" -> evalArgs.doMathWithMultipleOperands(operator = operator) { l, r -> l + r }
-        "*" -> evalArgs.doMathWithMultipleOperands(operator = operator) { l, r -> l * r }
-        "/" -> evalArgs.doMathWithTwoOperands(operator = operator) { l, r -> l / r }
-        "%" -> evalArgs.doMathWithTwoOperands(operator = operator) { l, r -> l % r }
-        "-" -> evalArgs.let {
-            when (it.size) {
-                1 -> (it.first().intValue() * (-1)).toIntNode()
-                else -> it.doMathWithTwoOperands(operator = operator) { l, r -> l - r }
-            }
         }
         "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
             when {
@@ -173,30 +166,6 @@ internal fun evaluateNot(
     )
 }
 
-internal fun evaluateReduce(
-    operand: JsonNode,
-    lambda: JsonNode,
-    initial: JsonNode,
-    data: JsonNode
-): JsonNode {
-    val evalOperand = evaluateLogic(operand, data)
-    val evalInitial = { evaluateLogic(initial, data) }
-    if (evalOperand == NullNode.instance) {
-        return evalInitial()
-    }
-    if (evalOperand !is ArrayNode) {
-        throw RuntimeException("operand of reduce evaluated to a non-null non-array")
-    }
-    return evalOperand.fold(evalInitial()) { accumulator, current ->
-        evaluateLogic(
-            lambda,
-            JsonNodeFactory.instance.objectNode()
-                .set<ObjectNode>("accumulator", accumulator)
-                .set<ObjectNode>("current", current)
-        )
-    }
-}
-
 internal fun evaluateExtractFromUVCI(
     operand: JsonNode,
     index: JsonNode,
@@ -218,22 +187,4 @@ internal fun evaluateExtractFromUVCI(
         index.intValue()
     )
     return if (result == null) NullNode.instance else TextNode.valueOf(result)
-}
-
-private fun List<JsonNode>.doMathWithMultipleOperands(
-    operator: String,
-    mathOperation: (Int, Int) -> Int
-): IntNode = when (all { it is IntNode }) {
-    true -> map { it.intValue() }
-        .reduce { acc, i -> mathOperation(acc, i) }
-        .toIntNode()
-    false -> throw RuntimeException("operands of a $operator operator must be integers")
-}
-
-private fun List<JsonNode>.doMathWithTwoOperands(
-    operator: String,
-    mathOperation: (Int, Int) -> Int
-): IntNode = when (size == 2 && all { it is IntNode }) {
-    true -> mathOperation(get(0).intValue(), get(1).intValue()).toIntNode()
-    false -> throw RuntimeException("operands of a $operator operator must both be integers")
 }
