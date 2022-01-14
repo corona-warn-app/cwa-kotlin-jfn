@@ -138,8 +138,9 @@ enum class ArrayOperator : Operator {
     None {
         override val operator = "none"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val objectNode = JsonNodeFactory.instance.objectNode().set<ObjectNode>("filter", args)
+            val filtered = evaluateLogic(objectNode, data)
+            return BooleanNode.valueOf(filtered.size() == 0)
         }
     },
 
