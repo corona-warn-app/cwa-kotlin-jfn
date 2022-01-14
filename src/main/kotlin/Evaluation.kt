@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.operators.ArrayOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
@@ -41,8 +42,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
-                // "plusTime" -> evaluatePlusTime(args[0], args[1], args[2], data)
-                "reduce" -> evaluateReduce(args[0], args[1], args[2], data)
+                in ArrayOperator -> ArrayOperator(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }
@@ -95,9 +95,11 @@ internal fun evaluateInfix(
             "an \"and\" operation must have at least 2 operands"
         )
         "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
-            if (args.size() < 2 || args.size() > 3) throw RuntimeException(
+            if (args.size() !in 2..3) throw RuntimeException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
+
+        "+", "*" -> Unit // `n` args are allowed
         else -> if (args.size() != 2) throw RuntimeException(
             "an operation with operator \"$operator\" must have 2 operands"
         )
@@ -113,12 +115,16 @@ internal fun evaluateInfix(
             BooleanNode.valueOf(r.contains(evalArgs[0]))
         }
         "+" -> {
-            val l = evalArgs[0]
-            val r = evalArgs[1]
-            if (l !is IntNode || r !is IntNode) {
-                throw RuntimeException("operands of a " + " operator must both be integers")
+            val sum = evalArgs.sumOf { operand ->
+                when (operand) {
+                    !is IntNode -> throw RuntimeException(
+                        "operands of a \" + \" operator must be integer operand=$operand"
+                    )
+                    else -> operand.intValue()
+                }
             }
-            IntNode.valueOf(evalArgs[0].intValue() + evalArgs[1].intValue())
+
+            IntNode.valueOf(sum)
         }
         "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
             when {
@@ -185,30 +191,6 @@ internal fun evaluateNot(
     throw RuntimeException(
         "operand of ! evaluates to something neither truthy, nor falsy: $operand"
     )
-}
-
-internal fun evaluateReduce(
-    operand: JsonNode,
-    lambda: JsonNode,
-    initial: JsonNode,
-    data: JsonNode
-): JsonNode {
-    val evalOperand = evaluateLogic(operand, data)
-    val evalInitial = { evaluateLogic(initial, data) }
-    if (evalOperand == NullNode.instance) {
-        return evalInitial()
-    }
-    if (evalOperand !is ArrayNode) {
-        throw RuntimeException("operand of reduce evaluated to a non-null non-array")
-    }
-    return evalOperand.fold(evalInitial()) { accumulator, current ->
-        evaluateLogic(
-            lambda,
-            JsonNodeFactory.instance.objectNode()
-                .set<ObjectNode>("accumulator", accumulator)
-                .set<ObjectNode>("current", current)
-        )
-    }
 }
 
 internal fun evaluateExtractFromUVCI(
