@@ -1,44 +1,63 @@
-
 import com.fasterxml.jackson.databind.node.BooleanNode
-import de.rki.jfn.evaluateLogic
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class ComparisonOperatorsTest {
 
     @Test
+    fun `test operator '=='`() {
+        assertEquals(
+                BooleanNode.TRUE,
+                """{ "==" : [ 1, 1 ] } """.evaluateJson("{}")
+        )
+
+        assertEquals(
+                BooleanNode.TRUE,
+                """{ "==" : [ 1, "1" ] } """.evaluateJson("{}")
+        )
+
+        assertEquals(
+                BooleanNode.FALSE,
+                """{ "==" : [ 1, 2 ] } """.evaluateJson("{}")
+        )
+    }
+
+    @Test
     fun `'in' should be able to handle nulls`() {
 
         val logic = """
-            {
-                "in" : [ {
+                {
+                    "in" : [ {
                         "var" : "x"
-                    }, {
-                        "var" : "y"
-                    } 
-                ]
-            }
-        """.toJsonNode()
+                        }, 
+                        {
+                            "var" : "y"
+                        } 
+                    ]
+                }
+                """
 
-        val nullData = """null""".toJsonNode()
-        assertEquals(BooleanNode.FALSE, evaluateLogic(logic, nullData))
+        assertEquals(BooleanNode.FALSE, logic.evaluateJson("""null"""))
 
-        val emptyObjectData = """{ }""".toJsonNode()
-        assertEquals(BooleanNode.FALSE, evaluateLogic(logic, emptyObjectData))
+        assertEquals(
+                BooleanNode.FALSE,
+                logic.evaluateJson(
+                        """
+                            {
+                                "x" : null
+                            }"""
+                )
+        )
 
-        val xIsNullData = """
-            {
-                "x" : null
-            }
-        """.toJsonNode()
-        assertEquals(BooleanNode.FALSE, evaluateLogic(logic, xIsNullData))
-
-        val xAndYAreNullData = """
-            {
-                "x" : null, 
-                "y" : null
-            }
-        """.toJsonNode()
-        assertEquals(BooleanNode.FALSE, evaluateLogic(logic, xAndYAreNullData))
+        assertEquals(
+                BooleanNode.FALSE,
+                logic.evaluateJson(
+                        """
+                            {
+                                "x" : null, 
+                                "y" : null
+                            } """
+                )
+        )
     }
 }
