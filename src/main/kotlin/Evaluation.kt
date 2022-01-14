@@ -91,7 +91,7 @@ internal fun evaluateInfix(
         "in" -> {
             val r = evalArgs[1]
             if (r !is ArrayNode) {
-                throw RuntimeException("right-hand side of an \"in\" operation must be an array")
+                BooleanNode.FALSE
             }
             BooleanNode.valueOf(r.contains(evalArgs[0]))
         }
