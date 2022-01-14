@@ -20,7 +20,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     }
     is ObjectNode -> {
         if (logic.size() != 1) {
-            throw RuntimeException("unrecognised expression object encountered")
+            throw RuntimeException("unrecognised expression object encountered `$logic`")
         }
         val (operator, args) = logic.fields().next()
         if (operator == "var") {

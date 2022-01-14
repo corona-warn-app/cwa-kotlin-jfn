@@ -173,8 +173,26 @@ enum class ArrayOperator : Operator {
     Sort {
         override val operator = "sort"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val arrayNode = JsonNodeFactory.instance.arrayNode()
+            val scopedData = evaluateLogic(args[0], data)
+            val scopedLogic = args[1]
+
+            if (scopedData !is ArrayNode) return arrayNode
+
+            val sortResult = scopedData.sortedWith { a, b ->
+
+                val mergedData = JsonNodeFactory.instance.objectNode()
+                    .setAll<ObjectNode>(data as ObjectNode)
+                    .set<ObjectNode>("a", a)
+                    .set<ObjectNode>("b", b)
+
+                when (evaluateLogic(scopedLogic, mergedData)) {
+                    BooleanNode.TRUE -> 1
+                    BooleanNode.FALSE -> -1
+                    else -> 0
+                }
+            }
+            return arrayNode.addAll(sortResult)
         }
     },
 
