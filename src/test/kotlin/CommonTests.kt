@@ -81,7 +81,7 @@ class CommonTests {
             testCase.has("throws") -> {
                 assertThrows<Exception> {
                     engine.evaluate(logic, data)
-                }
+                }.printStackTrace()
             }
             testCase.has("exp") -> {
                 assertEquals(
