@@ -66,6 +66,16 @@ internal class BasicMathTest {
     }
 
     @Test
+    fun `happy modulo`() {
+        val logic = createLogic(rawLogic = """{ "%": [21,5] }""")
+
+        evaluateLogic(logic, emptyNode).also {
+            assertTrue { it is IntNode }
+            assertEquals(it.intValue(), 1)
+        }
+    }
+
+    @Test
     fun `throws runtime exception if logic is faulty`() {
         var logic = createLogic(rawLogic = """{ "*": [20,"5"] }""")
         assertThrows<RuntimeException> { evaluateLogic(logic, emptyNode) }
@@ -73,7 +83,7 @@ internal class BasicMathTest {
         logic = createLogic(rawLogic = """{ "*": ["20","5"] }""")
         assertThrows<RuntimeException> { evaluateLogic(logic, emptyNode) }
 
-        logic = createLogic(rawLogic = """{ "*": [20] }""")
+        logic = createLogic(rawLogic = """{ "%": [20] }""")
         assertThrows<RuntimeException> { evaluateLogic(logic, emptyNode) }
     }
 

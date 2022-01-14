@@ -33,8 +33,8 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             }
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
-                "===", "and", ">", "<", ">=", "<=", "in", "+", "-", "/", "*", "after", "before",
-                "not-after", "not-before" -> evaluateInfix(operator, args, data)
+                "===", "and", ">", "<", ">=", "<=", "in", "+", "-", "/", "*", "%", "after",
+                "before", "not-after", "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
                 // "plusTime" -> evaluatePlusTime(args[0], args[1], args[2], data)
