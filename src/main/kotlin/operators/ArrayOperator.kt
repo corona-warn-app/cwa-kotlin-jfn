@@ -164,8 +164,15 @@ enum class ArrayOperator : Operator {
     Push {
         override val operator = "push"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            // TODO
-            return JsonNodeFactory.instance.objectNode()
+            val maybeArray = evaluateLogic(args[0], data)
+            if (maybeArray !is ArrayNode) throw IllegalArgumentException(
+                "\"push\" first argument must be an array"
+            )
+
+            args.drop(0).forEach { jsonNode ->
+                maybeArray.add(evaluateLogic(jsonNode, data))
+            }
+            return maybeArray
         }
     },
 
