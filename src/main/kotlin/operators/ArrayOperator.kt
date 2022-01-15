@@ -45,10 +45,9 @@ enum class ArrayOperator : Operator {
             val it = args[2]
 
             if (scopedData !is ArrayNode) return arrayNode
-
-            if (it != null && !it.isTextual) {
-                throw  IllegalArgumentException("Iteratee name must be a string")
-            }
+            if (it != null && !it.isTextual) throw IllegalArgumentException(
+                "Iteratee name must be a string"
+            )
 
             val filterResult = when {
                 it != null -> scopedData.filter { jsonNode ->
@@ -107,7 +106,6 @@ enum class ArrayOperator : Operator {
                 else -> scopedData.find { jsonNode ->
                     isValueTruthy(evaluateLogic(scopedLogic, jsonNode))
                 }
-
             } ?: NullNode.instance
         }
     },
@@ -237,7 +235,6 @@ enum class ArrayOperator : Operator {
             return TextNode.valueOf(joinResult)
         }
     };
-
 
     fun mergeData(it: JsonNode, jsonNode: JsonNode, data: JsonNode): JsonNode {
         return JsonNodeFactory.instance.objectNode()
