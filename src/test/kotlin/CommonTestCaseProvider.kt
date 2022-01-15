@@ -15,21 +15,7 @@ class CommonTestCaseProvider : ArgumentsProvider {
         val testCases = tree.get("testCases") as ArrayNode
         return testCases
             // for single test execution
-            .filter {
-                val title = it.get("title").textValue()
-                title.startsWith("map -") ||
-                    title.startsWith("find -") ||
-                    title.startsWith("all -") ||
-                    title.startsWith("filter -") ||
-                    title.startsWith("reduce -") ||
-                    title.startsWith("none -") ||
-                    title.startsWith("some -") ||
-                    title.startsWith("count -") ||
-                    title.startsWith("sort -") ||
-                    title.contains("\"max\"") ||
-                    title.contains("\"min\"") ||
-                    title.contains("\"cat\"")
-            }
+            // .filter { it.get("title").textValue().startsWith("reduce -") }
             .map { Arguments.of(Named.of(it.get("title").textValue(), it)) }.stream()
     }
 }
