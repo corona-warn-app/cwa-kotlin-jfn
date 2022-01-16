@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.ArrayOperator
+import de.rki.jfn.operators.StringOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
@@ -34,11 +35,11 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
-                "split", "replaceAll", "concatenate", "trim", "toLowerCase", "toUpperCase",
-                "substr", "not-before" -> evaluateInfix(operator, args, data)
+                "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
                 in ArrayOperator -> ArrayOperator(operator, args, data)
+                in StringOperator -> StringOperator(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }
@@ -75,20 +76,20 @@ internal fun evaluateInfix(
     data: JsonNode
 ): JsonNode {
     when (operator) {
-        "trim", "toLowerCase", "toUpperCase" -> if (args.size() > 1) throw RuntimeException(
-                "an \"$operator\"  operation must have 1 operand"
+        "trim", "toLowerCase", "toUpperCase" -> if (args.size() > 1) throw IllegalArgumentException(
+            "an \"$operator\"  operation must have 1 operand"
         )
-        "and", "concatenate" -> if (args.size() < 2) throw RuntimeException(
-                "an \"$operator\"  operation must have at least 2 operands"
+        "and", "concatenate" -> if (args.size() < 2) throw IllegalArgumentException(
+            "an \"$operator\"  operation must have at least 2 operands"
         )
         "<", ">", "<=", ">=", "after", "before", "not-after", "not-before",
         "replaceAll", "substr" ->
-            if (args.size() !in 2..3) throw RuntimeException(
+            if (args.size() !in 2..3) throw IllegalArgumentException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
 
         "+", "*" -> Unit // `n` args are allowed
-        else -> if (args.size() != 2) throw RuntimeException(
+        else -> if (args.size() != 2) throw IllegalArgumentException(
             "an operation with operator \"$operator\" must have 2 operands"
         )
     }
@@ -133,13 +134,6 @@ internal fun evaluateInfix(
                 compare(operator, evalArgs.map { (it as IntNode).intValue() })
             )
         }
-        "split" -> evaluateSplit(evalArgs)
-        "replaceAll" -> evaluateReplaceAll(evalArgs)
-        "concatenate" -> evaluateConcatenate(evalArgs)
-        "trim" -> evaluateTrim(evalArgs)
-        "toLowerCase" -> evaluateToLowerCase(evalArgs)
-        "toUpperCase" -> evaluateToUpperCase(evalArgs)
-        "substr" -> evaluateSubstr(evalArgs)
         // TODO by other subtask
         /*"after", "before", "not-after", "not-before" -> {
             if (!evalArgs.all { it is JsonDateTime }) {
