@@ -138,8 +138,9 @@ enum class StringOperator : Operator {
             val index = scopedIndex.asInt()
             val cleanedIndex = if (index < 0) initialString.length + index else index
             if (cleanedIndex >= initialString.length || cleanedIndex < 0) {
-                throw IllegalArgumentException("Incorrect index. For this string the index " +
-                    "should be in range from ${-initialString.length} to ${initialString.length}"
+                throw IllegalArgumentException(
+                    "Incorrect index. For this string the index should be in " +
+                        "range from ${-initialString.length} to ${initialString.length}"
                 )
             }
 
