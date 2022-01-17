@@ -76,14 +76,10 @@ internal fun evaluateInfix(
     data: JsonNode
 ): JsonNode {
     when (operator) {
-        "trim", "toLowerCase", "toUpperCase" -> if (args.size() > 1) throw IllegalArgumentException(
-            "an \"$operator\"  operation must have 1 operand"
-        )
-        "and", "concatenate" -> if (args.size() < 2) throw IllegalArgumentException(
+        "and" -> if (args.size() < 2) throw IllegalArgumentException(
             "an \"$operator\"  operation must have at least 2 operands"
         )
-        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before",
-        "replaceAll", "substr" ->
+        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
             if (args.size() !in 2..3) throw IllegalArgumentException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
