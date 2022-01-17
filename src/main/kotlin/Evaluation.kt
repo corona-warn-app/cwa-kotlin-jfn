@@ -31,6 +31,9 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                     "operation not of the form { \"<operator>\": [ <args...> ] }"
                 )
             }
+
+            // TODO val operators = ArrayOperator + StringOperator + MathOperator
+            //  `in operators` -> doSomething
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
