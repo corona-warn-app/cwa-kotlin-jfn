@@ -3,7 +3,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import de.rki.jfn.JsonFunctionsEngine
-import de.rki.jfn.NoSuchFunctionException
+import de.rki.jfn.error.NoSuchFunctionException
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
