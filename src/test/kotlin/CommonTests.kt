@@ -57,7 +57,7 @@ class CommonTests {
                 )
             }
             else -> {
-                println("Invalid testcase - no property with name 'exp' or 'throws' found")
+                fail("Invalid testcase - no property with name 'exp' or 'throws' found")
             }
         }
     }
@@ -90,7 +90,7 @@ class CommonTests {
                 )
             }
             else -> {
-                println("Invalid testcase - no property with name 'exp' or 'throws' found")
+                fail("Invalid testcase - no property with name 'exp' or 'throws' found")
             }
         }
     }
