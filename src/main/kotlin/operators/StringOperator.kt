@@ -136,10 +136,12 @@ enum class StringOperator : Operator {
             }
 
             val index = scopedIndex.asInt()
-            if (index >= initialString.length) {
-                throw IllegalArgumentException("Index must be less than string's length")
-            }
             val cleanedIndex = if (index < 0) initialString.length + index else index
+            if (cleanedIndex >= initialString.length || cleanedIndex < 0) {
+                throw IllegalArgumentException("Incorrect index. For this string the index " +
+                    "should be in range from ${-initialString.length} to ${initialString.length}"
+                )
+            }
 
             return if (scopedOffset != null && !scopedOffset.isNull) {
                 if (!scopedOffset.isInt) {
