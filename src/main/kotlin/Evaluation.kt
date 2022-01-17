@@ -25,7 +25,12 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
         }
         val (operator, args) = logic.fields().next()
         if (operator == "var") {
-            evaluateVar(args, data)
+            if (args.isArray && !args.isEmpty && args.first().isObject) {
+                // var declares an operation
+                evaluateLogic(args.first(), data)
+            } else {
+                evaluateVar(args, data)
+            }
         } else {
             if (!(args is ArrayNode && args.size() > 0)) {
                 throw RuntimeException(
@@ -49,13 +54,25 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
 }
 
 internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
-    if (args !is TextNode) {
-        throw RuntimeException("not of the form { \"var\": \"<path>\" }")
+
+    val path = when {
+        args.isArray -> {
+            if (args.isEmpty) {
+                return data
+            }
+            if (args.size() == 1) {
+                args.first().asText()
+            } else {
+                // return last element of array if var declares an array with more than 1 element
+                return args.last()
+            }
+        }
+        args.isNull || args.asText() == "" -> {
+            return data
+        }
+        else -> args.asText()
     }
-    val path = args.asText()
-    if (path == "") { // "it"
-        return data
-    }
+
     return path.split(".").fold(data) { acc, fragment ->
         if (acc is NullNode) {
             acc
