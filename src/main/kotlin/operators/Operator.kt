@@ -27,7 +27,7 @@ interface OperatorSet {
         }
     }
 
-    private fun findOperator(operator: String) = operators.find { it.operator == operator }
+    fun findOperator(operator: String) = operators.find { it.operator == operator }
 }
 
 interface Operator {
