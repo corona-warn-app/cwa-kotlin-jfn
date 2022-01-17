@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.ArrayOperator
+import de.rki.jfn.operators.StringOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
@@ -38,6 +39,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
                 in ArrayOperator -> ArrayOperator(operator, args, data)
+                in StringOperator -> StringOperator(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }
@@ -74,16 +76,16 @@ internal fun evaluateInfix(
     data: JsonNode
 ): JsonNode {
     when (operator) {
-        "and" -> if (args.size() < 2) throw RuntimeException(
-            "an \"and\" operation must have at least 2 operands"
+        "and" -> if (args.size() < 2) throw IllegalArgumentException(
+            "an \"$operator\"  operation must have at least 2 operands"
         )
         "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
-            if (args.size() !in 2..3) throw RuntimeException(
+            if (args.size() !in 2..3) throw IllegalArgumentException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
 
         "+", "*" -> Unit // `n` args are allowed
-        else -> if (args.size() != 2) throw RuntimeException(
+        else -> if (args.size() != 2) throw IllegalArgumentException(
             "an operation with operator \"$operator\" must have 2 operands"
         )
     }
