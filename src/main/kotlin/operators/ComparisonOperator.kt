@@ -11,7 +11,7 @@ import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
 
-enum class ComparisonOperator: Operator {
+enum class ComparisonOperator : Operator {
 
     /*
     Strict equality means that the type and the value of two properties must be equal
@@ -20,7 +20,7 @@ enum class ComparisonOperator: Operator {
         override val operator = "==="
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs =evaluateLogic(args,data)
+            val evalArgs = evaluateLogic(args, data)
             return BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
         }
     },
@@ -33,7 +33,7 @@ enum class ComparisonOperator: Operator {
         override val operator = "=="
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args,data)
+            val evalArgs = evaluateLogic(args, data)
             return BooleanNode.valueOf(evalArgs[0].asText() == evalArgs[1].asText())
         }
     },
@@ -42,7 +42,7 @@ enum class ComparisonOperator: Operator {
         override val operator = "!=="
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args,data)
+            val evalArgs = evaluateLogic(args, data)
             return BooleanNode.valueOf(evalArgs[0] != evalArgs[1])
         }
     },
@@ -51,7 +51,7 @@ enum class ComparisonOperator: Operator {
         override val operator = "!="
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args,data)
+            val evalArgs = evaluateLogic(args, data)
             return BooleanNode.valueOf(evalArgs[0].asText() != evalArgs[1].asText())
         }
     },
@@ -100,7 +100,7 @@ enum class ComparisonOperator: Operator {
         override val operator = "in"
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs = args.map { arg -> evaluateLogic(arg,data) }
+            val evalArgs = args.map { arg -> evaluateLogic(arg, data) }
             val r = evalArgs[1]
             if (r !is ArrayNode) {
                 BooleanNode.FALSE
