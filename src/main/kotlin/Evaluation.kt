@@ -26,36 +26,42 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             throw RuntimeException("unrecognised expression object encountered")
         }
         val (operator, args) = logic.fields().next()
-        if (operator == "var") {
-            if (args.isArray && !args.isEmpty && args.first().isObject) {
-                // var declares an operation
-                evaluateLogic(args.first(), data)
-            } else {
-                evaluateVar(args, data)
+        when (operator) {
+            "var" -> {
+                if (args.isArray && !args.isEmpty && args.first().isObject) {
+                    // var declares an operation
+                    evaluateLogic(args.first(), data)
+                } else {
+                    evaluateVar(args, data)
+                }
             }
-        } else {
-            if (!(args is ArrayNode && args.size() > 0)) {
-                throw RuntimeException(
-                    "operation not of the form { \"<operator>\": [ <args...> ] }"
-                )
+            "!" -> {
+                evaluateNot(args, data)
             }
-            when (operator) {
-                "if" -> evaluateIf(args[0], args[1], args[2], data)
-                ">", "<", ">=", "<=", "+" -> evaluateInfix(operator, args, data)
-                "!" -> evaluateNot(args[0], data)
-                in ComparisonOperator -> ComparisonOperator(operator, args, data)
-                in ArrayOperator -> ArrayOperator(operator, args, data)
-                in TimeOperator -> TimeOperator(operator, args, data)
-                in StringOperator -> StringOperator(operator, args, data)
-                "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
-                else -> throw RuntimeException("unrecognised operator: \"$operator\"")
+            else -> {
+                if (!(args is ArrayNode && args.size() > 0)) {
+                    throw RuntimeException(
+                        "operation not of the form { \"<operator>\": [ <args...> ] }"
+                    )
+                }
+                when (operator) {
+                    "if" -> evaluateIf(args[0], args[1], args[2], data)
+                    ">", "<", ">=", "<=", "+" -> evaluateInfix(operator, args, data)
+                    in ComparisonOperator -> ComparisonOperator(operator, args, data)
+                    in ArrayOperator -> ArrayOperator(operator, args, data)
+                    in TimeOperator -> TimeOperator(operator, args, data)
+                    in StringOperator -> StringOperator(operator, args, data)
+                    "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
+                    else -> throw RuntimeException("unrecognised operator: \"$operator\"")
+                }
             }
         }
     }
     else -> throw RuntimeException("invalid JsonFunctions expression: $logic")
 }
 
-internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
+internal fun evaluateVar(args: JsonNode, data: JsonNode)
+    : JsonNode {
 
     val path = when {
         args.isArray -> {
@@ -155,7 +161,13 @@ internal fun evaluateNot(
     operandExpr: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val operand = evaluateLogic(operandExpr, data)
+
+    val operand = if (operandExpr.isArray) {
+        evaluateLogic(operandExpr, data)[0]
+    } else {
+        operandExpr
+    }
+
     if (isValueFalsy(operand)) {
         return BooleanNode.TRUE
     }

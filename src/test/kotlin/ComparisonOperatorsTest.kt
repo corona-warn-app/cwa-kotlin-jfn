@@ -67,4 +67,14 @@ class ComparisonOperatorsTest {
         logic.evaluateJson("""{ "x" : null }""").booleanValue() shouldBe false
         logic.evaluateJson("""{ "x" : null, "y" : null}""").booleanValue() shouldBe false
     }
+
+    @Test
+    fun `test operator '!'`() = assertSoftly {
+        """{"!" : true }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"!" : false }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"!" : [ "" ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"!" : [ "0" ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"!" : [ 0 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"!" : [ [ ] ] }""".evaluateJson("{}").booleanValue() shouldBe true
+    }
 }
