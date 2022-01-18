@@ -2,8 +2,9 @@ package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.IntNode
+import com.fasterxml.jackson.databind.node.NumericNode
 import de.rki.jfn.common.toIntNode
+import de.rki.jfn.common.toNumericNode
 
 enum class MathOperator : Operator {
     Plus {
@@ -56,19 +57,19 @@ enum class MathOperator : Operator {
 
 private fun ArrayNode.doMathWithMultipleOperands(
     operator: String,
-    mathOperation: (Int, Int) -> Int
-): IntNode = when (all { it is IntNode }) {
-    true -> map { it.intValue() }
+    mathOperation: (Double, Double) -> Double
+): NumericNode = when (all { it is NumericNode }) {
+    true -> map { it.doubleValue() }
         .reduce { acc, i -> mathOperation(acc, i) }
-        .toIntNode()
+        .toNumericNode()
     false -> throw IllegalArgumentException("operands of a $operator operator must be integers")
 }
 
 private fun ArrayNode.doMathWithTwoOperands(
     operator: String,
-    mathOperation: (Int, Int) -> Int
-): IntNode = when (size() == 2 && all { it is IntNode }) {
-    true -> mathOperation(get(0).intValue(), get(1).intValue()).toIntNode()
+    mathOperation: (Double, Double) -> Double
+): NumericNode = when (size() == 2 && all { it is NumericNode }) {
+    true -> mathOperation(get(0).doubleValue(), get(1).doubleValue()).toNumericNode()
     false -> throw IllegalArgumentException(
         "operands of a $operator operator must both be integers"
     )

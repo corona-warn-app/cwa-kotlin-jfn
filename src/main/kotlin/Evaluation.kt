@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.ArrayOperator
@@ -13,7 +14,7 @@ import de.rki.jfn.operators.MathOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
-    is IntNode -> logic
+    is NumericNode -> logic
     is BooleanNode -> logic
     is NullNode -> logic
     is ArrayNode -> {
