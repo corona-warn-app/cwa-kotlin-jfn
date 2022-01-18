@@ -14,7 +14,7 @@ enum class ComparisonOperator: Operator {
         override val operator = "==="
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs = args.map { arg -> evaluateLogic(arg,data) }
+            val evalArgs =evaluateLogic(args,data)
             return BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
         }
     },
@@ -27,8 +27,17 @@ enum class ComparisonOperator: Operator {
         override val operator = "=="
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs = args.map { arg -> evaluateLogic(arg,data) }
+            val evalArgs = evaluateLogic(args,data)
             return BooleanNode.valueOf(evalArgs[0].asText() == evalArgs[1].asText())
+        }
+    },
+
+    Inequality {
+        override val operator = "!=="
+
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            val evalArgs = evaluateLogic(args,data)
+            return BooleanNode.valueOf(evalArgs[0] != evalArgs[1])
         }
     },
 
