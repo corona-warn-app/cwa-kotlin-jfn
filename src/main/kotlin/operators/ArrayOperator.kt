@@ -236,9 +236,11 @@ enum class ArrayOperator : Operator {
     Cat {
         override val operator = "cat"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args, data)
-            val joinResult = scopedData.joinToString(separator = "") { it.asText() }
-            return TextNode.valueOf(joinResult)
+            val result = when (val scopedData = evaluateLogic(args, data)) {
+                is ArrayNode -> scopedData.joinToString(separator = "") { it.asText() }
+                else -> scopedData.asText()
+            }
+            return TextNode.valueOf(result)
         }
     };
 
