@@ -25,6 +25,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
 
+    // Joda time
+    implementation("joda-time:joda-time:2.10.13")
+
     testImplementation(kotlin("test"))
 
     // jUnit5
