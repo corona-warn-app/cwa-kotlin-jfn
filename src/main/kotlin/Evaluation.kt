@@ -43,7 +43,11 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 )
             }
 
-            val operators = ArrayOperator + StringOperator + TimeOperator + AccessingDataOperator// Add new operators
+            val operators = ArrayOperator +
+                StringOperator +
+                TimeOperator +
+                AccessingDataOperator
+
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+" -> evaluateInfix(operator, args, data)
