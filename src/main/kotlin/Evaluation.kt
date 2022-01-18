@@ -110,7 +110,6 @@ internal fun evaluateInfix(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
 
-        "+", "*" -> Unit // `n` args are allowed
         else -> if (args.size() != 2) throw IllegalArgumentException(
             "an operation with operator \"$operator\" must have 2 operands"
         )
