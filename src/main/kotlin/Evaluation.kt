@@ -41,14 +41,13 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                     "operation not of the form { \"<operator>\": [ <args...> ] }"
                 )
             }
-
-            val operators = ArrayOperator + StringOperator + TimeOperator // Add new operators
+            // Add new operators here
+            val operators = ArrayOperator + StringOperator + TimeOperator + ControlFlowOperator
             when (operator) {
-                in ControlFlowOperator -> ControlFlowOperator(operator, args, data)
+                in operators -> operators(operator, args, data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
-                in operators -> operators(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }

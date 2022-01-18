@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.contains
 
 internal fun evaluateIf(
@@ -59,6 +60,21 @@ internal fun evaluateObject(
     arguments: ArrayNode,
     data: JsonNode
 ): JsonNode {
+    val target = ObjectNode(JsonNodeFactory.instance)
+    arguments.forEachIndexed() { index, jsonNode ->
+        if (index == 0) return@forEachIndexed
+        if (jsonNode.isArray) {
+            val objectNode = evaluateLogic(jsonNode[0], data)
+            if (!objectNode.isObject) {
+                throw IllegalArgumentException("Spread for objects does not support non-objects")
+            }
+            // todo target.setAll(objectNode)
+        } else {
+            val property = evaluateLogic(jsonNode, data)
+            if (property.isObject) throw IllegalArgumentException("Key cannot be an object")
+            val value = evaluateLogic(jsonNode[index + 1], data)
+        }
+    }
 //    let target = {}
 //    for (let i = 1; i < values.length;) {
 //        const value = values[i]
@@ -83,7 +99,7 @@ internal fun evaluateObject(
 //        }
 //    }
 //    return target
-    return NullNode.instance
+    return target
 }
 
 internal fun evaluateArray(
@@ -92,13 +108,14 @@ internal fun evaluateArray(
 ): JsonNode {
     return ArrayNode(
         JsonNodeFactory.instance,
-        arguments.mapIndexed { index, jsonNode ->
+        arguments.mapIndexedNotNull { index, jsonNode ->
+            if (index == 0) return@mapIndexedNotNull null
             if (jsonNode.isArray) {
-                val arr = evaluateLogic(jsonNode[0], data)
-                if (!arr.isArray) {
+                val arrayNode = evaluateLogic(jsonNode[0], data)
+                if (!arrayNode.isArray) {
                     throw IllegalArgumentException("Spread for arrays only supports other arrays")
                 }
-                arr
+                arrayNode
             } else {
                 evaluateLogic(jsonNode, data)
             }

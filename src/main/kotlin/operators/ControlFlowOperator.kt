@@ -3,11 +3,35 @@ package de.rki.jfn.operators
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import de.rki.jfn.evaluateIf
 import de.rki.jfn.evaluateInit
 import de.rki.jfn.evaluateLogic
 
 enum class ControlFlowOperator : Operator {
+    Assign {
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            TODO("Not yet implemented")
+        }
+
+        override val operator = "assign"
+    },
+
+    Declare {
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            val identifier = evaluateLogic(args[0], data)
+            if (!identifier.isTextual)
+                throw IllegalArgumentException("First parameter of declare must be a string")
+
+            val value = evaluateLogic(args[1], data)
+            data as ObjectNode
+            data.replace(identifier.asText(), value)
+            return data
+        }
+
+        override val operator = "declare"
+    },
+
     Script {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             try {
