@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.error.argError
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.ComparisonOperator
 import de.rki.jfn.operators.StringOperator
@@ -121,13 +122,23 @@ internal fun evaluateInfix(
             IntNode.valueOf(sum)
         }
         "<", ">", "<=", ">=" -> {
-            if (!evalArgs.all { it is IntNode }) {
-                throw RuntimeException(
-                    "all operands of a comparison operator must be of integer type"
-                )
-            }
             BooleanNode.valueOf(
-                compare(operator, evalArgs.map { (it as IntNode).intValue() })
+                compare(operator, evalArgs.map {
+                    when (it) {
+                        is IntNode -> it.intValue()
+                        is TextNode -> {
+                            try {
+                                it.textValue().toInt()
+                            } catch (exception: NumberFormatException) {
+                                argError("operand of a comparison operator is not an integer and" +
+                                    "cant be converted to an int")
+                            }
+                        }
+                        else -> {
+                            argError("operand of a comparison operator has invalid type")
+                        }
+                    }
+                })
             )
         }
         else -> throw RuntimeException("unhandled infix operator \"$operator\"")

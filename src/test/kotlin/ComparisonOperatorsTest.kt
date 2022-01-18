@@ -77,4 +77,12 @@ class ComparisonOperatorsTest {
         """{"!" : [ 0 ] }""".evaluateJson("{}").booleanValue() shouldBe true
         """{"!" : [ [ ] ] }""".evaluateJson("{}").booleanValue() shouldBe true
     }
+
+    @Test
+    fun `test 'greater than' operator`() = assertSoftly {
+        """{">" : [ 2, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{">" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{">" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{">" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+    }
 }

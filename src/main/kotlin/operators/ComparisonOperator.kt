@@ -52,6 +52,14 @@ enum class ComparisonOperator: Operator {
         }
     },
 
+    GreaterThan {
+        override val operator = ">"
+
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            TODO("Not yet implemented")
+        }
+    },
+
     In {
         override val operator = "in"
 
