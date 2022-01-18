@@ -2,51 +2,61 @@ package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.NumericNode
-import de.rki.jfn.common.toIntNode
+import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.common.toNumericNode
+import de.rki.jfn.evaluateLogic
 
 enum class MathOperator : Operator {
     Plus {
         override val operator: String = "+"
-        override fun invoke(
-            args: ArrayNode,
-            data: JsonNode
-        ): JsonNode = args.doMathWithMultipleOperands(operator = operator) { l, r -> l + r }
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+            args = args,
+            data = data,
+            requiresTwoOperands = false,
+            mathOperation = Double::plus
+        )
     },
 
     Minus {
         override val operator: String = "-"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = with(args) {
-            when (size()) {
-                1 -> (first().intValue() * (-1)).toIntNode()
-                else -> doMathWithTwoOperands(operator = operator) { l, r -> l - r }
-            }
-        }
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+            args = args,
+            data = data,
+            requiresTwoOperands = true,
+            mathOperation = Double::minus
+        )
     },
 
     Multiplication {
         override val operator: String = "*"
-        override fun invoke(
-            args: ArrayNode,
-            data: JsonNode
-        ): JsonNode = args.doMathWithMultipleOperands(operator = operator) { l, r -> l * r }
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+            args = args,
+            data = data,
+            requiresTwoOperands = false,
+            mathOperation = Double::times
+        )
     },
 
     Division {
         override val operator: String = "/"
-        override fun invoke(
-            args: ArrayNode,
-            data: JsonNode
-        ): JsonNode = args.doMathWithTwoOperands(operator = operator) { l, r -> l / r }
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+            args = args,
+            data = data,
+            requiresTwoOperands = true,
+            mathOperation = Double::div
+        )
     },
 
     Modulo {
         override val operator: String = "%"
-        override fun invoke(
-            args: ArrayNode,
-            data: JsonNode
-        ): JsonNode = args.doMathWithTwoOperands(operator = operator) { l, r -> l % r }
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+            args = args,
+            data = data,
+            requiresTwoOperands = false,
+            mathOperation = Double::rem
+        )
     };
 
     companion object : OperatorSet {
@@ -55,22 +65,32 @@ enum class MathOperator : Operator {
     }
 }
 
-private fun ArrayNode.doMathWithMultipleOperands(
-    operator: String,
-    mathOperation: (Double, Double) -> Double
-): NumericNode = when (all { it is NumericNode }) {
-    true -> map { it.doubleValue() }
-        .reduce { acc, i -> mathOperation(acc, i) }
-        .toNumericNode()
-    false -> throw IllegalArgumentException("operands of a $operator operator must be integers")
+private fun MathOperator.evaluate(
+    args: ArrayNode,
+    data: JsonNode,
+    requiresTwoOperands: Boolean,
+    mathOperation: MathOperation
+): NumericNode {
+    val node = evaluateLogic(logic = args, data = data)
+    return when {
+        node.size() == 1 && this == MathOperator.Minus -> node.first().number * (-1)
+
+        requiresTwoOperands -> when (node.size() == 2) {
+            true -> mathOperation(node[0].number, node[1].number)
+            false -> throw IllegalArgumentException("Operator '$operator' requires two operands")
+        }
+
+        else -> node.map { it.number }
+            .reduce { acc, i -> mathOperation(acc, i) }
+    }.toNumericNode()
 }
 
-private fun ArrayNode.doMathWithTwoOperands(
-    operator: String,
-    mathOperation: (Double, Double) -> Double
-): NumericNode = when (size() == 2 && all { it is NumericNode }) {
-    true -> mathOperation(get(0).doubleValue(), get(1).doubleValue()).toNumericNode()
-    false -> throw IllegalArgumentException(
-        "operands of a $operator operator must both be integers"
-    )
-}
+private typealias MathOperation = (Double, Double) -> Double
+
+private val JsonNode.number: Double
+    get() = when (this) {
+        is NumericNode -> doubleValue()
+        is TextNode -> textValue().toDouble()
+        is BooleanNode -> booleanValue().compareTo(false).toDouble()
+        else -> throw IllegalArgumentException("Cannot convert value of $this to a double")
+    }
