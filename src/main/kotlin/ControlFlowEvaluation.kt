@@ -55,50 +55,31 @@ internal fun evaluateLiteral(
     return value
 }
 
-// todo
 internal fun evaluateObject(
     arguments: ArrayNode,
     data: JsonNode
 ): JsonNode {
     val target = ObjectNode(JsonNodeFactory.instance)
-    arguments.forEachIndexed() { index, jsonNode ->
-        if (index == 0) return@forEachIndexed
+    var index = 1
+    while (index < arguments.size()) {
+        val jsonNode = arguments[index]
         if (jsonNode.isArray) {
             val objectNode = evaluateLogic(jsonNode[0], data)
             if (!objectNode.isObject) {
                 throw IllegalArgumentException("Spread for objects does not support non-objects")
             }
-            // todo target.setAll(objectNode)
+            objectNode as ObjectNode
+            target.setAll<ObjectNode>(objectNode)
+            index += 1
         } else {
             val property = evaluateLogic(jsonNode, data)
-            if (property.isObject) throw IllegalArgumentException("Key cannot be an object")
-            val value = evaluateLogic(jsonNode[index + 1], data)
+            if (property.isObject || property.isArray || property.isNull)
+                throw IllegalArgumentException("Key must not be an object, array, or null.")
+            val value = evaluateLogic(arguments[index + 1], data)
+            target.replace(property.asText(), value)
+            index += 2
         }
     }
-//    let target = {}
-//    for (let i = 1; i < values.length;) {
-//        const value = values[i]
-//        if (value.spread && Array.isArray(value.spread)) {
-//            const obj = jfn.apply(value.spread[0], data)
-//            if (typeof obj !== 'object') {
-//                throw new Error('Spread for objects does not support non-objects')
-//            }
-//            target = {
-//                ...target,
-//                ...obj
-//            }
-//            i += 1
-//        } else {
-//            const property = jfn.apply(values[i], data)
-//            if (typeof property === 'object') {
-//                throw new Error('Key cannot be an object')
-//            }
-//            const value = jfn.apply(values[i + 1], data)
-//            target[property] = value
-//            i += 2
-//        }
-//    }
-//    return target
     return target
 }
 

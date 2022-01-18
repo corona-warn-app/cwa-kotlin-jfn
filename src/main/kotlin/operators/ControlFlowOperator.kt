@@ -11,7 +11,30 @@ import de.rki.jfn.evaluateLogic
 enum class ControlFlowOperator : Operator {
     Assign {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            TODO("Not yet implemented")
+            val identifier = evaluateLogic(args[0], data)
+            val value = evaluateLogic(args[1], data)
+
+            if (!identifier.isTextual)
+                throw IllegalArgumentException("First parameter of assign must be a string")
+
+            val identifierChunks = identifier.asText().split('.').toMutableList()
+            val propertyName = identifierChunks.last()
+            identifierChunks.removeLast()
+            val newData = identifierChunks.fold(data) { acc, chunk ->
+                if (acc.isArray) acc[Integer.valueOf(chunk)]
+                else acc.get(chunk)
+            }
+            if (newData.isArray) {
+                newData as ArrayNode
+                val index = Integer.valueOf(propertyName).toInt()
+                if (index < newData.size())
+                    newData.set(index, value)
+                else
+                    newData.add(value)
+            }
+            else (newData as ObjectNode).replace(propertyName, value)
+
+            return NullNode.instance
         }
 
         override val operator = "assign"
@@ -26,7 +49,7 @@ enum class ControlFlowOperator : Operator {
             val value = evaluateLogic(args[1], data)
             data as ObjectNode
             data.replace(identifier.asText(), value)
-            return data
+            return NullNode.instance
         }
 
         override val operator = "declare"
@@ -35,7 +58,7 @@ enum class ControlFlowOperator : Operator {
     Script {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             try {
-                args.forEach { evaluateLogic(it, data.deepCopy()) }
+                args.forEach { evaluateLogic(it, data) }
             } catch (e: ReturnException) {
                 return e.data
             }
