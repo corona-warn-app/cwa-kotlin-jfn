@@ -54,7 +54,7 @@ enum class MathOperator : Operator {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
             args = args,
             data = data,
-            requiresTwoOperands = false,
+            requiresTwoOperands = true,
             mathOperation = Double::rem
         )
     };

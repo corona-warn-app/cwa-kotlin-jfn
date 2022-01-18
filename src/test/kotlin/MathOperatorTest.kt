@@ -17,8 +17,14 @@ internal class MathOperatorTest {
 
         evaluateLogic(logic, emptyNode).also {
             assertTrue { it is IntNode }
-            assertEquals(it.intValue(), 25)
+            assertEquals(actual = it.intValue(), expected = 25)
         }
+
+        val logic2 = createLogic(rawLogic = """{ "+": ["20",6] }""")
+        assertEquals(actual = evaluateLogic(logic2, emptyNode).intValue(), expected = 26)
+
+        val logic3 = createLogic(rawLogic = """{ "+": [20,true] }""")
+        assertEquals(actual = evaluateLogic(logic3, emptyNode).intValue(), expected = 21)
     }
 
     @Test
@@ -33,7 +39,7 @@ internal class MathOperatorTest {
 
     @Test
     fun `addition throws on faulty arg`() {
-        val logic = createLogic(rawLogic = """{ "+": [20,"5"] }""")
+        val logic = createLogic(rawLogic = """{ "+": ["fail"] }""")
         assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
     }
 
@@ -66,25 +72,17 @@ internal class MathOperatorTest {
 
     @Test
     fun `subtraction throws on faulty arg`() {
-        val logic = createLogic(rawLogic = """{ "-": [20,"5"] }""")
+        val logic = createLogic(rawLogic = """{ "-": ["fail"] }""")
         assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
     }
 
     @Test
     fun `happy division`() {
         val logic = createLogic(rawLogic = """{ "/": [20,5] }""")
-
-        evaluateLogic(logic, emptyNode).also {
-            assertTrue { it is IntNode }
-            assertEquals(it.intValue(), 4)
-        }
+        assertEquals(evaluateLogic(logic, emptyNode).intValue(), 4)
 
         val logic2 = createLogic(rawLogic = """{ "/": [5,20] }""")
-
-        evaluateLogic(logic2, emptyNode).also {
-            assertTrue { it is IntNode }
-            assertEquals(it.intValue(), 0)
-        }
+        assertEquals(evaluateLogic(logic2, emptyNode).doubleValue(), 0.25)
     }
 
     @Test
@@ -98,7 +96,7 @@ internal class MathOperatorTest {
 
     @Test
     fun `division throws on faulty arg`() {
-        val logic = createLogic(rawLogic = """{ "/": [20,"5"] }""")
+        val logic = createLogic(rawLogic = """{ "/": ["fail"] }""")
         assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
     }
 
@@ -124,7 +122,7 @@ internal class MathOperatorTest {
 
     @Test
     fun `multiplication throws on faulty arg`() {
-        val logic = createLogic(rawLogic = """{ "*": [20,"5"] }""")
+        val logic = createLogic(rawLogic = """{ "*": ["fail"] }""")
         assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
     }
 
@@ -149,7 +147,7 @@ internal class MathOperatorTest {
 
     @Test
     fun `modulo throws on faulty arg`() {
-        val logic = createLogic(rawLogic = """{ "%": [20,"5"] }""")
+        val logic = createLogic(rawLogic = """{ "+": ["fail"] }""")
         assertThrows<IllegalArgumentException> { evaluateLogic(logic, emptyNode) }
     }
 
