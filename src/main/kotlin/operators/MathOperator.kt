@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.common.toNumericNode
+import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateLogic
 
 enum class MathOperator : Operator {
@@ -77,7 +78,7 @@ private fun MathOperator.evaluate(
 
         requiresTwoOperands -> when (node.size() == 2) {
             true -> mathOperation(node[0].number, node[1].number)
-            false -> throw IllegalArgumentException("Operator '$operator' requires two operands")
+            false -> argError("Operator '$operator' requires two operands")
         }
 
         else -> node.map { it.number }
@@ -92,5 +93,5 @@ private val JsonNode.number: Double
         is NumericNode -> doubleValue()
         is TextNode -> textValue().toDouble()
         is BooleanNode -> booleanValue().compareTo(false).toDouble()
-        else -> throw IllegalArgumentException("Cannot convert value of $this to a double")
+        else -> argError("Cannot convert value of $this to a double")
     }
