@@ -5,7 +5,7 @@
 <hr />
 
 <p align="center">
-[![Java CI with Gradle](https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml)
+    <a href="https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml" title="Latest Results"><img src="https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml/badge.svg?branch=main" alt="Build Status" /></a>
   </p>
 <p align="center">
     <a href="#about-this-repository">About this Repository</a> •
