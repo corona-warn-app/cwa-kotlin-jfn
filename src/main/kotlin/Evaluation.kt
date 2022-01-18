@@ -1,3 +1,10 @@
+/*
+    Copied from:
+    https://github.com/ehn-dcc-development/dgc-business-rules/blob/main/certlogic/certlogic-kotlin/src/main/kotlin/eu/ehn/dcc/certlogic/certlogic.kt
+
+    Modifications Copyright (c) 2022 SAP SE or an SAP affiliate company.
+*/
+
 package de.rki.jfn
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -6,16 +13,18 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
+import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
 import de.rki.jfn.operators.TimeOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
-    is IntNode -> logic
+    is NumericNode -> logic
     is BooleanNode -> logic
     is NullNode -> logic
     is ArrayNode -> {
@@ -43,14 +52,15 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 )
             }
 
-            val operators = ArrayOperator +
-                StringOperator +
-                TimeOperator +
-                AccessingDataOperator
-
+            val operators =
+                ArrayOperator +
+                    StringOperator +
+                    TimeOperator +
+                    MathOperator+
+                    AccessingDataOperator // Add new operators
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
-                "===", "and", ">", "<", ">=", "<=", "in", "+" -> evaluateInfix(operator, args, data)
+                "===", "and", ">", "<", ">=", "<=", "in" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
                 in operators -> operators(operator, args, data)
@@ -110,7 +120,6 @@ internal fun evaluateInfix(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
 
-        "+", "*" -> Unit // `n` args are allowed
         else -> if (args.size() != 2) throw IllegalArgumentException(
             "an operation with operator \"$operator\" must have 2 operands"
         )
@@ -124,18 +133,6 @@ internal fun evaluateInfix(
                 throw RuntimeException("right-hand side of an \"in\" operation must be an array")
             }
             BooleanNode.valueOf(r.contains(evalArgs[0]))
-        }
-        "+" -> {
-            val sum = evalArgs.sumOf { operand ->
-                when (operand) {
-                    !is IntNode -> throw RuntimeException(
-                        "operands of a \" + \" operator must be integer operand=$operand"
-                    )
-                    else -> operand.intValue()
-                }
-            }
-
-            IntNode.valueOf(sum)
         }
         "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
             when {
