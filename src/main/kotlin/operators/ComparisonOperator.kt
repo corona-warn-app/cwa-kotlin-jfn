@@ -7,6 +7,9 @@ import de.rki.jfn.evaluateLogic
 
 enum class ComparisonOperator: Operator {
 
+    /*
+    Strict equality means that the type and the value of two properties must be equal
+     */
     StrictEquality {
         override val operator = "==="
 
@@ -16,6 +19,10 @@ enum class ComparisonOperator: Operator {
         }
     },
 
+    /*
+    Loose equality means that the string representations of two values must be equal.
+    This means that e.g. that "1" (String) and 1 (Integer) are the same
+     */
     LooseEquality {
         override val operator = "=="
 
