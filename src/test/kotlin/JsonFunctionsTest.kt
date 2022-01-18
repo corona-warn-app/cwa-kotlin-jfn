@@ -3,7 +3,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import de.rki.jfn.JsonFunctionsEngine
-import de.rki.jfn.NoSuchFunctionException
+import de.rki.jfn.error.NoSuchFunctionException
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -118,48 +118,43 @@ class JsonFunctionsTest {
     }
 
     @Test
-    fun `eval() test simple 'and' logic without parameters`() {
+    fun `evaluate() test simple 'and' logic without parameters`() {
         JsonFunctionsEngine().run {
 
             val logic = ObjectMapper().readTree(
                 """
-            [
                 {
                     "<": [
                         1,
                         1
                     ]
-                }
-            ]"""
+                }"""
             )
 
-            val result1 = evaluate(logic.first(), nodeFactory.objectNode())
+            val result1 = evaluate(logic, nodeFactory.objectNode())
             assertEquals(BooleanNode.FALSE, result1)
 
             val logic2 = ObjectMapper().readTree(
                 """
-            [
                 {
                     "<": [
                         1,
                         2
                     ]
-                }
-            ]"""
+                }"""
             )
 
-            val result2 = evaluate(logic2.first(), nodeFactory.objectNode())
+            val result2 = evaluate(logic2, nodeFactory.objectNode())
             assertEquals(BooleanNode.TRUE, result2)
         }
     }
 
     @Test
-    fun `eval() test simple 'and' logic with parameters`() {
+    fun `evaluate() test simple 'and' logic with parameters`() {
         JsonFunctionsEngine().run {
 
             val logic = ObjectMapper().readTree(
                 """
-            [
                 {
                     "and": [
                         {
@@ -169,8 +164,7 @@ class JsonFunctionsTest {
                             "var": "1"
                         }
                     ]
-                }
-            ]"""
+                }"""
             )
 
             val dataTrueFalse = ObjectMapper().readTree(
@@ -181,7 +175,7 @@ class JsonFunctionsTest {
                 ]"""
             )
 
-            val result1 = evaluate(logic.first(), dataTrueFalse)
+            val result1 = evaluate(logic, dataTrueFalse)
             assertEquals(BooleanNode.FALSE, result1)
 
             val dataTrueTrue = ObjectMapper().readTree(
@@ -191,7 +185,7 @@ class JsonFunctionsTest {
                     true
                 ]"""
             )
-            val result2 = evaluate(logic.first(), dataTrueTrue)
+            val result2 = evaluate(logic, dataTrueTrue)
             assertEquals(BooleanNode.TRUE, result2)
         }
     }

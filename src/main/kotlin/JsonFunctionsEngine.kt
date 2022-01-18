@@ -3,6 +3,8 @@ package de.rki.jfn
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import de.rki.jfn.error.NoSuchFunctionException
+import de.rki.jfn.error.argError
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -20,17 +22,17 @@ class JsonFunctionsEngine : JsonFunctions {
     override fun registerFunction(name: String, descriptor: JsonNode) = runBlocking {
         mutex.withLock {
             if (!descriptor.has(parametersPropertyName)) {
-                throw RuntimeException("descriptor must have a '$parametersPropertyName' property!")
+                argError("descriptor must have a '$parametersPropertyName' property!")
             }
             if (descriptor.get(parametersPropertyName) !is ArrayNode) {
-                throw RuntimeException("'$parametersPropertyName' of descriptor must be an array!")
+                argError("'$parametersPropertyName' of descriptor must be an array!")
             }
 
             if (!descriptor.has(logicPropertyName)) {
-                throw RuntimeException("descriptor must have a '$logicPropertyName' property!")
+                argError("descriptor must have a '$logicPropertyName' property!")
             }
             if (descriptor.get(logicPropertyName) !is ArrayNode) {
-                throw RuntimeException("'$logicPropertyName' of descriptor must be an array!")
+                argError("'$logicPropertyName' of descriptor must be an array!")
             }
 
             registeredFunctions[name] = descriptor
@@ -59,11 +61,9 @@ class JsonFunctionsEngine : JsonFunctions {
                 when {
                     input.has(propertyName) -> set<JsonNode>(propertyName, input[propertyName])
                     it.has("default") -> set<JsonNode>(propertyName, it["default"])
-                    else -> {
-                        throw RuntimeException(
-                            "No value provided for $propertyName and also no default value defined."
-                        )
-                    }
+                    else -> argError(
+                        "No value provided for $propertyName and also no default value defined."
+                    )
                 }
             }
         }
@@ -77,5 +77,3 @@ class JsonFunctionsEngine : JsonFunctions {
         return isValueTruthy(value)
     }
 }
-
-class NoSuchFunctionException : Exception("No such function was registered in the engine")
