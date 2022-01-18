@@ -27,17 +27,8 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
         }
         val (operator, args) = logic.fields().next()
         when (operator) {
-            "var" -> {
-                if (args.isArray && !args.isEmpty && args.first().isObject) {
-                    // var declares an operation
-                    evaluateLogic(args.first(), data)
-                } else {
-                    evaluateVar(args, data)
-                }
-            }
-            "!" -> {
-                evaluateNot(args, data)
-            }
+            "var" -> evaluateVar(args, data)
+            "!" -> evaluateNot(args, data)
             else -> {
                 if (!(args is ArrayNode && args.size() > 0)) {
                     throw RuntimeException(
@@ -67,6 +58,10 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode)
         args.isArray -> {
             if (args.isEmpty) {
                 return data
+            }
+            if (args.first().isObject) {
+                // var declares an operation
+                return evaluateLogic(args.first(), data)
             }
             if (args.size() == 1) {
                 args.first().asText()
