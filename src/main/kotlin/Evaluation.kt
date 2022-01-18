@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.ControlFlowOperator
@@ -47,16 +48,18 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
         } else {
             if (args !is ArrayNode) {
                 throw RuntimeException(
-                    "operation not of the form { \"<operator>\": [ <args...> ] }"
+                    "operation not of the form { \"<operator>\": [ <args...> ] } " +
+                        "args=${args.toPrettyString()}"
                 )
             }
 
-            val operators =
-                ArrayOperator +
-                    StringOperator +
-                    TimeOperator +
-                    MathOperator +
-                    ControlFlowOperator // Add new operators
+            val operators = ArrayOperator +
+                StringOperator +
+                TimeOperator +
+                MathOperator +
+                AccessingDataOperator +
+                ControlFlowOperator // Add new operators
+
             when (operator) {
                 in operators -> operators(operator, args, data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+" -> evaluateInfix(operator, args, data)

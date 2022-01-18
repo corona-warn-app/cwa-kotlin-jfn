@@ -31,6 +31,6 @@ interface OperatorSet {
 }
 
 interface Operator {
-    operator fun invoke(args: ArrayNode, data: JsonNode): JsonNode
     val operator: String
+    operator fun invoke(args: ArrayNode, data: JsonNode): JsonNode
 }
