@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
+import de.rki.jfn.operators.TimeOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     is TextNode -> logic
@@ -47,6 +48,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 "!==" -> TODO()
                 in MathOperator -> MathOperator(operator, args, data)
                 in ArrayOperator -> ArrayOperator(operator, args, data)
+                in TimeOperator -> TimeOperator(operator, args, data)
                 in StringOperator -> StringOperator(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
@@ -99,7 +101,7 @@ internal fun evaluateInfix(
         "and" -> if (args.size() < 2) throw IllegalArgumentException(
             "an \"$operator\"  operation must have at least 2 operands"
         )
-        "<", ">", "<=", ">=", "after", "before", "not-after", "not-before" ->
+        "<", ">", "<=", ">=" ->
             if (args.size() !in 2..3) throw IllegalArgumentException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
@@ -138,16 +140,6 @@ internal fun evaluateInfix(
                 compare(operator, evalArgs.map { (it as IntNode).intValue() })
             )
         }
-        // TODO by other subtask
-        /*"after", "before", "not-after", "not-before" -> {
-            if (!evalArgs.all { it is JsonDateTime }) {
-                throw RuntimeException("all operands of a date-time comparsion must be date-times")
-            }
-            BooleanNode.valueOf(
-                compare(comparisonOperatorForDateTimeComparison(operator),
-                 evalArgs.map { (it as JsonDateTime).temporalValue() })
-            )
-        }*/
         else -> throw RuntimeException("unhandled infix operator \"$operator\"")
     }
 }
