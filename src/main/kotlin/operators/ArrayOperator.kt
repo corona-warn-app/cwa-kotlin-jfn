@@ -117,7 +117,6 @@ enum class ArrayOperator : Operator {
             val it = args[2]
 
             // All of an empty set is false.
-            // Note, some and none have correct fallback after the for loop
             if (scopedData !is ArrayNode || scopedData.isEmpty) return BooleanNode.FALSE
 
             scopedData.forEach { jsonNode ->
