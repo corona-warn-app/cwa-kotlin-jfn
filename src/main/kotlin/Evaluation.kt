@@ -105,35 +105,6 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
     }
 }
 
-internal fun evaluateInfix(
-    operator: String,
-    args: ArrayNode,
-    data: JsonNode
-): JsonNode {
-    when (operator) {
-        "+", "*" -> Unit // `n` args are allowed
-        else -> if (args.size() != 2) throw IllegalArgumentException(
-            "an operation with operator \"$operator\" must have 2 operands"
-        )
-    }
-    val evalArgs = args.map { arg -> evaluateLogic(arg, data) }
-    return when (operator) {
-        "+" -> {
-            val sum = evalArgs.sumOf { operand ->
-                when (operand) {
-                    !is IntNode -> throw RuntimeException(
-                        "operands of a \" + \" operator must be integer operand=$operand"
-                    )
-                    else -> operand.intValue()
-                }
-            }
-
-            IntNode.valueOf(sum)
-        }
-        else -> throw RuntimeException("unhandled infix operator \"$operator\"")
-    }
-}
-
 internal fun evaluateIf(
     guard: JsonNode,
     then: JsonNode,
