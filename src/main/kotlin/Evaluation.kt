@@ -24,7 +24,9 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     }
     is ObjectNode -> {
         if (logic.size() != 1) {
-            throw RuntimeException("unrecognised expression object encountered")
+            throw RuntimeException(
+                "unrecognised expression object encountered `${logic.toPrettyString()}`"
+            )
         }
         val (operator, args) = logic.fields().next()
         if (operator == "var") {
@@ -40,22 +42,21 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                     "operation not of the form { \"<operator>\": [ <args...> ] }"
                 )
             }
+
+            val operators = ArrayOperator + StringOperator + TimeOperator + MathOperator// Add new operators
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
                 "===", "and", ">", "<", ">=", "<=", "in", "after",
                 "before", "not-after", "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 "!==" -> TODO()
-                in MathOperator -> MathOperator(operator, args, data)
-                in ArrayOperator -> ArrayOperator(operator, args, data)
-                in TimeOperator -> TimeOperator(operator, args, data)
-                in StringOperator -> StringOperator(operator, args, data)
+                in operators -> operators(operator, args, data)
                 "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }
         }
     }
-    else -> throw RuntimeException("invalid JsonFunctions expression: $logic")
+    else -> throw RuntimeException("invalid JsonFunctions expression: ${logic.toPrettyString()}")
 }
 
 internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
