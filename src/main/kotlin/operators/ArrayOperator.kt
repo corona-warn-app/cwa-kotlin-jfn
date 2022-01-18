@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isValueTruthy
 
@@ -45,9 +46,7 @@ enum class ArrayOperator : Operator {
             val it = args[2]
 
             if (scopedData !is ArrayNode) return arrayNode
-            if (it != null && !it.isTextual) throw IllegalArgumentException(
-                "Iteratee name must be a string"
-            )
+            if (it != null && !it.isTextual) argError("Iteratee name must be a string")
 
             val filterResult = when {
                 it != null -> scopedData.filter { jsonNode ->
@@ -165,9 +164,7 @@ enum class ArrayOperator : Operator {
         override val operator = "push"
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val array = evaluateLogic(args[0], data)
-            if (array !is ArrayNode) throw IllegalArgumentException(
-                "\"push\" first argument must be an array"
-            )
+            if (array !is ArrayNode) argError("\"push\" first argument must be an array")
 
             args.drop(0).forEach { jsonNode ->
                 array.add(evaluateLogic(jsonNode, data))
