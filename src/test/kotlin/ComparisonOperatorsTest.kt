@@ -1,15 +1,9 @@
 
-import com.fasterxml.jackson.databind.node.BooleanNode
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 class ComparisonOperatorsTest {
-
-    @Test
-    fun `Kotest assertion test`() {
-        BooleanNode.valueOf(true) shouldBe BooleanNode.FALSE
-    }
 
     @Test
     fun `test operator '=='`() = assertSoftly {
@@ -84,5 +78,29 @@ class ComparisonOperatorsTest {
         """{">" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
         """{">" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe false
         """{">" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+    }
+
+    @Test
+    fun `test 'greater or equals' operator`() = assertSoftly {
+        """{">=" : [ 2, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{">=" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{">=" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{">=" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+    }
+
+    @Test
+    fun `test 'smaller than' operator`() = assertSoftly {
+        """{"<" : [ 2, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"<" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"<" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"<" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+    }
+
+    @Test
+    fun `test 'smaller or equals' operator`() = assertSoftly {
+        """{"<=" : [ 2, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"<=" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"<=" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"<=" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
     }
 }

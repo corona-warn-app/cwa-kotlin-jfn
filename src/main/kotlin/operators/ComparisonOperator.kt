@@ -3,6 +3,10 @@ package de.rki.jfn.operators
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
+import com.fasterxml.jackson.databind.node.IntNode
+import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.compare
+import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
@@ -56,7 +60,39 @@ enum class ComparisonOperator: Operator {
         override val operator = ">"
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            TODO("Not yet implemented")
+            throwOnIllegalSizeOfArgs(args, operator)
+            val evalArgs = evaluateLogic(args, data)
+            return BooleanNode.valueOf(compare(">", evalArgs.map { mapToInt(it) }))
+        }
+    },
+
+    GreaterOrEqualsThan {
+        override val operator = ">="
+
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            throwOnIllegalSizeOfArgs(args, operator)
+            val evalArgs = evaluateLogic(args, data)
+            return BooleanNode.valueOf(compare(">=", evalArgs.map { mapToInt(it) }))
+        }
+    },
+
+    LessThan {
+        override val operator = "<"
+
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            throwOnIllegalSizeOfArgs(args, operator)
+            val evalArgs = evaluateLogic(args, data)
+            return BooleanNode.valueOf(compare("<", evalArgs.map { mapToInt(it) }))
+        }
+    },
+
+    LessOrEqualsThan {
+        override val operator = "<="
+
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            throwOnIllegalSizeOfArgs(args, operator)
+            val evalArgs = evaluateLogic(args, data)
+            return BooleanNode.valueOf(compare("<=", evalArgs.map { mapToInt(it) }))
         }
     },
 
@@ -92,4 +128,28 @@ enum class ComparisonOperator: Operator {
     companion object : OperatorSet {
         override val operators: Set<Operator> get() = values().toSet()
     }
+}
+
+// tries to map a JsonNode to an integer value or throws an IllegalArgumentException if it can't
+private fun mapToInt(it: JsonNode): Int = when (it) {
+    is IntNode -> it.intValue()
+    is TextNode -> {
+        try {
+            it.textValue().toInt()
+        } catch (exception: NumberFormatException) {
+            argError(
+                "operand of a comparison operator is not an integer and" +
+                    "cant be converted to an int"
+            )
+        }
+    }
+    else -> {
+        argError("operand of a comparison operator has invalid type")
+    }
+}
+
+private fun throwOnIllegalSizeOfArgs(args: ArrayNode, operator: String) {
+    if (args.size() !in 2..3) argError(
+        "an operation with operator \"$operator\" must have 2 or 3 operands"
+    )
 }

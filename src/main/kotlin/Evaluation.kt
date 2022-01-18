@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
-import de.rki.jfn.error.argError
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.ComparisonOperator
 import de.rki.jfn.operators.StringOperator
@@ -38,7 +37,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 }
                 when (operator) {
                     "if" -> evaluateIf(args[0], args[1], args[2], data)
-                    ">", "<", ">=", "<=", "+" -> evaluateInfix(operator, args, data)
+                    "+" -> evaluateInfix(operator, args, data)
                     in ComparisonOperator -> ComparisonOperator(operator, args, data)
                     in ArrayOperator -> ArrayOperator(operator, args, data)
                     in TimeOperator -> TimeOperator(operator, args, data)
@@ -97,11 +96,6 @@ internal fun evaluateInfix(
     data: JsonNode
 ): JsonNode {
     when (operator) {
-        "<", ">", "<=", ">=" ->
-            if (args.size() !in 2..3) throw IllegalArgumentException(
-                "an operation with operator \"$operator\" must have 2 or 3 operands"
-            )
-
         "+", "*" -> Unit // `n` args are allowed
         else -> if (args.size() != 2) throw IllegalArgumentException(
             "an operation with operator \"$operator\" must have 2 operands"
@@ -120,26 +114,6 @@ internal fun evaluateInfix(
             }
 
             IntNode.valueOf(sum)
-        }
-        "<", ">", "<=", ">=" -> {
-            BooleanNode.valueOf(
-                compare(operator, evalArgs.map {
-                    when (it) {
-                        is IntNode -> it.intValue()
-                        is TextNode -> {
-                            try {
-                                it.textValue().toInt()
-                            } catch (exception: NumberFormatException) {
-                                argError("operand of a comparison operator is not an integer and" +
-                                    "cant be converted to an int")
-                            }
-                        }
-                        else -> {
-                            argError("operand of a comparison operator has invalid type")
-                        }
-                    }
-                })
-            )
         }
         else -> throw RuntimeException("unhandled infix operator \"$operator\"")
     }
