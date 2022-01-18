@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.ArrayOperator
+import de.rki.jfn.operators.ControlFlowOperator
 import de.rki.jfn.operators.StringOperator
 
 fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
@@ -32,13 +33,13 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 evaluateVar(args, data)
             }
         } else {
-            if (!(args is ArrayNode && args.size() > 0)) {
+            if (args !is ArrayNode) {
                 throw RuntimeException(
                     "operation not of the form { \"<operator>\": [ <args...> ] }"
                 )
             }
             when (operator) {
-                "if" -> evaluateIf(args, data)
+                in ControlFlowOperator -> ControlFlowOperator(operator, args, data)
                 "===", "and", ">", "<", ">=", "<=", "in", "+", "after", "before", "not-after",
                 "not-before" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
