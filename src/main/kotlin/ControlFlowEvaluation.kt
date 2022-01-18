@@ -83,6 +83,7 @@ internal fun evaluateObject(
 //        }
 //    }
 //    return target
+    return NullNode.instance
 }
 
 internal fun evaluateArray(
