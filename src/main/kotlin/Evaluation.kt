@@ -41,7 +41,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             }
             when (operator) {
                 "if" -> evaluateIf(args[0], args[1], args[2], data)
-                "and", ">", "<", ">=", "<=", "+" -> evaluateInfix(operator, args, data)
+                ">", "<", ">=", "<=", "+" -> evaluateInfix(operator, args, data)
                 "!" -> evaluateNot(args[0], data)
                 in ComparisonOperator -> ComparisonOperator(operator, args, data)
                 in ArrayOperator -> ArrayOperator(operator, args, data)
@@ -95,9 +95,6 @@ internal fun evaluateInfix(
     data: JsonNode
 ): JsonNode {
     when (operator) {
-        "and" -> if (args.size() < 2) throw IllegalArgumentException(
-            "an \"$operator\"  operation must have at least 2 operands"
-        )
         "<", ">", "<=", ">=" ->
             if (args.size() !in 2..3) throw IllegalArgumentException(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
@@ -121,15 +118,6 @@ internal fun evaluateInfix(
             }
 
             IntNode.valueOf(sum)
-        }
-        "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
-            when {
-                isValueFalsy(acc) -> acc
-                isValueTruthy(acc) -> evaluateLogic(current, data)
-                else -> throw RuntimeException(
-                    "all operands of an \"and\" operation must be either truthy or falsy"
-                )
-            }
         }
         "<", ">", "<=", ">=" -> {
             if (!evalArgs.all { it is IntNode }) {

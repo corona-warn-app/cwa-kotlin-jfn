@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import de.rki.jfn.evaluateLogic
+import de.rki.jfn.isValueFalsy
+import de.rki.jfn.isValueTruthy
 
 enum class ComparisonOperator: Operator {
 
@@ -32,12 +34,21 @@ enum class ComparisonOperator: Operator {
         }
     },
 
-    Inequality {
+    StrictInequality {
         override val operator = "!=="
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val evalArgs = evaluateLogic(args,data)
             return BooleanNode.valueOf(evalArgs[0] != evalArgs[1])
+        }
+    },
+
+    LooseInequality {
+        override val operator = "!="
+
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            val evalArgs = evaluateLogic(args,data)
+            return BooleanNode.valueOf(evalArgs[0].asText() != evalArgs[1].asText())
         }
     },
 
@@ -51,6 +62,22 @@ enum class ComparisonOperator: Operator {
                 BooleanNode.FALSE
             }
             return BooleanNode.valueOf(r.contains(evalArgs[0]))
+        }
+    },
+
+    And {
+        override val operator = "and"
+
+        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            return args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
+                when {
+                    isValueFalsy(acc) -> acc
+                    isValueTruthy(acc) -> evaluateLogic(current, data)
+                    else -> throw RuntimeException(
+                        "all operands of an \"and\" operation must be either truthy or falsy"
+                    )
+                }
+            }
         }
     };
 
