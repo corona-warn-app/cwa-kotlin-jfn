@@ -18,9 +18,6 @@ internal fun Long.toLongNode() = LongNode.valueOf(this)
  * Converts a [Double] to a [NumericNode] after stripping any trailing zero.
  */
 internal fun Double.toNumericNode(): NumericNode {
-    val t = "2147483647"
-    println("t as int=${t.toIntOrNull()}")
-    println("t as long=${t.toLongOrNull()}")
     val plainNumber = toBigDecimal().stripTrailingZeros().toPlainString()
     return with(plainNumber) { toIntOrNull()?.toIntNode() ?: toLongOrNull()?.toLongNode() }
         ?: toDoubleNode()
