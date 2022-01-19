@@ -100,12 +100,24 @@ enum class ComparisonOperator : Operator {
         override val operator = "in"
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
-            val evalArgs = args.map { arg -> evaluateLogic(arg, data) }
-            val r = evalArgs[1]
-            if (r !is ArrayNode) {
-                BooleanNode.FALSE
+            val evalArgs = evaluateLogic(args, data)
+
+            val left = evalArgs[0]
+            val right = evalArgs[1]
+
+            if (left.isNull and right.isNull) {
+                return BooleanNode.FALSE
             }
-            return BooleanNode.valueOf(r.contains(evalArgs[0]))
+
+            val leftString = left.asText()
+            return if (right.isArray) {
+                val contains = right.any { it.asText() == leftString }
+                BooleanNode.valueOf(contains)
+            } else {
+                val rightString = right.asText()
+                val contains = rightString.contains(leftString)
+                BooleanNode.valueOf(contains)
+            }
         }
     },
 

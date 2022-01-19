@@ -1,4 +1,5 @@
 
+import com.fasterxml.jackson.databind.node.TextNode
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
@@ -44,12 +45,51 @@ class ComparisonOperatorsTest {
     }
 
     @Test
-    fun `'in' should be able to handle nulls`() {
+    fun `test operator 'in'`() = assertSoftly {
+        """{
+            "in" : [ "Spring", "Springfield" ]
+        }""".evaluateJson("{}").booleanValue() shouldBe true
+
+        """{
+            "in" : [ 
+                {
+                    "var" : ""
+                }, 
+                [ "foo", "bar" ] 
+            ]
+        }""".evaluateJson(TextNode.valueOf("foo")).booleanValue() shouldBe true
+
+        """{
+            "in" : [ 
+                {
+                    "var" : ""
+                }, 
+                [ "foo", "bar" ] 
+            ]
+        }""".evaluateJson(TextNode.valueOf("bar")).booleanValue() shouldBe true
+
+        """{
+            "in" : [ 
+                {
+                    "var" : ""
+                }, 
+                [ ] 
+            ]
+        }""".evaluateJson("").booleanValue() shouldBe false
+
+        """{
+             "in" : [ "Bart", [ "Bart", "Homer", "Lisa", "Marge", "Maggie" ] ]
+        }""".evaluateJson("{}").booleanValue() shouldBe true
+    }
+
+    @Test
+    fun `'in' should be able to handle nulls`() = assertSoftly {
 
         val logic = """
         {
-            "in" : [ {
-                "var" : "x"
+            "in" : [ 
+                {
+                    "var" : "x"
                 }, 
                 {
                     "var" : "y"
@@ -58,18 +98,22 @@ class ComparisonOperatorsTest {
         }"""
 
         logic.evaluateJson("""null""").booleanValue() shouldBe false
-        logic.evaluateJson("""{ "x" : null }""").booleanValue() shouldBe false
-        logic.evaluateJson("""{ "x" : null, "y" : null}""").booleanValue() shouldBe false
+        logic.evaluateJson("""{ }""").booleanValue() shouldBe false
+        logic.evaluateJson("""{ "x": null }""").booleanValue() shouldBe false
+        logic.evaluateJson("""{ "x": null, "y": null}""").booleanValue() shouldBe false
+        logic.evaluateJson("""{ "x": null, "y": []}""").booleanValue() shouldBe false
+        logic.evaluateJson("""{ "x": null, "y": [null]}""").booleanValue() shouldBe true
+        logic.evaluateJson("""{ "x": "a", "y": ["a","b"]}""").booleanValue() shouldBe true
     }
 
     @Test
     fun `test operator '!'`() = assertSoftly {
-        """{"!" : true }""".evaluateJson("{}").booleanValue() shouldBe false
-        """{"!" : false }""".evaluateJson("{}").booleanValue() shouldBe true
-        """{"!" : [ "" ] }""".evaluateJson("{}").booleanValue() shouldBe true
-        """{"!" : [ "0" ] }""".evaluateJson("{}").booleanValue() shouldBe false
-        """{"!" : [ 0 ] }""".evaluateJson("{}").booleanValue() shouldBe true
-        """{"!" : [ [ ] ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"!": true }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"!": false }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"!": [ "" ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"!": [ "0" ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"!": [ 0 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{"!": [ [ ] ] }""".evaluateJson("{}").booleanValue() shouldBe true
     }
 
     @Test
