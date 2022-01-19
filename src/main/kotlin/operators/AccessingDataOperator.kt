@@ -11,7 +11,7 @@ enum class AccessingDataOperator : Operator {
 
     Missing {
         override val operator = "missing"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val missing = JsonNodeFactory.instance.arrayNode()
             val keys = args[0] as? ArrayNode ?: args
 
@@ -26,7 +26,7 @@ enum class AccessingDataOperator : Operator {
 
     MissingSome {
         override val operator = "missing_some"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val arrayNode = JsonNodeFactory.instance.arrayNode()
             val min = args[0].asInt()
             val keys = args[1] as? ArrayNode ?: arrayNode
