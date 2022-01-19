@@ -70,7 +70,8 @@ private fun MathOperator.evaluateIfArray(
     args: JsonNode,
     data: JsonNode,
     requiresTwoOperands: Boolean,
-    mathOperation: MathOperation): JsonNode {
+    mathOperation: MathOperation
+): JsonNode {
 
     // Just return the argument as number if no array but a single value is passed
     return if (args !is ArrayNode) {
