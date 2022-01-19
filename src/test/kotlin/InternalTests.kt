@@ -1,9 +1,3 @@
-/*
-    Copied from:
-    https://github.com/ehn-dcc-development/dgc-business-rules/blob/main/certlogic/certlogic-kotlin/src/test/kotlin/eu/ehn/dcc/certlogic/internalTests.kt
-
-    Modifications Copyright (c) 2022 SAP SE or an SAP affiliate company.
-*/
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.BigIntegerNode
 import com.fasterxml.jackson.databind.node.DoubleNode
