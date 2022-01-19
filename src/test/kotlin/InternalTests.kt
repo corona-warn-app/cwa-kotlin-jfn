@@ -4,17 +4,21 @@
 
     Modifications Copyright (c) 2022 SAP SE or an SAP affiliate company.
 */
-
+import com.fasterxml.jackson.databind.node.BigIntegerNode
 import com.fasterxml.jackson.databind.node.BooleanNode
+import com.fasterxml.jackson.databind.node.DoubleNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.extractFromUVCI
+import de.rki.jfn.isFalsy
+import de.rki.jfn.isTruthy
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import java.math.BigInteger
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -42,8 +46,12 @@ internal class TruthyFalsyTests {
         )
         assertTrue(isValueTruthy(TextNode.valueOf("foo")))
         assertFalse(isValueTruthy(TextNode.valueOf("")))
-        assertTrue(isValueTruthy(IntNode.valueOf(42)))
+        assertTrue(isValueTruthy(IntNode.valueOf(-42)))
         assertFalse(isValueTruthy(IntNode.valueOf(0)))
+        assertTrue { DoubleNode.valueOf(3.14).isTruthy }
+        assertTrue { DoubleNode.valueOf(-3.14).isTruthy }
+        assertTrue { DoubleNode.valueOf(Double.POSITIVE_INFINITY).isTruthy }
+        assertTrue { DoubleNode.valueOf(Double.NEGATIVE_INFINITY).isTruthy }
     }
 
     @Test
@@ -66,6 +74,8 @@ internal class TruthyFalsyTests {
         assertTrue(isValueFalsy(TextNode.valueOf("")))
         assertFalse(isValueFalsy(IntNode.valueOf(42)))
         assertTrue(isValueFalsy(IntNode.valueOf(0)))
+        assertTrue { BigIntegerNode.valueOf(BigInteger.ZERO).isFalsy }
+        assertTrue { DoubleNode.valueOf(Double.NaN).isFalsy }
     }
 }
 
