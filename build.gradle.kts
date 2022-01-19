@@ -29,6 +29,7 @@ dependencies {
     implementation("joda-time:joda-time:2.10.13")
 
     testImplementation(kotlin("test"))
+    testImplementation("io.kotest:kotest-assertions-core:5.1.0")
 
     // jUnit5
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
