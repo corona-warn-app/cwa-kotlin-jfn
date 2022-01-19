@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
+import de.rki.jfn.operators.ComparisonOperator
 import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
 import de.rki.jfn.operators.TimeOperator
@@ -40,36 +41,30 @@ fun evaluateLogic(
                 "unrecognised expression object encountered `${logic.toPrettyString()}`"
             )
         }
+
+        val operators = ArrayOperator +
+            StringOperator +
+            TimeOperator +
+            MathOperator +
+            AccessingDataOperator +
+            ComparisonOperator
+
         val (operator, args) = logic.fields().next()
-        if (operator == "var") {
-            if (args.isArray && !args.isEmpty && args.first().isObject) {
-                // var declares an operation
-                evaluateLogic(jfn, args.first(), data)
-            } else {
-                evaluateVar(args, data)
-            }
-        } else {
-            if (!(args is ArrayNode && args.size() > 0)) {
-                throw RuntimeException(
-                    "operation not of the form { \"<operator>\": [ <args...> ] } " +
-                        "args=${args.toPrettyString()}"
-                )
-            }
-
-            val operators = ArrayOperator +
-                StringOperator +
-                TimeOperator +
-                MathOperator +
-                AccessingDataOperator // Add new operators
-
-            when (operator) {
-                "if" -> evaluateIf(jfn, args[0], args[1], args[2], data)
-                "===", "and", ">", "<", ">=", "<=", "in" -> evaluateInfix(operator, jfn, args, data)
-                "!" -> evaluateNot(jfn, args[0], data)
-                "!==" -> TODO()
-                in operators -> operators(operator, jfn, args, data)
-                "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
-                else -> throw RuntimeException("unrecognised operator: \"$operator\"")
+        when (operator) {
+            "var" -> evaluateVar(args, data)
+            "!" -> evaluateNot(args, data)
+            else -> {
+                if (!(args is ArrayNode && args.size() > 0)) {
+                    throw RuntimeException(
+                        "operation not of the form { \"<operator>\": [ <args...> ] }"
+                    )
+                }
+                when (operator) {
+                    "if" -> evaluateIf(args[0], args[1], args[2], data)
+                    in operators -> operators(operator, args, data)
+                    "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
+                    else -> throw RuntimeException("unrecognised operator: \"$operator\"")
+                }
             }
         }
     }
@@ -82,6 +77,10 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
         args.isArray -> {
             if (args.isEmpty) {
                 return data
+            }
+            if (args.first().isObject) {
+                // var declares an operation
+                return evaluateLogic(args.first(), data)
             }
             if (args.size() == 1) {
                 args.first().asText()
@@ -110,58 +109,6 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
     }
 }
 
-internal fun evaluateInfix(
-    operator: String,
-    jfn: JsonFunctions,
-    args: ArrayNode,
-    data: JsonNode
-): JsonNode {
-    when (operator) {
-        "and" -> if (args.size() < 2) throw IllegalArgumentException(
-            "an \"$operator\"  operation must have at least 2 operands"
-        )
-        "<", ">", "<=", ">=" ->
-            if (args.size() !in 2..3) throw IllegalArgumentException(
-                "an operation with operator \"$operator\" must have 2 or 3 operands"
-            )
-
-        else -> if (args.size() != 2) throw IllegalArgumentException(
-            "an operation with operator \"$operator\" must have 2 operands"
-        )
-    }
-    val evalArgs = args.map { arg -> evaluateLogic(jfn, arg, data) }
-    return when (operator) {
-        "===" -> BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
-        "in" -> {
-            val r = evalArgs[1]
-            if (r !is ArrayNode) {
-                throw RuntimeException("right-hand side of an \"in\" operation must be an array")
-            }
-            BooleanNode.valueOf(r.contains(evalArgs[0]))
-        }
-        "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
-            when {
-                isValueFalsy(acc) -> acc
-                isValueTruthy(acc) -> evaluateLogic(jfn, current, data)
-                else -> throw RuntimeException(
-                    "all operands of an \"and\" operation must be either truthy or falsy"
-                )
-            }
-        }
-        "<", ">", "<=", ">=" -> {
-            if (!evalArgs.all { it is IntNode }) {
-                throw RuntimeException(
-                    "all operands of a comparison operator must be of integer type"
-                )
-            }
-            BooleanNode.valueOf(
-                compare(operator, evalArgs.map { (it as IntNode).intValue() })
-            )
-        }
-        else -> throw RuntimeException("unhandled infix operator \"$operator\"")
-    }
-}
-
 internal fun evaluateIf(
     jfn: JsonFunctions,
     guard: JsonNode,
@@ -186,7 +133,12 @@ internal fun evaluateNot(
     operandExpr: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val operand = evaluateLogic(jfn, operandExpr, data)
+
+    val operand = if (operandExpr.isArray) {
+        evaluateLogic(jfn, operandExpr, data)[0]
+    } else {
+        operandExpr
+    }
     if (isValueFalsy(operand)) {
         return BooleanNode.TRUE
     }
