@@ -15,7 +15,7 @@ class CommonTestCaseProvider : ArgumentsProvider {
         val testCases = tree.get("testCases") as ArrayNode
         return testCases
             // for single test execution
-            // .filter { it.get("title").textValue().startsWith("init - initializes an array with spread") }
+            .filter { it.get("title").textValue().startsWith("test case 168") }
             .map { Arguments.of(Named.of(it.get("title").textValue(), it)) }.stream()
     }
 }
