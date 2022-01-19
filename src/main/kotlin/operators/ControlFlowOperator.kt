@@ -2,20 +2,24 @@ package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateIf
 import de.rki.jfn.evaluateInit
 import de.rki.jfn.evaluateLogic
 
 enum class ControlFlowOperator : Operator {
     Assign {
+        override val operator = "assign"
+
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val identifier = evaluateLogic(args[0], data)
             val value = evaluateLogic(args[1], data)
 
             if (!identifier.isTextual)
-                throw IllegalArgumentException("First parameter of assign must be a string")
+                argError("First parameter of assign must be a string")
 
             val identifierChunks = identifier.asText().split('.').toMutableList()
             val propertyName = identifierChunks.last()
@@ -36,68 +40,68 @@ enum class ControlFlowOperator : Operator {
 
             return NullNode.instance
         }
-
-        override val operator = "assign"
     },
 
     Declare {
+        override val operator = "declare"
+
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val identifier = evaluateLogic(args[0], data)
             if (!identifier.isTextual)
-                throw IllegalArgumentException("First parameter of declare must be a string")
+                argError("First parameter of declare must be a string")
 
             val value = evaluateLogic(args[1], data)
             data as ObjectNode
             data.replace(identifier.asText(), value)
             return NullNode.instance
         }
-
-        override val operator = "declare"
     },
 
     Script {
+        override val operator = "script"
+
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+            val scopedData = ObjectNode(JsonNodeFactory.instance)
+                .setAll<JsonNode>(data as ObjectNode)
             try {
-                args.forEach { evaluateLogic(it, data) }
+                args.forEach { evaluateLogic(it, scopedData) }
             } catch (e: ReturnException) {
                 return e.data
             }
             return NullNode.instance
         }
-
-        override val operator = "script"
     },
 
     Init {
+        override val operator = "init"
+
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             return evaluateInit(args, data)
         }
-
-        override val operator = "init"
     },
 
     Return {
+        override val operator = "return"
+
         override fun invoke(args: ArrayNode, data: JsonNode): Nothing {
             throw ReturnException(evaluateLogic(args.first(), data))
         }
-
-        override val operator = "return"
     },
 
     If {
+        override val operator: String = "if"
+
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             return evaluateIf(args, data)
         }
-
-        override val operator: String = "if"
     },
 
     Ternary {
+        override val operator = "?:"
+
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             return evaluateIf(args, data)
         }
-
-        override val operator = "?:"
     };
 
     companion object : OperatorSet {
