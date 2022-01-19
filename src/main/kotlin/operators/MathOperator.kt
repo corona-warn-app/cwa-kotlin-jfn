@@ -12,7 +12,7 @@ import de.rki.jfn.evaluateLogic
 enum class MathOperator : Operator {
     Plus {
         override val operator: String = "+"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluate(
             args = args,
             data = data,
             requiresTwoOperands = false,
@@ -22,7 +22,7 @@ enum class MathOperator : Operator {
 
     Minus {
         override val operator: String = "-"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluate(
             args = args,
             data = data,
             requiresTwoOperands = true,
@@ -32,7 +32,7 @@ enum class MathOperator : Operator {
 
     Multiplication {
         override val operator: String = "*"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluate(
             args = args,
             data = data,
             requiresTwoOperands = false,
@@ -42,7 +42,7 @@ enum class MathOperator : Operator {
 
     Division {
         override val operator: String = "/"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluate(
             args = args,
             data = data,
             requiresTwoOperands = true,
@@ -52,7 +52,7 @@ enum class MathOperator : Operator {
 
     Modulo {
         override val operator: String = "%"
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = evaluate(
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluate(
             args = args,
             data = data,
             requiresTwoOperands = true,
@@ -67,7 +67,7 @@ enum class MathOperator : Operator {
 }
 
 private fun MathOperator.evaluate(
-    args: ArrayNode,
+    args: JsonNode,
     data: JsonNode,
     requiresTwoOperands: Boolean,
     mathOperation: MathOperation

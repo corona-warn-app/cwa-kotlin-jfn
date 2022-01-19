@@ -12,7 +12,7 @@ import de.rki.jfn.evaluatePlusTime
 
 enum class TimeOperator : Operator {
     DiffTime {
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> evaluateLogic(arg, data) }
             return evaluateDiffTime(arguments)
         }
@@ -21,7 +21,7 @@ enum class TimeOperator : Operator {
     },
 
     PlusTime {
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> evaluateLogic(arg, data) }
             return evaluatePlusTime(arguments)
         }
@@ -30,7 +30,7 @@ enum class TimeOperator : Operator {
     },
 
     After {
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> evaluateLogic(arg, data) }
             return evaluateAfter(arguments)
         }
@@ -39,7 +39,7 @@ enum class TimeOperator : Operator {
     },
 
     Before {
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> evaluateLogic(arg, data) }
             return evaluateBefore(arguments)
         }
@@ -48,7 +48,7 @@ enum class TimeOperator : Operator {
     },
 
     NotBefore {
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> evaluateLogic(arg, data) }
             return evaluateNotBefore(arguments)
         }
@@ -57,7 +57,7 @@ enum class TimeOperator : Operator {
     },
 
     NotAfter {
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> evaluateLogic(arg, data) }
             return evaluateNotAfter(arguments)
         }
