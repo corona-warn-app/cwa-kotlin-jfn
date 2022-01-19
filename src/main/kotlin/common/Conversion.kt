@@ -15,6 +15,9 @@ internal fun Double.toDoubleNode() = DoubleNode.valueOf(this)
 /** Converts a [Long] to a [LongNode]*/
 internal fun Long.toLongNode() = LongNode.valueOf(this)
 
+/** Converts a [Boolean] to a [BooleanNode] */
+internal fun Boolean.toBooleanNode() = BooleanNode.valueOf(this)
+
 /**
  * Converts a [Double] to a [NumericNode] after stripping any trailing zero.
  */
@@ -23,6 +26,3 @@ internal fun Double.toNumericNode(): NumericNode {
     return with(plainNumber) { toIntOrNull()?.toIntNode() ?: toLongOrNull()?.toLongNode() }
         ?: toDoubleNode()
 }
-
-/** Converts a [Boolean] to a [BooleanNode] */
-internal fun Boolean.toBooleanNode() = BooleanNode.valueOf(this)
