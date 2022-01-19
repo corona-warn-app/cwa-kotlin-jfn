@@ -1,7 +1,6 @@
 package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 
 interface OperatorSet {
 
