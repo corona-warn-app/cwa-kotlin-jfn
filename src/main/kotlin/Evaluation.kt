@@ -52,11 +52,6 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             "var" -> evaluateVar(args, data)
             "!" -> evaluateNot(args, data)
             else -> {
-                if (args !is ArrayNode) {
-                    throw RuntimeException(
-                        "operation not of the form { \"<operator>\": [ <args...> ] }"
-                    )
-                }
                 when (operator) {
                     in operators -> operators(operator, args, data)
                     "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
