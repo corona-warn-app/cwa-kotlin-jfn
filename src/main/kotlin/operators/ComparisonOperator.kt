@@ -1,14 +1,14 @@
 package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
-import de.rki.jfn.common.toBooleanNode
-import de.rki.jfn.error.argError
-import de.rki.jfn.evaluateLogic
-import de.rki.jfn.isTruthy
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.common.toBooleanNode
 import de.rki.jfn.compare
+import de.rki.jfn.error.argError
+import de.rki.jfn.evaluateLogic
+import de.rki.jfn.isTruthy
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
 
