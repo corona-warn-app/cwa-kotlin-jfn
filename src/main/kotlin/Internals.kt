@@ -10,25 +10,31 @@ package de.rki.jfn
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
-import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+
+internal val JsonNode.isTruthy
+    get() = isValueTruthy(this)
 
 internal fun isValueTruthy(value: JsonNode) = when (value) {
     is BooleanNode -> value == BooleanNode.TRUE
     is TextNode -> value.textValue().isNotEmpty()
-    is IntNode -> value.intValue() != 0
+    is NumericNode -> value.doubleValue().let { !it.isNaN() && it != 0.0 }
     is ArrayNode -> value.size() > 0
     is ObjectNode -> value.size() > 0
     else -> false
 }
 
+internal val JsonNode.isFalsy
+    get() = isValueFalsy(this)
+
 internal fun isValueFalsy(value: JsonNode): Boolean = when (value) {
     is BooleanNode -> value == BooleanNode.FALSE
     is NullNode -> true
     is TextNode -> value.textValue().isEmpty()
-    is IntNode -> value.intValue() == 0
+    is NumericNode -> value.doubleValue().let { it.isNaN() || it == 0.0 }
     is ArrayNode -> value.size() == 0
     is ObjectNode -> value.size() == 0
     else -> false
