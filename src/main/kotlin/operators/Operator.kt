@@ -1,7 +1,6 @@
 package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 
 interface OperatorSet {
 
@@ -13,7 +12,7 @@ interface OperatorSet {
 
     operator fun invoke(
         operator: String,
-        args: ArrayNode,
+        args: JsonNode,
         data: JsonNode
     ): JsonNode {
         val op = findOperator(operator) ?: error("Check `contains` first")
@@ -31,6 +30,6 @@ interface OperatorSet {
 }
 
 interface Operator {
-    operator fun invoke(args: ArrayNode, data: JsonNode): JsonNode
     val operator: String
+    operator fun invoke(args: JsonNode, data: JsonNode): JsonNode
 }

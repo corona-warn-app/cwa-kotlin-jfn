@@ -5,8 +5,13 @@
 <hr />
 
 <p align="center">
-    <a href="https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml" title="Latest Results"><img src="https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml/badge.svg?branch=main" alt="Build Status" /></a>
-  </p>
+    <a href="https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml" title="Latest Results">
+      <img src="https://github.com/corona-warn-app/cwa-kotlin-jfn/actions/workflows/gradle.yml/badge.svg?branch=main" alt="Build Status" />
+    </a>
+    <a href="https://api.reuse.software/info/github.com/corona-warn-app/cwa-kotlin-jfn" title="REUSE Status">
+      <img src="https://api.reuse.software/badge/github.com/corona-warn-app/cwa-kotlin-jfn">
+    </a>
+</p>
 <p align="center">
     <a href="#about-this-repository">About this Repository</a> •
     <a href="#requirements">Requirements</a> •
@@ -31,7 +36,7 @@ JsonFunctions Engine - Dcc Logic
 
 ## Usage Guide
 
- - #### IDE 
+ - #### IDE
    We Recommend using *IntelliJ IDEA 2021.3.1 (Community Edition)*
 
 - #### Spotless
@@ -63,12 +68,14 @@ A list of all public repositories from the Corona-Warn-App can be found [here](h
 
 ## Licensing
 
-Copyright (c) 2020-2021 Deutsche Telekom AG and SAP SE or an SAP affiliate company.
+Copyright (c) 2022 SAP SE or an SAP affiliate company.
 
 Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this file except in compliance with the License.
 
 You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0.
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the [LICENSE](./LICENSE) for the specific language governing permissions and limitations under the License.
+
+Please see the [detailed licensing information](https://api.reuse.software/info/github.com/corona-warn-app/cwa-kotlin-jfn) via the [REUSE Tool](https://reuse.software/) for more details.
 
 The "Corona-Warn-App" logo is a registered trademark of The Press and Information Office of the Federal Government. For more information please see [bundesregierung.de](https://www.bundesregierung.de/breg-en/federal-government/federal-press-office).
