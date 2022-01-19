@@ -8,7 +8,6 @@ import de.rki.jfn.JsonFunctions
 import de.rki.jfn.common.toBooleanNode
 import de.rki.jfn.compare
 import de.rki.jfn.error.argError
-import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isTruthy
 import de.rki.jfn.isValueFalsy
 
@@ -194,27 +193,29 @@ enum class ComparisonOperator : Operator {
     /**
      * @return First [isTruthy] argument or last argument
      */
-    OR {
+    Or {
         override val operator = "or"
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = when (args.isEmpty) {
-            true -> argError("Operator '$operator' requires at least one argument")
-            false -> args.firstOrNull {
-                evaluateLogic(logic = it, data = data).isTruthy
-            } ?: evaluateLogic(logic = args.last(), data = data)
-        }
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
+            when (args.isEmpty) {
+                true -> argError("Operator '$operator' requires at least one argument")
+                false -> args.firstOrNull {
+                    jfn.evaluate(logic = it, data = data).isTruthy
+                } ?: jfn.evaluate(logic = args.last(), data = data)
+            }
     },
 
     /**
      * @return True if argument [isTruthy], false otherwise
      */
-    DOUBLE_BANG {
+    DoubleBang {
         override val operator: String = "!!"
 
         override fun invoke(
+            jfn: JsonFunctions,
             args: JsonNode,
             data: JsonNode
-        ): JsonNode = evaluateLogic(logic = args, data = data)
+        ): JsonNode = jfn.evaluate(logic = args, data = data)
             .firstOrNull() // to handle an empty node
             .let { it?.isTruthy ?: false }
             .toBooleanNode()
