@@ -1,7 +1,6 @@
 package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
 import de.rki.jfn.common.toBooleanNode
 import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateLogic
@@ -15,7 +14,7 @@ enum class ComparisonOperator : Operator {
     OR {
         override val operator = "or"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode = when (args.isEmpty) {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = when (args.isEmpty) {
             true -> argError("Operator '$operator' requires at least one argument")
             false -> args.firstOrNull {
                 evaluateLogic(logic = it, data = data).isTruthy
@@ -30,7 +29,7 @@ enum class ComparisonOperator : Operator {
         override val operator: String = "!!"
 
         override fun invoke(
-            args: ArrayNode,
+            args: JsonNode,
             data: JsonNode
         ): JsonNode = evaluateLogic(logic = args, data = data)
             .firstOrNull() // to handle an empty node
