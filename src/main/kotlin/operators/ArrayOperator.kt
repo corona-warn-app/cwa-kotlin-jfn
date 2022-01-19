@@ -116,7 +116,8 @@ enum class ArrayOperator : Operator {
             val scopedLogic = args[1]
             val it = args[2]
 
-            if (scopedData !is ArrayNode) return BooleanNode.FALSE
+            // All of an empty set is false.
+            if (scopedData !is ArrayNode || scopedData.isEmpty) return BooleanNode.FALSE
 
             scopedData.forEach { jsonNode ->
                 val result = when {
@@ -127,9 +128,9 @@ enum class ArrayOperator : Operator {
                     else -> evaluateLogic(scopedLogic, jsonNode)
                 }
 
-                if (!isValueTruthy(result)) return BooleanNode.FALSE
+                if (!isValueTruthy(result)) return BooleanNode.FALSE // First falsy, short circuit
             }
-            return BooleanNode.TRUE
+            return BooleanNode.TRUE // All were truthy
         }
     },
 
@@ -234,9 +235,11 @@ enum class ArrayOperator : Operator {
     Cat {
         override val operator = "cat"
         override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args, data)
-            val joinResult = scopedData.joinToString(separator = "") { it.asText() }
-            return TextNode.valueOf(joinResult)
+            val result = when (val scopedData = evaluateLogic(args, data)) {
+                is ArrayNode -> scopedData.joinToString(separator = "") { it.asText() }
+                else -> scopedData.asText()
+            }
+            return TextNode.valueOf(result)
         }
     };
 
