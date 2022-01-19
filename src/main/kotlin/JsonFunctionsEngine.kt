@@ -70,7 +70,7 @@ class JsonFunctionsEngine : JsonFunctions {
     }
 
     override fun evaluate(logic: JsonNode, data: JsonNode): JsonNode {
-        return evaluateLogic(logic, data)
+        return evaluateLogic(this, logic, data)
     }
 
     override fun isTruthy(value: JsonNode): Boolean {

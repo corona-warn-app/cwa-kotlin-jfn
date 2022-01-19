@@ -22,13 +22,17 @@ import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
 import de.rki.jfn.operators.TimeOperator
 
-fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
+fun evaluateLogic(
+    jfn: JsonFunctions,
+    logic: JsonNode,
+    data: JsonNode
+): JsonNode = when (logic) {
     is TextNode -> logic
     is NumericNode -> logic
     is BooleanNode -> logic
     is NullNode -> logic
     is ArrayNode -> {
-        JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(it, data) })
+        JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(jfn, it, data) })
     }
     is ObjectNode -> {
         if (logic.size() != 1) {
@@ -40,7 +44,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
         if (operator == "var") {
             if (args.isArray && !args.isEmpty && args.first().isObject) {
                 // var declares an operation
-                evaluateLogic(args.first(), data)
+                evaluateLogic(jfn, args.first(), data)
             } else {
                 evaluateVar(args, data)
             }
@@ -59,12 +63,12 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
                 AccessingDataOperator // Add new operators
 
             when (operator) {
-                "if" -> evaluateIf(args[0], args[1], args[2], data)
-                "===", "and", ">", "<", ">=", "<=", "in" -> evaluateInfix(operator, args, data)
-                "!" -> evaluateNot(args[0], data)
+                "if" -> evaluateIf(jfn, args[0], args[1], args[2], data)
+                "===", "and", ">", "<", ">=", "<=", "in" -> evaluateInfix(operator, jfn, args, data)
+                "!" -> evaluateNot(jfn, args[0], data)
                 "!==" -> TODO()
-                in operators -> operators(operator, args, data)
-                "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
+                in operators -> operators(operator, jfn, args, data)
+                "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
                 else -> throw RuntimeException("unrecognised operator: \"$operator\"")
             }
         }
@@ -108,6 +112,7 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
 
 internal fun evaluateInfix(
     operator: String,
+    jfn: JsonFunctions,
     args: ArrayNode,
     data: JsonNode
 ): JsonNode {
@@ -124,7 +129,7 @@ internal fun evaluateInfix(
             "an operation with operator \"$operator\" must have 2 operands"
         )
     }
-    val evalArgs = args.map { arg -> evaluateLogic(arg, data) }
+    val evalArgs = args.map { arg -> evaluateLogic(jfn, arg, data) }
     return when (operator) {
         "===" -> BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
         "in" -> {
@@ -137,7 +142,7 @@ internal fun evaluateInfix(
         "and" -> args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
             when {
                 isValueFalsy(acc) -> acc
-                isValueTruthy(acc) -> evaluateLogic(current, data)
+                isValueTruthy(acc) -> evaluateLogic(jfn, current, data)
                 else -> throw RuntimeException(
                     "all operands of an \"and\" operation must be either truthy or falsy"
                 )
@@ -158,17 +163,18 @@ internal fun evaluateInfix(
 }
 
 internal fun evaluateIf(
+    jfn: JsonFunctions,
     guard: JsonNode,
     then: JsonNode,
     else_: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val evalGuard = evaluateLogic(guard, data)
+    val evalGuard = evaluateLogic(jfn, guard, data)
     if (isValueTruthy(evalGuard)) {
-        return evaluateLogic(then, data)
+        return evaluateLogic(jfn, then, data)
     }
     if (isValueFalsy(evalGuard)) {
-        return evaluateLogic(else_, data)
+        return evaluateLogic(jfn, else_, data)
     }
     throw RuntimeException(
         "if-guard evaluates to something neither truthy, nor falsy: $evalGuard"
@@ -176,10 +182,11 @@ internal fun evaluateIf(
 }
 
 internal fun evaluateNot(
+    jfn: JsonFunctions,
     operandExpr: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val operand = evaluateLogic(operandExpr, data)
+    val operand = evaluateLogic(jfn, operandExpr, data)
     if (isValueFalsy(operand)) {
         return BooleanNode.TRUE
     }
@@ -192,11 +199,12 @@ internal fun evaluateNot(
 }
 
 internal fun evaluateExtractFromUVCI(
+    jfn: JsonFunctions,
     operand: JsonNode,
     index: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val evalOperand = evaluateLogic(operand, data)
+    val evalOperand = evaluateLogic(jfn, operand, data)
     if (!(evalOperand is NullNode || evalOperand is TextNode)) {
         throw RuntimeException(
             "\"UVCI\" argument (#1) of \"extractFromUVCI\" must be either a string or null"
