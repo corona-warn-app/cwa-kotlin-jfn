@@ -110,20 +110,26 @@ internal fun evaluateArray(
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
+    val list = mutableListOf<JsonNode>()
+    arguments.filterIndexed { index, _ ->
+        index != 0
+    }.forEach { jsonNode ->
+        if (jsonNode.has(SPREAD) && jsonNode.get(SPREAD).isArray) {
+            val arrayNode = evaluateLogic(jsonNode.get(SPREAD)[0], data)
+            if (!arrayNode.isArray) {
+                throw IllegalArgumentException("Spread for arrays only supports other arrays")
+            }
+
+            arrayNode.elements().forEach {
+                list.add(it)
+            }
+        } else {
+            list.add(evaluateLogic(jsonNode, data))
+        }
+    }
     return ArrayNode(
         JsonNodeFactory.instance,
-        arguments.mapIndexedNotNull { index, jsonNode ->
-            if (index == 0) return@mapIndexedNotNull null
-            if (jsonNode.has(SPREAD) && jsonNode.get(SPREAD).isArray) {
-                val arrayNode = evaluateLogic(jsonNode.get(SPREAD)[0], data)
-                if (!arrayNode.isArray) {
-                    throw IllegalArgumentException("Spread for arrays only supports other arrays")
-                }
-                arrayNode
-            } else {
-                evaluateLogic(jsonNode, data)
-            }
-        }
+        list
     )
 }
 
