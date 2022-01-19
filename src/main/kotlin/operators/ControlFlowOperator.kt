@@ -14,7 +14,7 @@ enum class ControlFlowOperator : Operator {
     Assign {
         override val operator = "assign"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val identifier = evaluateLogic(args[0], data)
             val value = evaluateLogic(args[1], data)
 
@@ -45,7 +45,7 @@ enum class ControlFlowOperator : Operator {
     Declare {
         override val operator = "declare"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val identifier = evaluateLogic(args[0], data)
             if (!identifier.isTextual)
                 argError("First parameter of declare must be a string")
@@ -60,7 +60,7 @@ enum class ControlFlowOperator : Operator {
     Script {
         override val operator = "script"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             val scopedData = ObjectNode(JsonNodeFactory.instance)
                 .setAll<JsonNode>(data as ObjectNode)
             try {
@@ -75,7 +75,7 @@ enum class ControlFlowOperator : Operator {
     Init {
         override val operator = "init"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             return evaluateInit(args, data)
         }
     },
@@ -83,7 +83,7 @@ enum class ControlFlowOperator : Operator {
     Return {
         override val operator = "return"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): Nothing {
+        override fun invoke(args: JsonNode, data: JsonNode): Nothing {
             throw ReturnException(evaluateLogic(args.first(), data))
         }
     },
@@ -91,7 +91,7 @@ enum class ControlFlowOperator : Operator {
     If {
         override val operator: String = "if"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             return evaluateIf(args, data)
         }
     },
@@ -99,7 +99,7 @@ enum class ControlFlowOperator : Operator {
     Ternary {
         override val operator = "?:"
 
-        override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
+        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
             return evaluateIf(args, data)
         }
     };
