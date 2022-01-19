@@ -51,8 +51,8 @@ fun evaluateLogic(
 
         val (operator, args) = logic.fields().next()
         when (operator) {
-            "var" -> evaluateVar(args, data)
-            "!" -> evaluateNot(args, data)
+            "var" -> evaluateVar(jfn, args, data)
+            "!" -> evaluateNot(jfn, args, data)
             else -> {
                 if (!(args is ArrayNode && args.size() > 0)) {
                     throw RuntimeException(
@@ -60,9 +60,9 @@ fun evaluateLogic(
                     )
                 }
                 when (operator) {
-                    "if" -> evaluateIf(args[0], args[1], args[2], data)
-                    in operators -> operators(operator, args, data)
-                    "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
+                    "if" -> evaluateIf(jfn, args[0], args[1], args[2], data)
+                    in operators -> operators(operator, jfn, args, data)
+                    "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
                     else -> throw RuntimeException("unrecognised operator: \"$operator\"")
                 }
             }
@@ -71,7 +71,7 @@ fun evaluateLogic(
     else -> throw RuntimeException("invalid JsonFunctions expression: ${logic.toPrettyString()}")
 }
 
-internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
+internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
 
     val path = when {
         args.isArray -> {
@@ -80,7 +80,7 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
             }
             if (args.first().isObject) {
                 // var declares an operation
-                return evaluateLogic(args.first(), data)
+                return evaluateLogic(jfn, args.first(), data)
             }
             if (args.size() == 1) {
                 args.first().asText()

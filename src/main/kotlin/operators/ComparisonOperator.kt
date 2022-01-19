@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.JsonFunctions
 import de.rki.jfn.compare
 import de.rki.jfn.error.argError
-import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isValueFalsy
-import de.rki.jfn.isValueTruthy
 
 enum class ComparisonOperator : Operator {
 
@@ -18,8 +17,8 @@ enum class ComparisonOperator : Operator {
     StrictEquality {
         override val operator = "==="
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val evalArgs = jfn.evaluate(args, data)
 
             val left = evalArgs[0]
             val right = evalArgs[1]
@@ -41,8 +40,8 @@ enum class ComparisonOperator : Operator {
     LooseEquality {
         override val operator = "=="
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val evalArgs = jfn.evaluate(args, data)
 
             val left = evalArgs[0]
             val right = evalArgs[1]
@@ -67,8 +66,8 @@ enum class ComparisonOperator : Operator {
     StrictInequality {
         override val operator = "!=="
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val evalArgs = jfn.evaluate(args, data)
 
             val left = evalArgs[0]
             val right = evalArgs[1]
@@ -86,8 +85,8 @@ enum class ComparisonOperator : Operator {
     LooseInequality {
         override val operator = "!="
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val evalArgs = jfn.evaluate(args, data)
             val left = evalArgs[0]
             val right = evalArgs[1]
 
@@ -111,9 +110,9 @@ enum class ComparisonOperator : Operator {
     GreaterThan {
         override val operator = ">"
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
-            val evalArgs = evaluateLogic(args, data)
+            val evalArgs = jfn.evaluate(args, data)
             return BooleanNode.valueOf(compare(">", evalArgs.map { mapToDouble(it) }))
         }
     },
@@ -121,9 +120,9 @@ enum class ComparisonOperator : Operator {
     GreaterOrEqualsThan {
         override val operator = ">="
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
-            val evalArgs = evaluateLogic(args, data)
+            val evalArgs = jfn.evaluate(args, data)
             return BooleanNode.valueOf(compare(">=", evalArgs.map { mapToDouble(it) }))
         }
     },
@@ -131,9 +130,9 @@ enum class ComparisonOperator : Operator {
     LessThan {
         override val operator = "<"
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
-            val evalArgs = evaluateLogic(args, data)
+            val evalArgs = jfn.evaluate(args, data)
             return BooleanNode.valueOf(compare("<", evalArgs.map { mapToDouble(it) }))
         }
     },
@@ -141,9 +140,9 @@ enum class ComparisonOperator : Operator {
     LessOrEqualsThan {
         override val operator = "<="
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
-            val evalArgs = evaluateLogic(args, data)
+            val evalArgs = jfn.evaluate(args, data)
             return BooleanNode.valueOf(compare("<=", evalArgs.map { mapToDouble(it) }))
         }
     },
@@ -151,8 +150,8 @@ enum class ComparisonOperator : Operator {
     In {
         override val operator = "in"
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val evalArgs = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val evalArgs = jfn.evaluate(args, data)
 
             val left = evalArgs[0]
             val right = evalArgs[1]
@@ -176,11 +175,11 @@ enum class ComparisonOperator : Operator {
     And {
         override val operator = "and"
 
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             return args.fold(BooleanNode.TRUE as JsonNode) { acc, current ->
                 when {
                     isValueFalsy(acc) -> acc
-                    isValueTruthy(acc) -> evaluateLogic(current, data)
+                    jfn.isTruthy(acc) -> jfn.evaluate(current, data)
                     else -> throw RuntimeException(
                         "all operands of an \"and\" operation must be either truthy or falsy"
                     )
