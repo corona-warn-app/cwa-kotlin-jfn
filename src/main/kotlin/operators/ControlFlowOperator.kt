@@ -35,8 +35,7 @@ enum class ControlFlowOperator : Operator {
                     newData.set(index, value)
                 else
                     newData.add(value)
-            }
-            else (newData as ObjectNode).replace(propertyName, value)
+            } else (newData as ObjectNode).replace(propertyName, value)
 
             return NullNode.instance
         }

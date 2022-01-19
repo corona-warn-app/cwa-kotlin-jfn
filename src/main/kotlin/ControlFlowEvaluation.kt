@@ -77,7 +77,6 @@ internal fun evaluateObject(
                 target.setAll<ObjectNode>(objectNode)
             }
             index += 1
-
         } else {
             val property = evaluateLogic(jsonNode, data)
             if (property.isObject || property.isArray || property.isNull)

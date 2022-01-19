@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
-import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.ControlFlowOperator
+import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
 import de.rki.jfn.operators.TimeOperator
 
