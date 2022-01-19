@@ -12,6 +12,23 @@ internal fun evaluateIf(
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
+
+    var index = 0
+    while (index < arguments.size()) {
+        val conditionEvaluation = evaluateLogic(arguments[index], data)
+        if (isValueTruthy(conditionEvaluation))
+            return if (arguments.contains(index + 1)) evaluateLogic(arguments[index + 1], data)
+            else conditionEvaluation
+        index += 2
+    }
+
+    return NullNode.instance
+}
+
+internal fun evaluateTernary(
+    arguments: JsonNode,
+    data: JsonNode
+): JsonNode {
     val ifCondition = if (arguments.contains(0)) arguments[0] else return NullNode.instance
     val conditionEvaluation = evaluateLogic(ifCondition, data)
     if (arguments.size() == 1) return conditionEvaluation

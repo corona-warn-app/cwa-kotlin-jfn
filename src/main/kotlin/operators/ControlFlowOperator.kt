@@ -9,6 +9,7 @@ import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateIf
 import de.rki.jfn.evaluateInit
 import de.rki.jfn.evaluateLogic
+import de.rki.jfn.evaluateTernary
 
 enum class ControlFlowOperator : Operator {
     Assign {
@@ -99,7 +100,7 @@ enum class ControlFlowOperator : Operator {
         override val operator = "?:"
 
         override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            return evaluateIf(args, data)
+            return evaluateTernary(args, data)
         }
     };
 
