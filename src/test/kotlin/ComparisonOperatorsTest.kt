@@ -11,6 +11,13 @@ class ComparisonOperatorsTest {
         """{ "==" : [ 1, 1 ] } """.evaluateJson("{}").booleanValue() shouldBe true
         """{ "==" : [ 1, "1" ] } """.evaluateJson("{}").booleanValue() shouldBe true
         """{ "==" : [ 1, 2 ] } """.evaluateJson("{}").booleanValue() shouldBe false
+
+        """{ "==" : [ "1.0", 1 ] } """.evaluateJson("{}").booleanValue() shouldBe true
+        """{ "==" : [ 1.0, "1" ] } """.evaluateJson("{}").booleanValue() shouldBe true
+        """{ "==" : [ "1.0", "1" ] } """.evaluateJson("{}").booleanValue() shouldBe false
+        """{ "==" : [ 1.0, 1 ] } """.evaluateJson("{}").booleanValue() shouldBe true
+
+        """{ "==" : [ 1.0, "a" ] } """.evaluateJson("{}").booleanValue() shouldBe false
     }
 
     @Test
@@ -18,6 +25,11 @@ class ComparisonOperatorsTest {
         """{ "===" : [ 1, 1 ] } """.evaluateJson("{}").booleanValue() shouldBe true
         """{ "===" : [ 1, "1" ] } """.evaluateJson("{}").booleanValue() shouldBe false
         """{ "===" : [ 1, 2 ] } """.evaluateJson("{}").booleanValue() shouldBe false
+
+        """{ "===" : [ "1.0", 1 ] } """.evaluateJson("{}").booleanValue() shouldBe false
+        """{ "===" : [ 1.0, "1" ] } """.evaluateJson("{}").booleanValue() shouldBe false
+        """{ "===" : [ "1.0", "1" ] } """.evaluateJson("{}").booleanValue() shouldBe false
+        """{ "===" : [ 1.0, 1 ] } """.evaluateJson("{}").booleanValue() shouldBe true
     }
 
     @Test
@@ -25,6 +37,9 @@ class ComparisonOperatorsTest {
         """{ "!=" : [ 1, 1 ] } """.evaluateJson("{}").booleanValue() shouldBe false
         """{ "!=" : [ 1, "1" ] } """.evaluateJson("{}").booleanValue() shouldBe false
         """{ "!=" : [ 1, 2 ] } """.evaluateJson("{}").booleanValue() shouldBe true
+        """{ "!=" : [ 1, 1.0 ] } """.evaluateJson("{}").booleanValue() shouldBe false
+
+        """{ "!=" : [ 1, "a" ] } """.evaluateJson("{}").booleanValue() shouldBe true
     }
 
     @Test
@@ -32,6 +47,11 @@ class ComparisonOperatorsTest {
         """{ "!==" : [ 1, 1 ] } """.evaluateJson("{}").booleanValue() shouldBe false
         """{ "!==" : [ 1, "1" ] } """.evaluateJson("{}").booleanValue() shouldBe true
         """{ "!==" : [ 1, 2 ] } """.evaluateJson("{}").booleanValue() shouldBe true
+
+        """{ "!==" : [ "1.0", 1 ] } """.evaluateJson("{}").booleanValue() shouldBe true
+        """{ "!==" : [ 1.0, "1" ] } """.evaluateJson("{}").booleanValue() shouldBe true
+        """{ "!==" : [ "1.0", "1" ] } """.evaluateJson("{}").booleanValue() shouldBe true
+        """{ "!==" : [ 1.0, 1 ] } """.evaluateJson("{}").booleanValue() shouldBe false
     }
 
     @Test
@@ -122,13 +142,18 @@ class ComparisonOperatorsTest {
         """{">" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
         """{">" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe false
         """{">" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+
+        """{">" : [ "2.0", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
     }
 
     @Test
     fun `test 'greater or equals' operator`() = assertSoftly {
         """{">=" : [ 2, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
         """{">=" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
+        """{">=" : [ 1, 1.0 ] }""".evaluateJson("{}").booleanValue() shouldBe true
         """{">=" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{">=" : [ 1, 2.0 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{">=" : [ 2.1, 2.0 ] }""".evaluateJson("{}").booleanValue() shouldBe true
         """{">=" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
     }
 
@@ -138,6 +163,8 @@ class ComparisonOperatorsTest {
         """{"<" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
         """{"<" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe true
         """{"<" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+
+        """{"<" : [ "2", 1.0 ] }""".evaluateJson("{}").booleanValue() shouldBe false
     }
 
     @Test
@@ -146,5 +173,7 @@ class ComparisonOperatorsTest {
         """{"<=" : [ 1, 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
         """{"<=" : [ 1, 2 ] }""".evaluateJson("{}").booleanValue() shouldBe true
         """{"<=" : [ "2", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"<=" : [ "2.0", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe false
+        """{"<=" : [ "1.0", 1 ] }""".evaluateJson("{}").booleanValue() shouldBe true
     }
 }

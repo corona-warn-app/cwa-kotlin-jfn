@@ -3,7 +3,7 @@ package de.rki.jfn.operators
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
-import com.fasterxml.jackson.databind.node.IntNode
+import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.compare
 import de.rki.jfn.error.argError
@@ -21,7 +21,17 @@ enum class ComparisonOperator : Operator {
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(evalArgs[0] == evalArgs[1])
+
+            val left = evalArgs[0]
+            val right = evalArgs[1]
+
+            return if (left.isNumber and right.isNumber) {
+                val isEqual = left.doubleValue() == right.doubleValue()
+                BooleanNode.valueOf(isEqual)
+            } else {
+                val isEqual = left == right
+                BooleanNode.valueOf(isEqual)
+            }
         }
     },
 
@@ -34,7 +44,24 @@ enum class ComparisonOperator : Operator {
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(evalArgs[0].asText() == evalArgs[1].asText())
+
+            val left = evalArgs[0]
+            val right = evalArgs[1]
+
+            return if (left.isNumber or right.isNumber) {
+                try {
+                    val rightDouble = mapToDouble(right)
+                    val leftDouble = mapToDouble(left)
+
+                    val isEqual = leftDouble == rightDouble
+                    BooleanNode.valueOf(isEqual)
+                } catch (exception: NumberFormatException) {
+                    BooleanNode.FALSE
+                }
+            } else {
+                val isEqual = left.asText() == right.asText()
+                BooleanNode.valueOf(isEqual)
+            }
         }
     },
 
@@ -43,7 +70,17 @@ enum class ComparisonOperator : Operator {
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(evalArgs[0] != evalArgs[1])
+
+            val left = evalArgs[0]
+            val right = evalArgs[1]
+
+            return if (left.isNumber and right.isNumber) {
+                val isEqual = left.doubleValue() != right.doubleValue()
+                BooleanNode.valueOf(isEqual)
+            } else {
+                val isEqual = left != right
+                BooleanNode.valueOf(isEqual)
+            }
         }
     },
 
@@ -52,7 +89,23 @@ enum class ComparisonOperator : Operator {
 
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(evalArgs[0].asText() != evalArgs[1].asText())
+            val left = evalArgs[0]
+            val right = evalArgs[1]
+
+            return if (left.isNumber or right.isNumber) {
+                try {
+                    val rightDouble = mapToDouble(right)
+                    val leftDouble = mapToDouble(left)
+
+                    val isEqual = leftDouble != rightDouble
+                    BooleanNode.valueOf(isEqual)
+                } catch (exception: NumberFormatException) {
+                    BooleanNode.TRUE
+                }
+            } else {
+                val isEqual = left.asText() != right.asText()
+                BooleanNode.valueOf(isEqual)
+            }
         }
     },
 
@@ -62,7 +115,7 @@ enum class ComparisonOperator : Operator {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(compare(">", evalArgs.map { mapToInt(it) }))
+            return BooleanNode.valueOf(compare(">", evalArgs.map { mapToDouble(it) }))
         }
     },
 
@@ -72,7 +125,7 @@ enum class ComparisonOperator : Operator {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(compare(">=", evalArgs.map { mapToInt(it) }))
+            return BooleanNode.valueOf(compare(">=", evalArgs.map { mapToDouble(it) }))
         }
     },
 
@@ -82,7 +135,7 @@ enum class ComparisonOperator : Operator {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(compare("<", evalArgs.map { mapToInt(it) }))
+            return BooleanNode.valueOf(compare("<", evalArgs.map { mapToDouble(it) }))
         }
     },
 
@@ -92,7 +145,7 @@ enum class ComparisonOperator : Operator {
         override fun invoke(args: ArrayNode, data: JsonNode): JsonNode {
             throwOnIllegalSizeOfArgs(args, operator)
             val evalArgs = evaluateLogic(args, data)
-            return BooleanNode.valueOf(compare("<=", evalArgs.map { mapToInt(it) }))
+            return BooleanNode.valueOf(compare("<=", evalArgs.map { mapToDouble(it) }))
         }
     },
 
@@ -142,21 +195,12 @@ enum class ComparisonOperator : Operator {
     }
 }
 
-// tries to map a JsonNode to an integer value or throws an IllegalArgumentException if it can't
-private fun mapToInt(it: JsonNode): Int = when (it) {
-    is IntNode -> it.intValue()
-    is TextNode -> {
-        try {
-            it.textValue().toInt()
-        } catch (exception: NumberFormatException) {
-            argError(
-                "operand of a comparison operator is not an integer and" +
-                    "cant be converted to an int"
-            )
-        }
-    }
+// tries to map a JsonNode to a double value or throws an NumberFormatException if it can't
+private fun mapToDouble(it: JsonNode): Double = when (it) {
+    is NumericNode -> it.doubleValue()
+    is TextNode -> it.textValue().toDouble()
     else -> {
-        argError("operand of a comparison operator has invalid type")
+        throw NumberFormatException()
     }
 }
 
