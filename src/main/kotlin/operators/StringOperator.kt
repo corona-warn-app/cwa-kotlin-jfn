@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.TextNode
-import de.rki.jfn.error.argError
 import de.rki.jfn.JsonFunctions
+import de.rki.jfn.error.argError
 
 enum class StringOperator : Operator {
     Split {

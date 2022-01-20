@@ -77,6 +77,7 @@ enum class MathOperator : Operator {
 }
 
 private fun MathOperator.evaluateIfArray(
+    jfn: JsonFunctions,
     args: JsonNode,
     data: JsonNode,
     requiresTwoOperands: Boolean,
@@ -87,7 +88,7 @@ private fun MathOperator.evaluateIfArray(
     return if (args !is ArrayNode) {
         args.number.toNumericNode()
     } else {
-        evaluate(args, data, requiresTwoOperands, mathOperation)
+        evaluate(jfn, args, data, requiresTwoOperands, mathOperation)
     }
 }
 
