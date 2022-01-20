@@ -183,10 +183,7 @@ internal fun evaluateArray(
             list.add(evaluateLogic(jsonNode, data))
         }
     }
-    return ArrayNode(
-        JsonNodeFactory.instance,
-        list
-    )
+    return JsonNodeFactory.instance.arrayNode().addAll(list)
 }
 
 internal class ReturnException(
