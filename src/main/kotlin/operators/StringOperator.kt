@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateLogic
 
 enum class StringOperator : Operator {
     Split {
         override val operator = "split"
         override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            if (args.size() < 2) throw IllegalArgumentException(
+            if (args.size() < 2) argError(
                 "an \"$operator\"  operation must have at least 2 operands"
             )
 
@@ -36,7 +37,7 @@ enum class StringOperator : Operator {
     ReplaceAll {
         override val operator = "replaceAll"
         override fun invoke(args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() !in 2..3) throw IllegalArgumentException(
+            if (args.size() !in 2..3) argError(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
 
@@ -60,7 +61,7 @@ enum class StringOperator : Operator {
     Concatenate {
         override val operator = "concatenate"
         override fun invoke(args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() < 2) throw IllegalArgumentException(
+            if (args.size() < 2) argError(
                 "an \"$operator\"  operation must have at least 2 operands"
             )
 
@@ -85,10 +86,7 @@ enum class StringOperator : Operator {
     ToUpperCase {
         override val operator = "toUpperCase"
         override fun invoke(args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() > 1) throw IllegalArgumentException(
-                "an \"$operator\"  operation must have 1 operand"
-            )
-
+            if (args.size() > 1) argError("an \"$operator\"  operation must have 1 operand")
             val scopedString = evaluateLogic(args[0], data)
             if (isInvalidType(scopedString)) return TextNode("")
             return TextNode(scopedString.asText().uppercase())
@@ -98,10 +96,7 @@ enum class StringOperator : Operator {
     ToLowerCase {
         override val operator = "toLowerCase"
         override fun invoke(args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() > 1) throw IllegalArgumentException(
-                "an \"$operator\"  operation must have 1 operand"
-            )
-
+            if (args.size() > 1) argError("an \"$operator\"  operation must have 1 operand")
             val scopedString = evaluateLogic(args[0], data)
             if (isInvalidType(scopedString)) return TextNode("")
             return TextNode(scopedString.asText().lowercase())
@@ -117,7 +112,7 @@ enum class StringOperator : Operator {
     Substring {
         override val operator = "substr"
         override fun invoke(args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() !in 2..3) throw IllegalArgumentException(
+            if (args.size() !in 2..3) argError(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
             )
 
@@ -128,26 +123,18 @@ enum class StringOperator : Operator {
             if (isInvalidType(scopedString)) return TextNode("")
             val initialString = scopedString.asText()
 
-            if (scopedIndex.isNull) {
-                throw IllegalArgumentException("Index must not be null")
-            }
-            if (!scopedIndex.isInt) {
-                throw IllegalArgumentException("Index type must be integer")
-            }
+            if (scopedIndex.isNull) argError("Index must not be null")
+            if (!scopedIndex.isInt) argError("Index type must be integer")
 
             val index = scopedIndex.asInt()
             val cleanedIndex = if (index < 0) initialString.length + index else index
-            if (cleanedIndex >= initialString.length || cleanedIndex < 0) {
-                throw IllegalArgumentException(
-                    "Incorrect index. For this string the index should be in " +
-                        "range from ${-initialString.length} to ${initialString.length}"
-                )
-            }
+            if (cleanedIndex >= initialString.length || cleanedIndex < 0) argError(
+                "Incorrect index. For this string the index should be in " +
+                    "range from ${-initialString.length} to ${initialString.length}"
+            )
 
             return if (scopedOffset != null && !scopedOffset.isNull) {
-                if (!scopedOffset.isInt) {
-                    throw IllegalArgumentException("Offset type must be integer")
-                }
+                if (!scopedOffset.isInt) argError("Offset type must be integer")
                 val offset = scopedOffset.asInt()
                 val cleanedOffset = if (offset < 0) {
                     initialString.length + offset
