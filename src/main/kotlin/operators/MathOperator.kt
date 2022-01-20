@@ -5,59 +5,69 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.JsonFunctions
 import de.rki.jfn.common.toNumericNode
 import de.rki.jfn.error.argError
-import de.rki.jfn.evaluateLogic
 
 enum class MathOperator : Operator {
     Plus {
         override val operator: String = "+"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluateIfArray(
-            args = args,
-            data = data,
-            requiresTwoOperands = false,
-            mathOperation = Double::plus
-        )
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
+            evaluateIfArray(
+                jfn = jfn,
+                args = args,
+                data = data,
+                requiresTwoOperands = false,
+                mathOperation = Double::plus
+            )
     },
 
     Minus {
         override val operator: String = "-"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluateIfArray(
-            args = args,
-            data = data,
-            requiresTwoOperands = true,
-            mathOperation = Double::minus
-        )
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
+            evaluateIfArray(
+                jfn = jfn,
+                args = args,
+                data = data,
+                requiresTwoOperands = true,
+                mathOperation = Double::minus
+            )
     },
 
     Multiplication {
         override val operator: String = "*"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluateIfArray(
-            args = args,
-            data = data,
-            requiresTwoOperands = false,
-            mathOperation = Double::times
-        )
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
+            evaluateIfArray(
+                jfn = jfn,
+                args = args,
+                data = data,
+                requiresTwoOperands = false,
+                mathOperation = Double::times
+            )
     },
 
     Division {
         override val operator: String = "/"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluateIfArray(
-            args = args,
-            data = data,
-            requiresTwoOperands = true,
-            mathOperation = Double::div
-        )
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
+            evaluateIfArray(
+                jfn = jfn,
+                args = args,
+                data = data,
+                requiresTwoOperands = true,
+                mathOperation = Double::div
+            )
     },
 
     Modulo {
         override val operator: String = "%"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode = evaluateIfArray(
-            args = args,
-            data = data,
-            requiresTwoOperands = true,
-            mathOperation = Double::rem
-        )
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
+            evaluateIfArray(
+                jfn = jfn,
+                args = args,
+                data = data,
+                requiresTwoOperands = true,
+                mathOperation = Double::rem
+            )
     };
 
     companion object : OperatorSet {
@@ -67,6 +77,7 @@ enum class MathOperator : Operator {
 }
 
 private fun MathOperator.evaluateIfArray(
+    jfn: JsonFunctions,
     args: JsonNode,
     data: JsonNode,
     requiresTwoOperands: Boolean,
@@ -77,17 +88,18 @@ private fun MathOperator.evaluateIfArray(
     return if (args !is ArrayNode) {
         args.number.toNumericNode()
     } else {
-        evaluate(args, data, requiresTwoOperands, mathOperation)
+        evaluate(jfn, args, data, requiresTwoOperands, mathOperation)
     }
 }
 
 private fun MathOperator.evaluate(
+    jfn: JsonFunctions,
     args: JsonNode,
     data: JsonNode,
     requiresTwoOperands: Boolean,
     mathOperation: MathOperation
 ): NumericNode {
-    val node = evaluateLogic(logic = args, data = data)
+    val node = jfn.evaluate(logic = args, data = data)
     return when {
         node.size() == 1 && this == MathOperator.Minus -> node.first().number * (-1)
 
@@ -96,8 +108,7 @@ private fun MathOperator.evaluate(
             false -> argError("Operator '$operator' requires two operands")
         }
 
-        else -> node.map { it.number }
-            .reduce { acc, i -> mathOperation(acc, i) }
+        else -> node.map { it.number }.reduce { acc, i -> mathOperation(acc, i) }
     }.toNumericNode()
 }
 
