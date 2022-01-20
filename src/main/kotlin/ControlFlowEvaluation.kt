@@ -8,6 +8,58 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.contains
 import de.rki.jfn.error.argError
 
+internal fun evaluateAssign(
+    arguments: JsonNode,
+    data: JsonNode
+): JsonNode {
+    val identifier = evaluateLogic(arguments[0], data)
+    val value = evaluateLogic(arguments[1], data)
+
+    if (!identifier.isTextual) argError("First parameter of assign must be a string")
+
+    val identifierChunks = identifier.asText().split('.').toMutableList()
+    val propertyName = identifierChunks.last()
+    identifierChunks.removeLast()
+
+    val newData = identifierChunks.fold(data) { acc, chunk ->
+        if (acc.isArray) acc[Integer.valueOf(chunk)] else acc.get(chunk)
+    }
+    if (newData.isArray) {
+        newData as ArrayNode
+        val index = Integer.valueOf(propertyName).toInt()
+        if (index < newData.size()) newData.set(index, value)
+        else newData.add(value)
+    } else (newData as ObjectNode).replace(propertyName, value)
+
+    return NullNode.instance
+}
+
+internal fun evaluateDeclare(
+    arguments: JsonNode,
+    data: JsonNode
+): JsonNode {
+    val identifier = evaluateLogic(arguments[0], data)
+    if (!identifier.isTextual) argError("First parameter of declare must be a string")
+
+    val value = evaluateLogic(arguments[1], data)
+    data as ObjectNode
+    data.replace(identifier.asText(), value)
+    return NullNode.instance
+}
+
+internal fun evaluateScript(
+    arguments: JsonNode,
+    data: JsonNode
+): JsonNode {
+    val scopedData = JsonNodeFactory.instance.objectNode().setAll<JsonNode>(data as ObjectNode)
+    try {
+        arguments.forEach { evaluateLogic(it, scopedData) }
+    } catch (e: ReturnException) {
+        return e.data
+    }
+    return NullNode.instance
+}
+
 internal fun evaluateIf(
     arguments: JsonNode,
     data: JsonNode
@@ -16,9 +68,16 @@ internal fun evaluateIf(
     var index = 0
     while (index < arguments.size()) {
         val conditionEvaluation = evaluateLogic(arguments[index], data)
-        if (isValueTruthy(conditionEvaluation))
-            return if (arguments.contains(index + 1)) evaluateLogic(arguments[index + 1], data)
-            else conditionEvaluation
+        if (isValueTruthy(conditionEvaluation)) // if condition met or else branch
+            return if (arguments.contains(index + 1))
+                evaluateLogic(arguments[index + 1], data) // if condition met
+            else conditionEvaluation // else branch
+
+        if (index + 2 >= arguments.size()) { // no further else if
+            return if (isValueFalsy(conditionEvaluation) && arguments.contains(index + 1))
+                NullNode.instance // else-if condition not met
+            else conditionEvaluation  // else branch
+        }
         index += 2
     }
 
@@ -51,14 +110,11 @@ internal fun evaluateInit(
     data: JsonNode
 ): JsonNode {
     val type = evaluateLogic(arguments[0], data).asText()
-    if (type == "literal") {
-        return evaluateLiteral(arguments, data)
-    } else if (type == "object") {
-        return evaluateObject(arguments, data)
-    } else if (type == "array") {
-        return evaluateArray(arguments, data)
-    } else {
-        throw IllegalArgumentException("Not supported type $type")
+    return when (type) {
+        "literal" -> evaluateLiteral(arguments, data)
+        "object" -> evaluateObject(arguments, data)
+        "array" -> evaluateArray(arguments, data)
+        else -> argError("Not supported type $type")
     }
 }
 
@@ -117,7 +173,7 @@ internal fun evaluateArray(
         if (jsonNode.has(SPREAD) && jsonNode.get(SPREAD).isArray) {
             val arrayNode = evaluateLogic(jsonNode.get(SPREAD)[0], data)
             if (!arrayNode.isArray) {
-                throw IllegalArgumentException("Spread for arrays only supports other arrays")
+                argError("Spread for arrays only supports other arrays")
             }
 
             arrayNode.elements().forEach {
@@ -132,5 +188,9 @@ internal fun evaluateArray(
         list
     )
 }
+
+internal class ReturnException(
+    val data: JsonNode
+) : Exception()
 
 private const val SPREAD = "spread"
