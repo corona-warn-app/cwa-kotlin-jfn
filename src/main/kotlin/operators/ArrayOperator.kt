@@ -205,7 +205,7 @@ enum class ArrayOperator : Operator {
             val scopedData = evaluateLogic(args, data)
 
             val arrayNode = JsonNodeFactory.instance.arrayNode()
-            if (scopedData.size() == 0) return arrayNode.add(scopedData)
+            if (scopedData !is ArrayNode) return arrayNode.add(scopedData)
             scopedData.forEach { jsonNode ->
                 when (jsonNode) {
                     is ArrayNode -> arrayNode.addAll(jsonNode)
