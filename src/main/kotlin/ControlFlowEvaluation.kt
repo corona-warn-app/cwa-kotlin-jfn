@@ -100,7 +100,7 @@ internal fun evaluateTernary(
         val elseStatement = if (arguments.contains(2)) arguments[2] else NullNode.instance
         return evaluateLogic(elseStatement, data)
     }
-    throw IllegalArgumentException(
+    argError(
         "if-condition evaluates to something neither truthy, nor falsy: $conditionEvaluation"
     )
 }
