@@ -76,7 +76,7 @@ internal fun evaluateIf(
         if (index + 2 >= arguments.size()) { // no further else if
             return if (isValueFalsy(conditionEvaluation) && arguments.contains(index + 1))
                 NullNode.instance // else-if condition not met
-            else conditionEvaluation  // else branch
+            else conditionEvaluation // else branch
         }
         index += 2
     }
