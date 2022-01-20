@@ -8,6 +8,45 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.contains
 import de.rki.jfn.error.argError
 
+internal fun evaluateCall(
+    jfn: JsonFunctions,
+    arguments: JsonNode,
+    data: JsonNode
+): JsonNode {
+    val name = arguments[0]
+    if (!name.isTextual) argError("Function name must be a string")
+
+    val parameters = if (arguments.has(1) && !arguments[1].isNull) arguments[1]
+       else JsonNodeFactory.instance.objectNode()
+
+    if (!parameters.isObject) {
+        argError("Parameters must be an object")
+    }
+
+    jfn as JsonFunctionsEngine
+
+    val functionDescriptor = jfn.getDescriptor(name.asText())
+    val functionDescriptorParameters =
+        functionDescriptor.get("parameters") as ArrayNode
+    val functionDescriptorLogic = functionDescriptor.get("logic") as ArrayNode
+
+//    parameters as ObjectNode
+    val scopedData = JsonNodeFactory.instance.objectNode().apply {
+        functionDescriptorParameters.forEach {
+            val propertyName = it.get("name").textValue()
+            when {
+                parameters.has(propertyName) -> set<JsonNode>(
+                    propertyName,
+                    evaluateLogic(jfn, parameters[propertyName], data)
+                )
+                it.has("default") -> set<JsonNode>(propertyName, it["default"])
+                else -> set<JsonNode>(propertyName, NullNode.instance)
+            }
+        }
+    }
+    return jfn.evaluate(functionDescriptorLogic, scopedData)
+}
+
 internal fun evaluateAssign(
     jfn: JsonFunctions,
     arguments: JsonNode,

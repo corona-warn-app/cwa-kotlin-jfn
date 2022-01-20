@@ -3,6 +3,7 @@ package de.rki.jfn
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.NullNode
 import de.rki.jfn.error.NoSuchFunctionException
 import de.rki.jfn.error.argError
 import kotlinx.coroutines.runBlocking
@@ -54,6 +55,8 @@ class JsonFunctionsEngine : JsonFunctions {
         }
     }
 
+    fun getDescriptor(name: String) = registeredFunctions[name] ?: throw NoSuchFunctionException()
+
     fun determineData(parameters: ArrayNode, input: JsonNode): JsonNode {
         return nodeFactory.objectNode().apply {
             parameters.forEach {
@@ -61,16 +64,21 @@ class JsonFunctionsEngine : JsonFunctions {
                 when {
                     input.has(propertyName) -> set<JsonNode>(propertyName, input[propertyName])
                     it.has("default") -> set<JsonNode>(propertyName, it["default"])
-                    else -> argError(
-                        "No value provided for $propertyName and also no default value defined."
-                    )
+                    else -> set<JsonNode>(propertyName, NullNode.instance)
+//                    else -> argError(
+//                        "No value provided for $propertyName and also no default value defined."
+//                    )
                 }
             }
         }
     }
 
     override fun evaluate(logic: JsonNode, data: JsonNode): JsonNode {
-        return evaluateLogic(this, logic, data)
+        return try {
+            evaluateLogic(this, logic, data)
+        } catch (e: ReturnException) {
+            e.data
+        }
     }
 
     override fun isTruthy(value: JsonNode): Boolean {

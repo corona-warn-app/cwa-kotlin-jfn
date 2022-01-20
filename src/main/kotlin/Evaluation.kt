@@ -37,12 +37,6 @@ fun evaluateLogic(
         JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(jfn, it, data) })
     }
     is ObjectNode -> {
-        if (logic.size() != 1) {
-            throw RuntimeException(
-                "unrecognised expression object encountered `${logic.toPrettyString()}`"
-            )
-        }
-
         val operators = ArrayOperator +
             StringOperator +
             TimeOperator +
@@ -59,7 +53,7 @@ fun evaluateLogic(
                 when (operator) {
                     in operators -> operators(operator, jfn, args, data)
                     "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
-                    else -> throw RuntimeException("unrecognised operator: \"$operator\"")
+                    else -> logic
                 }
             }
         }
