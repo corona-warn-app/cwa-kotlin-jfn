@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.error.argError
 import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.ComparisonOperator
@@ -37,23 +38,27 @@ fun evaluateLogic(
         JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(jfn, it, data) })
     }
     is ObjectNode -> {
-        val operators = ArrayOperator +
-            StringOperator +
-            TimeOperator +
-            MathOperator +
-            AccessingDataOperator +
-            ComparisonOperator +
-            ControlFlowOperator
+        if (logic.size() != 1) {
+             logic
+        } else {
+            val operators = ArrayOperator +
+                StringOperator +
+                TimeOperator +
+                MathOperator +
+                AccessingDataOperator +
+                ComparisonOperator +
+                ControlFlowOperator
 
-        val (operator, args) = logic.fields().next()
-        when (operator) {
-            "var" -> evaluateVar(jfn, args, data)
-            "!" -> evaluateNot(jfn, args, data)
-            else -> {
-                when (operator) {
-                    in operators -> operators(operator, jfn, args, data)
-                    "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
-                    else -> logic
+            val (operator, args) = logic.fields().next()
+            when (operator) {
+                "var" -> evaluateVar(jfn, args, data)
+                "!" -> evaluateNot(jfn, args, data)
+                else -> {
+                    when (operator) {
+                        in operators -> operators(operator, jfn, args, data)
+                        "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
+                        else -> argError("unrecognised operator: $operator")
+                    }
                 }
             }
         }

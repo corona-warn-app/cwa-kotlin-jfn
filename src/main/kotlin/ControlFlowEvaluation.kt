@@ -19,9 +19,7 @@ internal fun evaluateCall(
     val parameters = if (arguments.has(1) && !arguments[1].isNull) arguments[1]
        else JsonNodeFactory.instance.objectNode()
 
-    if (!parameters.isObject) {
-        argError("Parameters must be an object")
-    }
+    if (!parameters.isObject) argError("Parameters must be an object")
 
     jfn as JsonFunctionsEngine
 
@@ -30,7 +28,6 @@ internal fun evaluateCall(
         functionDescriptor.get("parameters") as ArrayNode
     val functionDescriptorLogic = functionDescriptor.get("logic") as ArrayNode
 
-//    parameters as ObjectNode
     val scopedData = JsonNodeFactory.instance.objectNode().apply {
         functionDescriptorParameters.forEach {
             val propertyName = it.get("name").textValue()
