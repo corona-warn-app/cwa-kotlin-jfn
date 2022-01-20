@@ -29,9 +29,14 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@4137be6a8bf7d7133955359dbd952c0ca73b1021
         with:
-          arguments: build test
+          arguments: build
       - name: Archive test report
         uses: actions/upload-artifact@v2
         with:
           name: Test report
           path: build/reports/tests/test
+      - name: Generate JaCoCo Badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          generate-branches-badge: true
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
