@@ -50,11 +50,6 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
             "var" -> evaluateVar(args, data)
             "!" -> evaluateNot(args, data)
             else -> {
-                if (!(args is ArrayNode && args.size() > 0)) {
-                    throw RuntimeException(
-                        "operation not of the form { \"<operator>\": [ <args...> ] }"
-                    )
-                }
                 when (operator) {
                     "if" -> evaluateIf(args[0], args[1], args[2], data)
                     in operators -> operators(operator, args, data)
