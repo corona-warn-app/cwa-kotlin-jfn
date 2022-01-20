@@ -39,7 +39,7 @@ fun evaluateLogic(
     }
     is ObjectNode -> {
         if (logic.size() != 1) {
-             logic
+            logic
         } else {
             val operators = ArrayOperator +
                 StringOperator +

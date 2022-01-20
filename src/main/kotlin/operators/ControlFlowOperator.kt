@@ -44,7 +44,8 @@ enum class ControlFlowOperator : Operator {
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             return jfn.evaluate(
                 evaluateLogic(jfn, args[0], data),
-                evaluateLogic(jfn, args[1], data))
+                evaluateLogic(jfn, args[1], data)
+            )
         }
     },
 

@@ -17,7 +17,7 @@ internal fun evaluateCall(
     if (!name.isTextual) argError("Function name must be a string")
 
     val parameters = if (arguments.has(1) && !arguments[1].isNull) arguments[1]
-       else JsonNodeFactory.instance.objectNode()
+    else JsonNodeFactory.instance.objectNode()
 
     if (!parameters.isObject) argError("Parameters must be an object")
 
