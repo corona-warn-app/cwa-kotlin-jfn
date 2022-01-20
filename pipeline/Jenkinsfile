@@ -1,0 +1,5 @@
+#!/usr/bin/env groovy
+
+@Library(['piper-lib', 'cwa-remote-pipelines']) _
+
+cwaKotlinJfnPipeline script: this, customDefaults: ['cwa-mobile-clients-defaults.yml', 'cwaKotlinJfn/cwa-kotlin-jfn-config.yml']
