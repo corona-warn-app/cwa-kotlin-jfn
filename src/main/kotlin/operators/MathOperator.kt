@@ -1,6 +1,7 @@
 package de.rki.jfn.operators
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
@@ -12,7 +13,7 @@ enum class MathOperator : Operator {
     Plus {
         override val operator: String = "+"
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
-            evaluate(
+            evaluateIfArray(
                 jfn = jfn,
                 args = args,
                 data = data,
@@ -24,7 +25,7 @@ enum class MathOperator : Operator {
     Minus {
         override val operator: String = "-"
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
-            evaluate(
+            evaluateIfArray(
                 jfn = jfn,
                 args = args,
                 data = data,
@@ -36,7 +37,7 @@ enum class MathOperator : Operator {
     Multiplication {
         override val operator: String = "*"
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
-            evaluate(
+            evaluateIfArray(
                 jfn = jfn,
                 args = args,
                 data = data,
@@ -48,7 +49,7 @@ enum class MathOperator : Operator {
     Division {
         override val operator: String = "/"
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
-            evaluate(
+            evaluateIfArray(
                 jfn = jfn,
                 args = args,
                 data = data,
@@ -60,7 +61,7 @@ enum class MathOperator : Operator {
     Modulo {
         override val operator: String = "%"
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
-            evaluate(
+            evaluateIfArray(
                 jfn = jfn,
                 args = args,
                 data = data,
@@ -72,6 +73,21 @@ enum class MathOperator : Operator {
     companion object : OperatorSet {
         override val operators: Set<Operator>
             get() = values().toSet()
+    }
+}
+
+private fun MathOperator.evaluateIfArray(
+    args: JsonNode,
+    data: JsonNode,
+    requiresTwoOperands: Boolean,
+    mathOperation: MathOperation
+): JsonNode {
+
+    // Just return the argument as number if no array but a single value is passed
+    return if (args !is ArrayNode) {
+        args.number.toNumericNode()
+    } else {
+        evaluate(args, data, requiresTwoOperands, mathOperation)
     }
 }
 

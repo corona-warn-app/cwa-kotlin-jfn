@@ -2,6 +2,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.IntNode
 import de.rki.jfn.JsonFunctionsEngine
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.beInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -26,6 +29,44 @@ internal class MathOperatorTest {
 
         val logic3 = createLogic(rawLogic = """{ "+": [20,true] }""")
         assertEquals(actual = engine.evaluate(logic3, emptyNode).intValue(), expected = 21)
+    }
+
+    @Test
+    fun `Math operations with single argument`() {
+        """{
+            "+" : "0"
+        }""".evaluateJson("null").apply {
+            intValue() shouldBe 0
+            this should beInstanceOf<IntNode>()
+        }
+
+        """{
+            "-" : "0"
+        }""".evaluateJson("null").apply {
+            intValue() shouldBe 0
+            this should beInstanceOf<IntNode>()
+        }
+
+        """{
+            "*" : "0"
+        }""".evaluateJson("null").apply {
+            intValue() shouldBe 0
+            this should beInstanceOf<IntNode>()
+        }
+
+        """{
+            "/" : "0"
+        }""".evaluateJson("null").apply {
+            intValue() shouldBe 0
+            this should beInstanceOf<IntNode>()
+        }
+
+        """{
+            "%" : "0"
+        }""".evaluateJson("null").apply {
+            intValue() shouldBe 0
+            this should beInstanceOf<IntNode>()
+        }
     }
 
     @Test

@@ -54,11 +54,6 @@ fun evaluateLogic(
             "var" -> evaluateVar(jfn, args, data)
             "!" -> evaluateNot(jfn, args, data)
             else -> {
-                if (!(args is ArrayNode && args.size() > 0)) {
-                    throw RuntimeException(
-                        "operation not of the form { \"<operator>\": [ <args...> ] }"
-                    )
-                }
                 when (operator) {
                     "if" -> evaluateIf(jfn, args[0], args[1], args[2], data)
                     in operators -> operators(operator, jfn, args, data)

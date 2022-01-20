@@ -165,9 +165,8 @@ enum class ArrayOperator : Operator {
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val array = jfn.evaluate(args[0], data)
             if (array !is ArrayNode) argError("\"push\" first argument must be an array")
-
-            args.drop(0).forEach { jsonNode ->
-                array.add(jfn.evaluate(jsonNode, data))
+            for (i in 1 until args.size()) {
+                array.add(jfn.evaluate(args[i], data))
             }
             return array
         }
@@ -205,6 +204,7 @@ enum class ArrayOperator : Operator {
             val scopedData = jfn.evaluate(args, data)
 
             val arrayNode = JsonNodeFactory.instance.arrayNode()
+            if (scopedData !is ArrayNode) return arrayNode.add(scopedData)
             scopedData.forEach { jsonNode ->
                 when (jsonNode) {
                     is ArrayNode -> arrayNode.addAll(jsonNode)
