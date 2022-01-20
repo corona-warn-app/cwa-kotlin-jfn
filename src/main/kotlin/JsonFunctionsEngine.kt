@@ -65,9 +65,6 @@ class JsonFunctionsEngine : JsonFunctions {
                     input.has(propertyName) -> set<JsonNode>(propertyName, input[propertyName])
                     it.has("default") -> set<JsonNode>(propertyName, it["default"])
                     else -> set<JsonNode>(propertyName, NullNode.instance)
-//                    else -> argError(
-//                        "No value provided for $propertyName and also no default value defined."
-//                    )
                 }
             }
         }
