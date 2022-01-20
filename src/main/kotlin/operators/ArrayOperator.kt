@@ -15,21 +15,18 @@ enum class ArrayOperator : Operator {
     Reduce {
         override val operator = "reduce"
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
-            val operand: JsonNode = args[0]
-            val lambda: JsonNode = args[1]
-            val initial: JsonNode = args[2]
-
-            val evalOperand = jfn.evaluate(operand, data)
-            val evalInitial = { jfn.evaluate(initial, data) }
-
-            if (evalOperand !is ArrayNode) return evalInitial()
-            return evalOperand.foldIndexed(evalInitial()) { index, accumulator, current ->
+            val scopedData = jfn.evaluate(args[0], data)
+            val scopedLogic = args[1]
+            val initial = jfn.evaluate(args[2], data)
+            if (scopedData !is ArrayNode) return initial
+            return scopedData.foldIndexed(initial) { index, accumulator, current ->
                 jfn.evaluate(
-                    lambda,
+                    scopedLogic,
                     JsonNodeFactory.instance.objectNode()
                         .set<ObjectNode>("accumulator", accumulator)
                         .set<ObjectNode>("current", current)
                         .set<ObjectNode>("__index__", IntNode.valueOf(index))
+                        .set<ObjectNode>("data", data)
                         .setAll(data as ObjectNode) // Add other `var` values in `data`
                 )
             }
