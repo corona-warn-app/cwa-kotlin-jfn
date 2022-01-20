@@ -8,24 +8,23 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.JsonFunctions
 import de.rki.jfn.error.argError
-import de.rki.jfn.evaluateLogic
-import de.rki.jfn.isValueTruthy
 
 enum class ArrayOperator : Operator {
     Reduce {
         override val operator = "reduce"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val operand: JsonNode = args[0]
             val lambda: JsonNode = args[1]
             val initial: JsonNode = args[2]
 
-            val evalOperand = evaluateLogic(operand, data)
-            val evalInitial = { evaluateLogic(initial, data) }
+            val evalOperand = jfn.evaluate(operand, data)
+            val evalInitial = { jfn.evaluate(initial, data) }
 
             if (evalOperand !is ArrayNode) return evalInitial()
             return evalOperand.foldIndexed(evalInitial()) { index, accumulator, current ->
-                evaluateLogic(
+                jfn.evaluate(
                     lambda,
                     JsonNodeFactory.instance.objectNode()
                         .set<ObjectNode>("accumulator", accumulator)
@@ -39,9 +38,9 @@ enum class ArrayOperator : Operator {
 
     Filter {
         override val operator = "filter"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arrayNode = JsonNodeFactory.instance.arrayNode()
-            val scopedData = evaluateLogic(args[0], data)
+            val scopedData = jfn.evaluate(args[0], data)
             val scopedLogic = args[1]
             val it = args[2]
 
@@ -51,11 +50,11 @@ enum class ArrayOperator : Operator {
             val filterResult = when {
                 it != null -> scopedData.filter { jsonNode ->
                     val mergedData = mergeData(it, jsonNode, data)
-                    isValueTruthy(evaluateLogic(scopedLogic, mergedData))
+                    jfn.isTruthy(jfn.evaluate(scopedLogic, mergedData))
                 }
 
                 else -> scopedData.filter { jsonNode ->
-                    isValueTruthy(evaluateLogic(scopedLogic, jsonNode))
+                    jfn.isTruthy(jfn.evaluate(scopedLogic, jsonNode))
                 }
             }
 
@@ -65,9 +64,9 @@ enum class ArrayOperator : Operator {
 
     Map {
         override val operator = "map"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arrayNode = JsonNodeFactory.instance.arrayNode()
-            val scopedData = evaluateLogic(args[0], data)
+            val scopedData = jfn.evaluate(args[0], data)
             val scopedLogic = args[1]
             val it = args[2]
 
@@ -76,11 +75,11 @@ enum class ArrayOperator : Operator {
             val mapResult = when {
                 it != null -> scopedData.map { jsonNode ->
                     val mergedData = mergeData(it, jsonNode, data)
-                    evaluateLogic(scopedLogic, mergedData)
+                    jfn.evaluate(scopedLogic, mergedData)
                 }
 
                 else -> scopedData.map { jsonNode ->
-                    evaluateLogic(scopedLogic, jsonNode)
+                    jfn.evaluate(scopedLogic, jsonNode)
                 }
             }
 
@@ -90,8 +89,8 @@ enum class ArrayOperator : Operator {
 
     Find {
         override val operator = "find"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args[0], data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val scopedData = jfn.evaluate(args[0], data)
             val scopedLogic = args[1]
             val it = args[2]
 
@@ -99,11 +98,11 @@ enum class ArrayOperator : Operator {
             return when {
                 it != null -> scopedData.find { jsonNode ->
                     val mergedData = mergeData(it, jsonNode, data)
-                    isValueTruthy(evaluateLogic(scopedLogic, mergedData))
+                    jfn.isTruthy(jfn.evaluate(scopedLogic, mergedData))
                 }
 
                 else -> scopedData.find { jsonNode ->
-                    isValueTruthy(evaluateLogic(scopedLogic, jsonNode))
+                    jfn.isTruthy(jfn.evaluate(scopedLogic, jsonNode))
                 }
             } ?: NullNode.instance
         }
@@ -111,8 +110,8 @@ enum class ArrayOperator : Operator {
 
     All {
         override val operator = "all"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args[0], data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val scopedData = jfn.evaluate(args[0], data)
             val scopedLogic = args[1]
             val it = args[2]
 
@@ -123,12 +122,12 @@ enum class ArrayOperator : Operator {
                 val result = when {
                     it != null -> {
                         val mergedData = mergeData(it, jsonNode, data)
-                        evaluateLogic(scopedLogic, mergedData)
+                        jfn.evaluate(scopedLogic, mergedData)
                     }
-                    else -> evaluateLogic(scopedLogic, jsonNode)
+                    else -> jfn.evaluate(scopedLogic, jsonNode)
                 }
 
-                if (!isValueTruthy(result)) return BooleanNode.FALSE // First falsy, short circuit
+                if (!jfn.isTruthy(result)) return BooleanNode.FALSE // First falsy, short circuit
             }
             return BooleanNode.TRUE // All were truthy
         }
@@ -136,26 +135,26 @@ enum class ArrayOperator : Operator {
 
     None {
         override val operator = "none"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val objectNode = JsonNodeFactory.instance.objectNode().set<ObjectNode>("filter", args)
-            val filtered = evaluateLogic(objectNode, data)
+            val filtered = jfn.evaluate(objectNode, data)
             return BooleanNode.valueOf(filtered.size() == 0)
         }
     },
 
     Some {
         override val operator = "some"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val objectNode = JsonNodeFactory.instance.objectNode().set<ObjectNode>("filter", args)
-            val filtered = evaluateLogic(objectNode, data)
+            val filtered = jfn.evaluate(objectNode, data)
             return BooleanNode.valueOf(filtered.size() > 0)
         }
     },
 
     Count {
         override val operator = "count"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args[0], data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val scopedData = jfn.evaluate(args[0], data)
             val size = if (scopedData is ArrayNode) scopedData.size() else 0
             return IntNode.valueOf(size)
         }
@@ -163,11 +162,11 @@ enum class ArrayOperator : Operator {
 
     Push {
         override val operator = "push"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val array = evaluateLogic(args[0], data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val array = jfn.evaluate(args[0], data)
             if (array !is ArrayNode) argError("\"push\" first argument must be an array")
             for (i in 1 until args.size()) {
-                array.add(evaluateLogic(args[i], data))
+                array.add(jfn.evaluate(args[i], data))
             }
             return array
         }
@@ -175,9 +174,9 @@ enum class ArrayOperator : Operator {
 
     Sort {
         override val operator = "sort"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arrayNode = JsonNodeFactory.instance.arrayNode()
-            val scopedData = evaluateLogic(args[0], data)
+            val scopedData = jfn.evaluate(args[0], data)
             val scopedLogic = args[1]
 
             if (scopedData !is ArrayNode) return arrayNode
@@ -189,7 +188,7 @@ enum class ArrayOperator : Operator {
                     .set<ObjectNode>("a", a)
                     .set<ObjectNode>("b", b)
 
-                when (evaluateLogic(scopedLogic, mergedData)) {
+                when (jfn.evaluate(scopedLogic, mergedData)) {
                     BooleanNode.TRUE -> 1
                     BooleanNode.FALSE -> -1
                     else -> 0
@@ -201,8 +200,8 @@ enum class ArrayOperator : Operator {
 
     Merge {
         override val operator = "merge"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val scopedData = jfn.evaluate(args, data)
 
             val arrayNode = JsonNodeFactory.instance.arrayNode()
             if (scopedData !is ArrayNode) return arrayNode.add(scopedData)
@@ -218,24 +217,24 @@ enum class ArrayOperator : Operator {
 
     Max {
         override val operator = "max"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val scopedData = jfn.evaluate(args, data)
             return scopedData.maxByOrNull { it.asInt() } ?: NullNode.instance
         }
     },
 
     Min {
         override val operator = "min"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val scopedData = evaluateLogic(args, data)
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val scopedData = jfn.evaluate(args, data)
             return scopedData.minByOrNull { it.asInt() } ?: NullNode.instance
         }
     },
 
     Cat {
         override val operator = "cat"
-        override fun invoke(args: JsonNode, data: JsonNode): JsonNode {
-            val result = when (val scopedData = evaluateLogic(args, data)) {
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            val result = when (val scopedData = jfn.evaluate(args, data)) {
                 is ArrayNode -> scopedData.joinToString(separator = "") { it.asText() }
                 else -> scopedData.asText()
             }

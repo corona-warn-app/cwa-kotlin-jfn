@@ -24,13 +24,17 @@ import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
 import de.rki.jfn.operators.TimeOperator
 
-fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
+fun evaluateLogic(
+    jfn: JsonFunctions,
+    logic: JsonNode,
+    data: JsonNode
+): JsonNode = when (logic) {
     is TextNode -> logic
     is NumericNode -> logic
     is BooleanNode -> logic
     is NullNode -> logic
     is ArrayNode -> {
-        JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(it, data) })
+        JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(jfn, it, data) })
     }
     is ObjectNode -> {
         if (logic.size() != 1) {
@@ -49,12 +53,12 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
 
         val (operator, args) = logic.fields().next()
         when (operator) {
-            "var" -> evaluateVar(args, data)
-            "!" -> evaluateNot(args, data)
+            "var" -> evaluateVar(jfn, args, data)
+            "!" -> evaluateNot(jfn, args, data)
             else -> {
                 when (operator) {
-                    in operators -> operators(operator, args, data)
-                    "extractFromUVCI" -> evaluateExtractFromUVCI(args[0], args[1], data)
+                    in operators -> operators(operator, jfn, args, data)
+                    "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
                     else -> throw RuntimeException("unrecognised operator: \"$operator\"")
                 }
             }
@@ -63,7 +67,7 @@ fun evaluateLogic(logic: JsonNode, data: JsonNode): JsonNode = when (logic) {
     else -> throw RuntimeException("invalid JsonFunctions expression: ${logic.toPrettyString()}")
 }
 
-internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
+internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
 
     val path = when {
         args.isArray -> {
@@ -72,7 +76,7 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
             }
             if (args.first().isObject) {
                 // var declares an operation
-                return evaluateLogic(args.first(), data)
+                return evaluateLogic(jfn, args.first(), data)
             }
             if (args.size() == 1) {
                 args.first().asText()
@@ -102,16 +106,16 @@ internal fun evaluateVar(args: JsonNode, data: JsonNode): JsonNode {
 }
 
 internal fun evaluateNot(
+    jfn: JsonFunctions,
     operandExpr: JsonNode,
     data: JsonNode
 ): JsonNode {
 
     val operand = if (operandExpr.isArray) {
-        evaluateLogic(operandExpr, data)[0]
+        evaluateLogic(jfn, operandExpr, data)[0]
     } else {
         operandExpr
     }
-
     if (isValueFalsy(operand)) {
         return BooleanNode.TRUE
     }
@@ -124,11 +128,12 @@ internal fun evaluateNot(
 }
 
 internal fun evaluateExtractFromUVCI(
+    jfn: JsonFunctions,
     operand: JsonNode,
     index: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val evalOperand = evaluateLogic(operand, data)
+    val evalOperand = evaluateLogic(jfn, operand, data)
     if (!(evalOperand is NullNode || evalOperand is TextNode)) {
         throw RuntimeException(
             "\"UVCI\" argument (#1) of \"extractFromUVCI\" must be either a string or null"

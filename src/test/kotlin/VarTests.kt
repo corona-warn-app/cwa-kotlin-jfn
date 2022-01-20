@@ -1,12 +1,13 @@
-
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import de.rki.jfn.evaluateLogic
+import de.rki.jfn.JsonFunctionsEngine
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class VarTests {
+
+    private val engine = JsonFunctionsEngine()
 
     @Test
     fun `var should return data on empty array`() {
@@ -18,7 +19,7 @@ class VarTests {
         )
 
         val data = jacksonObjectMapper().readTree("1")
-        assertEquals(IntNode.valueOf(1), evaluateLogic(logic, data))
+        assertEquals(IntNode.valueOf(1), engine.evaluate(logic, data))
     }
 
     @Test
@@ -31,7 +32,7 @@ class VarTests {
         )
 
         val data = jacksonObjectMapper().readTree("2")
-        assertEquals(IntNode.valueOf(2), evaluateLogic(logic, data))
+        assertEquals(IntNode.valueOf(2), engine.evaluate(logic, data))
     }
 
     @Test
@@ -44,7 +45,7 @@ class VarTests {
         )
 
         val data = jacksonObjectMapper().readTree("{}")
-        assertEquals(IntNode.valueOf(2), evaluateLogic(logic2elements, data))
+        assertEquals(IntNode.valueOf(2), engine.evaluate(logic2elements, data))
 
         val logic3elements = jacksonObjectMapper().readTree(
             """
@@ -52,7 +53,7 @@ class VarTests {
                 "var" : [1,2,3]
             }"""
         )
-        assertEquals(IntNode.valueOf(3), evaluateLogic(logic3elements, data))
+        assertEquals(IntNode.valueOf(3), engine.evaluate(logic3elements, data))
     }
 
     @Test
@@ -65,7 +66,7 @@ class VarTests {
         )
 
         val data = jacksonObjectMapper().readTree("3")
-        assertEquals(IntNode.valueOf(3), evaluateLogic(logic, data))
+        assertEquals(IntNode.valueOf(3), engine.evaluate(logic, data))
     }
 
     @Test
@@ -87,9 +88,9 @@ class VarTests {
         )
 
         val dataTemp99 = jacksonObjectMapper().readTree("""{"temp" : 99}""")
-        assertEquals(BooleanNode.TRUE, evaluateLogic(logic, dataTemp99))
+        assertEquals(BooleanNode.TRUE, engine.evaluate(logic, dataTemp99))
 
         val dataTemp100 = jacksonObjectMapper().readTree("""{"temp" : 100}""")
-        assertEquals(BooleanNode.FALSE, evaluateLogic(logic, dataTemp100))
+        assertEquals(BooleanNode.FALSE, engine.evaluate(logic, dataTemp100))
     }
 }
