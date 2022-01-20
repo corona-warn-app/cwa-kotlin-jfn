@@ -9,11 +9,12 @@ import com.fasterxml.jackson.module.kotlin.contains
 import de.rki.jfn.error.argError
 
 internal fun evaluateAssign(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val identifier = evaluateLogic(arguments[0], data)
-    val value = evaluateLogic(arguments[1], data)
+    val identifier = evaluateLogic(jfn, arguments[0], data)
+    val value = evaluateLogic(jfn, arguments[1], data)
 
     if (!identifier.isTextual) argError("First parameter of assign must be a string")
 
@@ -35,25 +36,27 @@ internal fun evaluateAssign(
 }
 
 internal fun evaluateDeclare(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val identifier = evaluateLogic(arguments[0], data)
+    val identifier = evaluateLogic(jfn, arguments[0], data)
     if (!identifier.isTextual) argError("First parameter of declare must be a string")
 
-    val value = evaluateLogic(arguments[1], data)
+    val value = evaluateLogic(jfn, arguments[1], data)
     data as ObjectNode
     data.replace(identifier.asText(), value)
     return NullNode.instance
 }
 
 internal fun evaluateScript(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
     val scopedData = JsonNodeFactory.instance.objectNode().setAll<JsonNode>(data as ObjectNode)
     try {
-        arguments.forEach { evaluateLogic(it, scopedData) }
+        arguments.forEach { evaluateLogic(jfn, it, scopedData) }
     } catch (e: ReturnException) {
         return e.data
     }
@@ -61,16 +64,17 @@ internal fun evaluateScript(
 }
 
 internal fun evaluateIf(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
 
     var index = 0
     while (index < arguments.size()) {
-        val conditionEvaluation = evaluateLogic(arguments[index], data)
+        val conditionEvaluation = evaluateLogic(jfn, arguments[index], data)
         if (isValueTruthy(conditionEvaluation)) // if condition met or else branch
             return if (arguments.contains(index + 1))
-                evaluateLogic(arguments[index + 1], data) // if condition met
+                evaluateLogic(jfn, arguments[index + 1], data) // if condition met
             else conditionEvaluation // else branch
 
         if (index + 2 >= arguments.size()) { // no further else if
@@ -85,20 +89,21 @@ internal fun evaluateIf(
 }
 
 internal fun evaluateTernary(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
     val ifCondition = if (arguments.contains(0)) arguments[0] else return NullNode.instance
-    val conditionEvaluation = evaluateLogic(ifCondition, data)
+    val conditionEvaluation = evaluateLogic(jfn, ifCondition, data)
     if (arguments.size() == 1) return conditionEvaluation
 
     if (isValueTruthy(conditionEvaluation)) {
         val thenStatement = if (arguments.contains(1)) arguments[1] else NullNode.instance
-        return evaluateLogic(thenStatement, data)
+        return evaluateLogic(jfn, thenStatement, data)
     }
     if (isValueFalsy(conditionEvaluation)) {
         val elseStatement = if (arguments.contains(2)) arguments[2] else NullNode.instance
-        return evaluateLogic(elseStatement, data)
+        return evaluateLogic(jfn, elseStatement, data)
     }
     argError(
         "if-condition evaluates to something neither truthy, nor falsy: $conditionEvaluation"
@@ -106,23 +111,25 @@ internal fun evaluateTernary(
 }
 
 internal fun evaluateInit(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val type = evaluateLogic(arguments[0], data).asText()
+    val type = evaluateLogic(jfn, arguments[0], data).asText()
     return when (type) {
-        "literal" -> evaluateLiteral(arguments, data)
-        "object" -> evaluateObject(arguments, data)
-        "array" -> evaluateArray(arguments, data)
+        "literal" -> evaluateLiteral(jfn, arguments, data)
+        "object" -> evaluateObject(jfn, arguments, data)
+        "array" -> evaluateArray(jfn, arguments, data)
         else -> argError("Not supported type $type")
     }
 }
 
 internal fun evaluateLiteral(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val value = evaluateLogic(arguments[1], data)
+    val value = evaluateLogic(jfn, arguments[1], data)
     if (value.isArray) {
         argError("Cannot initialize literal with object or array")
     }
@@ -130,6 +137,7 @@ internal fun evaluateLiteral(
 }
 
 internal fun evaluateObject(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
@@ -138,7 +146,7 @@ internal fun evaluateObject(
     while (index < arguments.size()) {
         val jsonNode = arguments[index]
         if (jsonNode.has(SPREAD) && jsonNode.get(SPREAD).isArray) {
-            val objectNode = evaluateLogic(jsonNode.get(SPREAD)[0], data)
+            val objectNode = evaluateLogic(jfn, jsonNode.get(SPREAD)[0], data)
             if (objectNode.isArray) {
                 var i = 0
                 objectNode.elements().forEach {
@@ -151,10 +159,10 @@ internal fun evaluateObject(
             }
             index += 1
         } else {
-            val property = evaluateLogic(jsonNode, data)
+            val property = evaluateLogic(jfn, jsonNode, data)
             if (property.isObject || property.isArray || property.isNull)
                 argError("Key must not be an object, array, or null.")
-            val value = evaluateLogic(arguments[index + 1], data)
+            val value = evaluateLogic(jfn, arguments[index + 1], data)
             target.replace(property.asText(), value)
             index += 2
         }
@@ -163,6 +171,7 @@ internal fun evaluateObject(
 }
 
 internal fun evaluateArray(
+    jfn: JsonFunctions,
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
@@ -171,7 +180,7 @@ internal fun evaluateArray(
         index != 0
     }.forEach { jsonNode ->
         if (jsonNode.has(SPREAD) && jsonNode.get(SPREAD).isArray) {
-            val arrayNode = evaluateLogic(jsonNode.get(SPREAD)[0], data)
+            val arrayNode = evaluateLogic(jfn, jsonNode.get(SPREAD)[0], data)
             if (!arrayNode.isArray) {
                 argError("Spread for arrays only supports other arrays")
             }
@@ -180,7 +189,7 @@ internal fun evaluateArray(
                 list.add(it)
             }
         } else {
-            list.add(evaluateLogic(jsonNode, data))
+            list.add(evaluateLogic(jfn, jsonNode, data))
         }
     }
     return JsonNodeFactory.instance.arrayNode().addAll(list)
