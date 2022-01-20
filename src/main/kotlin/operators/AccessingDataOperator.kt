@@ -13,8 +13,9 @@ enum class AccessingDataOperator : Operator {
         override val operator = "missing"
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val missing = JsonNodeFactory.instance.arrayNode()
-            val keys = args[0] as? ArrayNode ?: args as? ArrayNode
-                ?: JsonNodeFactory.instance.arrayNode().add(args)
+            val keys = args[0] as? ArrayNode ?: args as? ArrayNode // Array
+                ?: (args as? ObjectNode)?.let { jfn.evaluate(args, data) } // Object -> evaluate
+                ?: JsonNodeFactory.instance.arrayNode().add(args) // Node -> Array
 
             for (key in keys) {
                 val logic = JsonNodeFactory.instance.objectNode().set<ObjectNode>("var", key)
