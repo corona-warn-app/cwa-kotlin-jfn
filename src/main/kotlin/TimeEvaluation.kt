@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.error.argError
 import org.joda.time.DateTime
 import org.joda.time.Days
 import org.joda.time.Hours
@@ -22,13 +23,8 @@ import org.joda.time.format.ISODateTimeFormat
 
 /* returns the difference between two dates or timestamps in a specific unit of time */
 internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
-    if (arguments.size != 3) {
-        throw IllegalArgumentException("There must be exactly 3 arguments.")
-    }
-
-    if (!arguments.all { it.isTextual }) {
-        throw IllegalArgumentException("All arguments must be textual.")
-    }
+    if (arguments.size != 3) argError("There must be exactly 3 arguments.")
+    if (!arguments.all { it.isTextual }) argError("All arguments must be textual.")
 
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
@@ -46,21 +42,10 @@ internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
 
 /* adds a certain amount of a unit of time to a date or timestamp */
 internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
-    if (arguments.size != 3) {
-        throw IllegalArgumentException("There must be exactly 3 arguments.")
-    }
-
-    if (!arguments[0].isTextual) {
-        throw IllegalArgumentException("First argument must be textual.")
-    }
-
-    if (!arguments[1].isNumber) {
-        throw IllegalArgumentException("Second argument must be a number.")
-    }
-
-    if (!arguments[2].isTextual) {
-        throw IllegalArgumentException("Third argument must be textual.")
-    }
+    if (arguments.size != 3) argError("There must be exactly 3 arguments.")
+    if (!arguments[0].isTextual) argError("First argument must be textual.")
+    if (!arguments[1].isNumber) argError("Second argument must be a number.")
+    if (!arguments[2].isTextual) argError("Third argument must be textual.")
 
     val date = arguments[0].asText().parseAsDateTime()
     val amount = arguments[1].asInt()
@@ -78,13 +63,8 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
 }
 
 internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
-    if (arguments.size != 2) {
-        throw IllegalArgumentException("There must be exactly 2 arguments.")
-    }
-    if (!arguments.all { it.isTextual }) {
-        throw IllegalArgumentException("All arguments must be textual.")
-    }
-
+    if (arguments.size != 2) argError("There must be exactly 2 arguments.")
+    if (!arguments.all { it.isTextual }) argError("All arguments must be textual.")
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
@@ -99,13 +79,8 @@ internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
 }
 
 internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
-    if (arguments.size !in 2..3) {
-        throw IllegalArgumentException("There must be exactly 2 or 3 arguments.")
-    }
-
-    if (!arguments.all { it.isTextual }) {
-        throw IllegalArgumentException("All arguments must be textual.")
-    }
+    if (arguments.size !in 2..3) argError("There must be exactly 2 or 3 arguments.")
+    if (!arguments.all { it.isTextual }) argError("All arguments must be textual.")
 
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
@@ -121,13 +96,8 @@ internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
 }
 
 internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
-    if (arguments.size != 2) {
-        throw IllegalArgumentException("There must be exactly 2 arguments.")
-    }
-
-    if (!arguments.all { it.isTextual }) {
-        throw IllegalArgumentException("All arguments must be textual.")
-    }
+    if (arguments.size != 2) argError("There must be exactly 2 arguments.")
+    if (!arguments.all { it.isTextual }) argError("All arguments must be textual.")
 
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
@@ -149,8 +119,7 @@ private enum class TimeUnit(val string: String) {
 }
 
 private fun String.asTimeUnit(): TimeUnit =
-    TimeUnit.values().find { it.string == this }
-        ?: throw IllegalArgumentException("Time unit $this is not supported.")
+    TimeUnit.values().find { it.string == this } ?: argError("Time unit $this is not supported.")
 
 private fun String.parseAsDateTime(): DateTime {
     return if (pattern.matches(this))
