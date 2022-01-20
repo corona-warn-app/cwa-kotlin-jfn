@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.ComparisonOperator
+import de.rki.jfn.operators.ControlFlowOperator
 import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
 import de.rki.jfn.operators.TimeOperator
@@ -47,7 +48,8 @@ fun evaluateLogic(
             TimeOperator +
             MathOperator +
             AccessingDataOperator +
-            ComparisonOperator
+            ComparisonOperator +
+            ControlFlowOperator
 
         val (operator, args) = logic.fields().next()
         when (operator) {
@@ -55,7 +57,6 @@ fun evaluateLogic(
             "!" -> evaluateNot(jfn, args, data)
             else -> {
                 when (operator) {
-                    "if" -> evaluateIf(jfn, args[0], args[1], args[2], data)
                     in operators -> operators(operator, jfn, args, data)
                     "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
                     else -> throw RuntimeException("unrecognised operator: \"$operator\"")
@@ -102,25 +103,6 @@ internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): Js
             } ?: NullNode.instance
         }
     }
-}
-
-internal fun evaluateIf(
-    jfn: JsonFunctions,
-    guard: JsonNode,
-    then: JsonNode,
-    else_: JsonNode,
-    data: JsonNode
-): JsonNode {
-    val evalGuard = evaluateLogic(jfn, guard, data)
-    if (isValueTruthy(evalGuard)) {
-        return evaluateLogic(jfn, then, data)
-    }
-    if (isValueFalsy(evalGuard)) {
-        return evaluateLogic(jfn, else_, data)
-    }
-    throw RuntimeException(
-        "if-guard evaluates to something neither truthy, nor falsy: $evalGuard"
-    )
 }
 
 internal fun evaluateNot(
