@@ -20,7 +20,10 @@ enum class ExtractionOperator : Operator {
 
             val evalOperand = evaluateLogic(jfn, operand, data)
             if (!(evalOperand is NullNode || evalOperand is TextNode)) {
-                argError("\"UVCI\" argument (#1) of \"extractFromUVCI\" must be either a string or null")
+                argError(
+                    "\"UVCI\" argument (#1) of \"extractFromUVCI\" " +
+                        "must be either a string or null"
+                )
             }
             if (index !is IntNode) {
                 argError("\"index\" argument (#2) of \"extractFromUVCI\" must be an integer")
@@ -31,7 +34,6 @@ enum class ExtractionOperator : Operator {
             )
             return if (result == null) NullNode.instance else TextNode.valueOf(result)
         }
-
     };
 
     companion object : OperatorSet {

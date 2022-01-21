@@ -1,4 +1,3 @@
-
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import io.kotest.assertions.assertSoftly
@@ -86,7 +85,17 @@ class VarTests {
               }, 110 ]
             }, "pie.filling", "pie.eta" ]
           } ]
-        }
-        """.evaluateJson("""{ "temp": 100, "pie": { "filling": "apple", "eta": "60s" } } """).textValue() shouldBe "apple"
+        }""".evaluateJson(
+            data = """
+            { 
+                "temp": 100, 
+                "pie": 
+                { 
+                    "filling": "apple", 
+                    "eta": "60s" 
+                } 
+            }
+            """
+        ).textValue() shouldBe "apple"
     }
 }
