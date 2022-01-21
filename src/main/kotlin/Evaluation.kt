@@ -10,7 +10,6 @@ package de.rki.jfn
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
-import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.NumericNode
@@ -21,9 +20,19 @@ import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.ComparisonOperator
 import de.rki.jfn.operators.ControlFlowOperator
+import de.rki.jfn.operators.ExtractionOperator
 import de.rki.jfn.operators.MathOperator
 import de.rki.jfn.operators.StringOperator
 import de.rki.jfn.operators.TimeOperator
+
+private var operators = ArrayOperator +
+    StringOperator +
+    TimeOperator +
+    MathOperator +
+    AccessingDataOperator +
+    ComparisonOperator +
+    ControlFlowOperator +
+    ExtractionOperator
 
 fun evaluateLogic(
     jfn: JsonFunctions,
@@ -41,46 +50,12 @@ fun evaluateLogic(
         if (logic.size() != 1) {
             logic
         } else {
-            val operators = ArrayOperator +
-                StringOperator +
-                TimeOperator +
-                MathOperator +
-                AccessingDataOperator +
-                ComparisonOperator +
-                ControlFlowOperator
-
             val (operator, args) = logic.fields().next()
-
             when (operator) {
                 in operators -> operators(operator, jfn, args, data)
-                "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
                 else -> argError("unrecognised operator: $operator")
             }
         }
     }
     else -> throw RuntimeException("invalid JsonFunctions expression: ${logic.toPrettyString()}")
-}
-
-internal fun evaluateExtractFromUVCI(
-    jfn: JsonFunctions,
-    operand: JsonNode,
-    index: JsonNode,
-    data: JsonNode
-): JsonNode {
-    val evalOperand = evaluateLogic(jfn, operand, data)
-    if (!(evalOperand is NullNode || evalOperand is TextNode)) {
-        throw RuntimeException(
-            "\"UVCI\" argument (#1) of \"extractFromUVCI\" must be either a string or null"
-        )
-    }
-    if (index !is IntNode) {
-        throw RuntimeException(
-            "\"index\" argument (#2) of \"extractFromUVCI\" must be an integer"
-        )
-    }
-    val result = extractFromUVCI(
-        if (evalOperand is TextNode) evalOperand.asText() else null,
-        index.intValue()
-    )
-    return if (result == null) NullNode.instance else TextNode.valueOf(result)
 }

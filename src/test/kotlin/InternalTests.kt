@@ -11,11 +11,11 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.TextNode
-import de.rki.jfn.extractFromUVCI
 import de.rki.jfn.isFalsy
 import de.rki.jfn.isTruthy
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
+import de.rki.jfn.operators.extractFromUVCI
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
