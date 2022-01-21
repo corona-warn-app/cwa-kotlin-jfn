@@ -1,4 +1,4 @@
-import com.fasterxml.jackson.databind.node.BooleanNode
+
 import com.fasterxml.jackson.databind.node.IntNode
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
@@ -46,26 +46,6 @@ class VarTests {
             "var" : null
         }
         """.evaluateJson("1") shouldBe IntNode.valueOf(1)
-    }
-
-    @Test
-    fun `var should be able to declare operations`() {
-        val logic = """
-        {
-            "var" : [ 
-                {
-                    "<" : [ 
-                        {
-                            "var" : "temp"
-                        }, 
-                        100 
-                    ]
-                }
-            ]
-        }"""
-
-        logic.evaluateJson("""{"temp" : 99}""") shouldBe BooleanNode.TRUE
-        logic.evaluateJson("""{"temp" : 100}""") shouldBe BooleanNode.FALSE
     }
 
     @Test
