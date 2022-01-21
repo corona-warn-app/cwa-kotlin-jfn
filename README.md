@@ -68,6 +68,10 @@ A list of all public repositories from the Corona-Warn-App can be found [here](h
 
 ## Licensing
 
+Elements of this Repository contains code from [Digital COVID Certificates: Business Rules](https://github.com/ehn-dcc-development/dgc-business-rules):
+Copyright (c) 2021 Dutch Ministry of Health, Science, and Sports, and all other contributors
+
+Modifications and Enhancements:
 Copyright (c) 2022 SAP SE or an SAP affiliate company.
 
 Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this file except in compliance with the License.
