@@ -9,7 +9,12 @@ plugins {
 }
 
 group = "de.rki.jfn"
-version = "1.0-SNAPSHOT"
+
+val versionMajor: String by project
+val versionMinor: String by project
+val versionPatch: String by project
+
+version = "$versionMajor.$versionMinor.$versionPatch-SNAPSHOT"
 
 repositories {
     mavenCentral()
