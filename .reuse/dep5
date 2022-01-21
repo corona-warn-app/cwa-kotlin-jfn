@@ -4,10 +4,10 @@ Upstream-Contact: The Corona Warn App Team <corona-warn-app.opensource@sap.com>
 Source: https://github.com/corona-warn-app/cwa-kotlin-jfn
 
 Files: **
-Copyright: 2020-2022 SAP SE or an SAP affiliate company and cwa-kotlin-jfn contributors
+Copyright: 2022 SAP SE or an SAP affiliate company and cwa-kotlin-jfn contributors
 License: Apache-2.0
 
-Files: /src/main/kotlin/Evaluation.kt /src/main/kotlin/Internals.kt /src/main/kotlin/TimeEvaluation.kt /src/test/kotlin/InternalTests.kt
+Files: src/main/kotlin/Evaluation.kt src/main/kotlin/Internals.kt src/main/kotlin/TimeEvaluation.kt src/test/kotlin/InternalTests.kt
 Copyright: 2021 Dutch Ministry of Health, Science, and Sports, and all other contributors
 License: Apache-2.0
 
