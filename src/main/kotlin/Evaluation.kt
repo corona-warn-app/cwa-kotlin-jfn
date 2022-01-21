@@ -16,23 +16,7 @@ import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.error.argError
-import de.rki.jfn.operators.AccessingDataOperator
-import de.rki.jfn.operators.ArrayOperator
-import de.rki.jfn.operators.ComparisonOperator
-import de.rki.jfn.operators.ControlFlowOperator
-import de.rki.jfn.operators.ExtractionOperator
-import de.rki.jfn.operators.MathOperator
-import de.rki.jfn.operators.StringOperator
-import de.rki.jfn.operators.TimeOperator
-
-private var operators = ArrayOperator +
-    StringOperator +
-    TimeOperator +
-    MathOperator +
-    AccessingDataOperator +
-    ComparisonOperator +
-    ControlFlowOperator +
-    ExtractionOperator
+import de.rki.jfn.operators.Operators
 
 fun evaluateLogic(
     jfn: JsonFunctions,
@@ -46,16 +30,16 @@ fun evaluateLogic(
     is ArrayNode -> {
         JsonNodeFactory.instance.arrayNode().addAll(logic.map { evaluateLogic(jfn, it, data) })
     }
-    is ObjectNode -> {
-        if (logic.size() != 1) {
-            logic
-        } else {
+
+    is ObjectNode -> when {
+        logic.size() != 1 -> logic
+        else -> {
             val (operator, args) = logic.fields().next()
             when (operator) {
-                in operators -> operators(operator, jfn, args, data)
-                else -> argError("unrecognised operator: $operator")
+                in Operators -> Operators(operator, jfn, args, data)
+                else -> throw UnsupportedOperationException("Unrecognised operator: $operator")
             }
         }
     }
-    else -> throw RuntimeException("invalid JsonFunctions expression: ${logic.toPrettyString()}")
+    else -> argError("Invalid JsonFunctions expression: ${logic.toPrettyString()}")
 }
