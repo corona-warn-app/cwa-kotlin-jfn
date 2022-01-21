@@ -51,7 +51,6 @@ fun evaluateLogic(
 
             val (operator, args) = logic.fields().next()
             when (operator) {
-                "var" -> evaluateVar(jfn, args, data)
                 "!" -> evaluateNot(jfn, args, data)
                 else -> {
                     when (operator) {
@@ -64,44 +63,6 @@ fun evaluateLogic(
         }
     }
     else -> throw RuntimeException("invalid JsonFunctions expression: ${logic.toPrettyString()}")
-}
-
-internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
-
-    val path = when {
-        args.isArray -> {
-            if (args.isEmpty) {
-                return data
-            }
-            if (args.first().isObject) {
-                // var declares an operation
-                return evaluateLogic(jfn, args.first(), data)
-            }
-            if (args.size() == 1) {
-                args.first().asText()
-            } else {
-                // return last element of array if var declares an array with more than 1 element
-                return args.last()
-            }
-        }
-        args.isNull || args.asText() == "" -> {
-            return data
-        }
-        else -> args.asText()
-    }
-
-    return path.split(".").fold(data) { acc, fragment ->
-        if (acc is NullNode) {
-            acc
-        } else {
-            try {
-                val index = Integer.parseInt(fragment, 10)
-                if (acc is ArrayNode) acc[index] else null
-            } catch (e: NumberFormatException) {
-                if (acc is ObjectNode) acc[fragment] else null
-            } ?: NullNode.instance
-        }
-    }
 }
 
 internal fun evaluateNot(

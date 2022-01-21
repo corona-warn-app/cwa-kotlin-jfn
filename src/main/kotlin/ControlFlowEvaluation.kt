@@ -231,6 +231,44 @@ internal fun evaluateArray(
     return JsonNodeFactory.instance.arrayNode().addAll(list)
 }
 
+internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+
+    val path = when {
+        args.isArray -> {
+            if (args.isEmpty) {
+                return data
+            }
+            if (args.first().isObject) {
+                // var declares an operation
+                return evaluateLogic(jfn, args.first(), data)
+            }
+            if (args.size() == 1) {
+                args.first().asText()
+            } else {
+                // return last element of array if var declares an array with more than 1 element
+                return args.last()
+            }
+        }
+        args.isNull || args.asText() == "" -> {
+            return data
+        }
+        else -> args.asText()
+    }
+
+    return path.split(".").fold(data) { acc, fragment ->
+        if (acc is NullNode) {
+            acc
+        } else {
+            try {
+                val index = Integer.parseInt(fragment, 10)
+                if (acc is ArrayNode) acc[index] else null
+            } catch (e: NumberFormatException) {
+                if (acc is ObjectNode) acc[fragment] else null
+            } ?: NullNode.instance
+        }
+    }
+}
+
 internal class ReturnException(
     val data: JsonNode
 ) : Exception()
