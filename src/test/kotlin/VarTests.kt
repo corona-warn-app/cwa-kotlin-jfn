@@ -2,6 +2,7 @@
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import de.rki.jfn.JsonFunctionsEngine
+import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
@@ -69,5 +70,26 @@ class VarTests {
 
         logic.evaluateJson("""{"temp" : 99}""") shouldBe BooleanNode.TRUE
         logic.evaluateJson("""{"temp" : 100}""") shouldBe BooleanNode.FALSE
+    }
+
+    @Test
+    fun `properties within objects should be assignable to var`() = assertSoftly {
+        """
+        {
+            "var": "pie.filling"
+        }
+        """.evaluateJson("""{ "pie": { "filling": "apple" } } """).textValue() shouldBe "apple"
+
+        """
+        {
+          "var" : [ {
+            "?:" : [ {
+              "<" : [ {
+                "var" : "temp"
+              }, 110 ]
+            }, "pie.filling", "pie.eta" ]
+          } ]
+        }
+        """.evaluateJson("""{ "temp": 100, "pie": { "filling": "apple", "eta": "60s" } } """).textValue() shouldBe "apple"
     }
 }

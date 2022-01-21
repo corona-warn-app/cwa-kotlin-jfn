@@ -234,24 +234,17 @@ internal fun evaluateArray(
 internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
 
     val path = when {
-        args.isArray -> {
-            if (args.isEmpty) {
-                return data
-            }
-            if (args.first().isObject) {
-                // var declares an operation
-                return evaluateLogic(jfn, args.first(), data)
-            }
-            if (args.size() == 1) {
-                args.first().asText()
-            } else {
-                // return last element of array if var declares an array with more than 1 element
-                return args.last()
-            }
+        args.isArray && args.isEmpty -> return data
+        args.isArray && args.first().isObject -> {
+            // argument is an operation, so let's evaluate it
+            evaluateLogic(jfn, args.first(), data).asText()
         }
-        args.isNull || args.asText() == "" -> {
-            return data
+        args.isArray && args.size() == 1 -> args.first().asText()
+        args.isArray && args.size() > 1 -> {
+            // return last element of array if the argument is an array with more than 1 element
+            return args.last()
         }
+        args.isNull || args.asText() == "" -> return data
         else -> args.asText()
     }
 
