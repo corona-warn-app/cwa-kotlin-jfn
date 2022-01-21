@@ -69,7 +69,7 @@ internal enum class ComparisonOperator : Operator {
 
     StrictInequality {
         override val operator = "!=="
-        
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val evalArgs = jfn.evaluate(args, data)
 
