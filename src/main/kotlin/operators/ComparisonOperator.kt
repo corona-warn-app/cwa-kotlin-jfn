@@ -8,8 +8,10 @@ import de.rki.jfn.JsonFunctions
 import de.rki.jfn.common.toBooleanNode
 import de.rki.jfn.compare
 import de.rki.jfn.error.argError
+import de.rki.jfn.evaluateLogic
 import de.rki.jfn.isTruthy
 import de.rki.jfn.isValueFalsy
+import de.rki.jfn.isValueTruthy
 
 enum class ComparisonOperator : Operator {
 
@@ -203,6 +205,29 @@ enum class ComparisonOperator : Operator {
                     jfn.evaluate(logic = it, data = data).isTruthy
                 } ?: jfn.evaluate(logic = args.last(), data = data)
             }
+    },
+
+    /**
+     * @return true if argument [isFalsy] and false if argument [isTruthy]
+     */
+    Not {
+        override val operator = "!"
+
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+
+            val operand = if (args.isArray) {
+                evaluateLogic(jfn, args, data)[0]
+            } else {
+                args
+            }
+            if (isValueFalsy(operand)) {
+                return BooleanNode.TRUE
+            }
+            if (isValueTruthy(operand)) {
+                return BooleanNode.FALSE
+            }
+            argError("operand of ! evaluates to something neither truthy, nor falsy: $operand")
+        }
     },
 
     /**

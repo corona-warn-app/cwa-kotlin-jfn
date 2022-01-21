@@ -63,12 +63,3 @@ internal fun intCompare(operator: String, l: Int, r: Int): Boolean =
     }
 
 internal const val OPTIONAL_PREFIX = "URN:UVCI:"
-internal fun extractFromUVCI(uvci: String?, index: Int): String? {
-    if (uvci == null || index < 0) {
-        return null
-    }
-    val prefixlessUvci =
-        if (uvci.startsWith(OPTIONAL_PREFIX)) uvci.substring(OPTIONAL_PREFIX.length) else uvci
-    val fragments = prefixlessUvci.split(Regex("[/#:]"))
-    return if (index < fragments.size) fragments[index] else null
-}

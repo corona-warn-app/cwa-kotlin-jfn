@@ -42,7 +42,7 @@ enum class ArrayOperator : Operator {
             val it = args[2]
 
             if (scopedData !is ArrayNode) return arrayNode
-            if (it != null && !it.isTextual) argError("Iteratee name must be a string")
+            if (it != null && !it.isTextual) argError("Iterator name must be a string")
 
             val filterResult = when {
                 it != null -> scopedData.filter { jsonNode ->

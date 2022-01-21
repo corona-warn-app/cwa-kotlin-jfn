@@ -1,8 +1,8 @@
+
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.JsonFunctionsEngine
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import kotlin.test.assertEquals
@@ -12,7 +12,6 @@ class CommonTests {
 
     @ParameterizedTest(name = "{index}: {0}")
     @ArgumentsSource(CommonTestCaseProvider::class)
-    @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
     fun `execute all tests from specification`(testCase: JsonNode) {
 
         val engine = JsonFunctionsEngine()

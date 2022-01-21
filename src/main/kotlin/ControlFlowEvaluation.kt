@@ -151,8 +151,7 @@ internal fun evaluateInit(
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val type = evaluateLogic(jfn, arguments[0], data).asText()
-    return when (type) {
+    return when (val type = evaluateLogic(jfn, arguments[0], data).asText()) {
         "literal" -> evaluateLiteral(jfn, arguments, data)
         "object" -> evaluateObject(jfn, arguments, data)
         "array" -> evaluateArray(jfn, arguments, data)
@@ -229,6 +228,37 @@ internal fun evaluateArray(
         }
     }
     return JsonNodeFactory.instance.arrayNode().addAll(list)
+}
+
+internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+
+    val path = when {
+        args.isArray && args.isEmpty -> return data
+        args.isArray && args.first().isObject -> {
+            // argument is an operation, so let's evaluate it
+            evaluateLogic(jfn, args.first(), data).asText()
+        }
+        args.isArray && args.size() == 1 -> args.first().asText()
+        args.isArray && args.size() > 1 -> {
+            // return last element of array if the argument is an array with more than 1 element
+            return args.last()
+        }
+        args.isNull || args.asText() == "" -> return data
+        else -> args.asText()
+    }
+
+    return path.split(".").fold(data) { acc, fragment ->
+        if (acc is NullNode) {
+            acc
+        } else {
+            try {
+                val index = Integer.parseInt(fragment, 10)
+                if (acc is ArrayNode) acc[index] else null
+            } catch (e: NumberFormatException) {
+                if (acc is ObjectNode) acc[fragment] else null
+            } ?: NullNode.instance
+        }
+    }
 }
 
 internal class ReturnException(
