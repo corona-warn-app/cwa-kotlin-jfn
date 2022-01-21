@@ -1,14 +1,11 @@
 
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
-import de.rki.jfn.JsonFunctionsEngine
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 class VarTests {
-
-    private val engine = JsonFunctionsEngine()
 
     @Test
     fun `var should return data on empty array`() {

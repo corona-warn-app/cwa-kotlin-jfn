@@ -75,7 +75,7 @@ internal class DiffTimeTest {
     @Test
     fun `wrong order of arguments raises exception`() {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
-        val arguments = listOf(TextNode(firstDate), TextNode("year"), IntNode(4),)
+        val arguments = listOf(TextNode(firstDate), TextNode("year"), IntNode(4))
         assertFailsWith<IllegalArgumentException>(
             message = "wrong order of arguments"
         ) { evaluateDiffTime(arguments) }
@@ -84,7 +84,7 @@ internal class DiffTimeTest {
     @Test
     fun `wrong type of arguments raises exception`() {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
-        val arguments = listOf(TextNode(firstDate), TextNode("year"), TextNode("4"),)
+        val arguments = listOf(TextNode(firstDate), TextNode("year"), TextNode("4"))
         assertFailsWith<IllegalArgumentException>(
             message = "wrong type of arguments"
         ) { evaluateDiffTime(arguments) }

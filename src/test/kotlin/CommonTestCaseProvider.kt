@@ -14,8 +14,6 @@ class CommonTestCaseProvider : ArgumentsProvider {
         val tree = ObjectMapper().readTree(testsFile)
         val testCases = tree.get("testCases") as ArrayNode
         return testCases
-            // for single test execution
-            // .filter { it.get("title").textValue().startsWith("call - ") }
             .map { Arguments.of(Named.of(it.get("title").textValue(), it)) }.stream()
     }
 }

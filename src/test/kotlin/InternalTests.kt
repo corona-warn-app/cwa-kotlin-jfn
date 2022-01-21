@@ -85,7 +85,7 @@ internal class TruthyFalsyTests {
  */
 internal class ExtractFromUVCITests {
 
-    internal fun checkForThat(uvci: String?, assertions: List<Pair<Int, String?>>): Unit =
+    private fun checkForThat(uvci: String?, assertions: List<Pair<Int, String?>>): Unit =
         assertions.forEach {
             Assertions.assertEquals(it.second, extractFromUVCI(uvci, it.first))
         }

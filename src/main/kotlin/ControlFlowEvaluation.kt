@@ -151,8 +151,7 @@ internal fun evaluateInit(
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
-    val type = evaluateLogic(jfn, arguments[0], data).asText()
-    return when (type) {
+    return when (val type = evaluateLogic(jfn, arguments[0], data).asText()) {
         "literal" -> evaluateLiteral(jfn, arguments, data)
         "object" -> evaluateObject(jfn, arguments, data)
         "array" -> evaluateArray(jfn, arguments, data)
