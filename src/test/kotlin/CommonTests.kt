@@ -1,4 +1,3 @@
-
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.JsonFunctionsEngine
@@ -47,7 +46,7 @@ class CommonTests {
             testCase.has("throws") -> {
                 assertThrows<Exception> {
                     engine.evaluateFunction(name.textValue(), parameters)
-                }
+                }.printStackTrace()
             }
             testCase.has("exp") -> {
                 assertEquals(
