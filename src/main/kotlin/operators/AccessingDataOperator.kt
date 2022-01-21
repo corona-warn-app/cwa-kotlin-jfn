@@ -6,11 +6,20 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import de.rki.jfn.JsonFunctions
+import de.rki.jfn.evaluateVar
 
-enum class AccessingDataOperator : Operator {
+internal enum class AccessingDataOperator : Operator {
+    Var {
+        override val operator = "var"
+
+        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
+            return evaluateVar(jfn, args, data)
+        }
+    },
 
     Missing {
         override val operator = "missing"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val missing = JsonNodeFactory.instance.arrayNode()
             val keys = args[0] as? ArrayNode // Array
@@ -29,6 +38,7 @@ enum class AccessingDataOperator : Operator {
 
     MissingSome {
         override val operator = "missing_some"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arrayNode = JsonNodeFactory.instance.arrayNode()
             val min = args[0].asInt()

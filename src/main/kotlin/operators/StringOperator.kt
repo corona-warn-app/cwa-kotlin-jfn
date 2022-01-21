@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.JsonFunctions
 import de.rki.jfn.error.argError
 
-enum class StringOperator : Operator {
+internal enum class StringOperator : Operator {
     Split {
         override val operator = "split"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             if (args.size() < 2) argError(
                 "an \"$operator\"  operation must have at least 2 operands"
@@ -36,6 +37,7 @@ enum class StringOperator : Operator {
 
     ReplaceAll {
         override val operator = "replaceAll"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
             if (args.size() !in 2..3) argError(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"
@@ -60,6 +62,7 @@ enum class StringOperator : Operator {
 
     Concatenate {
         override val operator = "concatenate"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
             if (args.size() < 2) argError(
                 "an \"$operator\"  operation must have at least 2 operands"
@@ -76,6 +79,7 @@ enum class StringOperator : Operator {
 
     Trim {
         override val operator = "trim"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
             val scopedString = jfn.evaluate(args[0], data)
             if (isInvalidType(scopedString)) return TextNode("")
@@ -85,6 +89,7 @@ enum class StringOperator : Operator {
 
     ToUpperCase {
         override val operator = "toUpperCase"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
             if (args.size() > 1) argError("an \"$operator\"  operation must have 1 operand")
             val scopedString = jfn.evaluate(args[0], data)
@@ -95,6 +100,7 @@ enum class StringOperator : Operator {
 
     ToLowerCase {
         override val operator = "toLowerCase"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
             if (args.size() > 1) argError("an \"$operator\"  operation must have 1 operand")
             val scopedString = jfn.evaluate(args[0], data)
@@ -111,6 +117,7 @@ enum class StringOperator : Operator {
      */
     Substring {
         override val operator = "substr"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
             if (args.size() !in 2..3) argError(
                 "an operation with operator \"$operator\" must have 2 or 3 operands"

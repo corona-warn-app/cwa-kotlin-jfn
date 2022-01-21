@@ -13,14 +13,13 @@ import de.rki.jfn.isTruthy
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
 
-enum class ComparisonOperator : Operator {
+internal enum class ComparisonOperator : Operator {
 
     /*
     Strict equality means that the type and the value of two properties must be equal
      */
     StrictEquality {
         override val operator = "==="
-
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val evalArgs = jfn.evaluate(args, data)
 
@@ -43,7 +42,6 @@ enum class ComparisonOperator : Operator {
      */
     LooseEquality {
         override val operator = "=="
-
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val evalArgs = jfn.evaluate(args, data)
 
@@ -69,7 +67,6 @@ enum class ComparisonOperator : Operator {
 
     StrictInequality {
         override val operator = "!=="
-
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val evalArgs = jfn.evaluate(args, data)
 

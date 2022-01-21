@@ -9,9 +9,10 @@ import de.rki.jfn.JsonFunctions
 import de.rki.jfn.common.toNumericNode
 import de.rki.jfn.error.argError
 
-enum class MathOperator : Operator {
+internal enum class MathOperator : Operator {
     Plus {
-        override val operator: String = "+"
+        override val operator = "+"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
             evaluateIfArray(
                 jfn = jfn,
@@ -23,7 +24,8 @@ enum class MathOperator : Operator {
     },
 
     Minus {
-        override val operator: String = "-"
+        override val operator = "-"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
             evaluateIfArray(
                 jfn = jfn,
@@ -35,7 +37,8 @@ enum class MathOperator : Operator {
     },
 
     Multiplication {
-        override val operator: String = "*"
+        override val operator = "*"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
             evaluateIfArray(
                 jfn = jfn,
@@ -47,7 +50,8 @@ enum class MathOperator : Operator {
     },
 
     Division {
-        override val operator: String = "/"
+        override val operator = "/"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
             evaluateIfArray(
                 jfn = jfn,
@@ -59,7 +63,8 @@ enum class MathOperator : Operator {
     },
 
     Modulo {
-        override val operator: String = "%"
+        override val operator = "%"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
             evaluateIfArray(
                 jfn = jfn,

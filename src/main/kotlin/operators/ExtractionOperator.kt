@@ -9,8 +9,7 @@ import de.rki.jfn.OPTIONAL_PREFIX
 import de.rki.jfn.error.argError
 import de.rki.jfn.evaluateLogic
 
-enum class ExtractionOperator : Operator {
-
+internal enum class ExtractionOperator : Operator {
     ExtractFromUVCI {
         override val operator = "extractFromUVCI"
 
