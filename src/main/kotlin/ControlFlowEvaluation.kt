@@ -186,7 +186,7 @@ internal fun evaluateObject(
                 var i = 0
                 objectNode.elements().forEach {
                     target.set<JsonNode>(i.toString(), it)
-                    i ++
+                    i++
                 }
             } else if (!objectNode.isNull) {
                 objectNode as ObjectNode
@@ -252,7 +252,7 @@ internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): Js
             acc
         } else {
             try {
-                val index = Integer.parseInt(fragment, 10)
+                val index = fragment.toInt()
                 if (acc is ArrayNode) acc[index] else null
             } catch (e: NumberFormatException) {
                 if (acc is ObjectNode) acc[fragment] else null
@@ -261,8 +261,6 @@ internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): Js
     }
 }
 
-internal class ReturnException(
-    val data: JsonNode
-) : Exception()
+internal class ReturnException(val data: JsonNode) : Exception()
 
 private const val SPREAD = "spread"
