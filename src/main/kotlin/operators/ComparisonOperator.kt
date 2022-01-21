@@ -184,7 +184,7 @@ internal enum class ComparisonOperator : Operator {
                 when {
                     isValueFalsy(acc) -> acc
                     jfn.isTruthy(acc) -> jfn.evaluate(current, data)
-                    else -> throw RuntimeException(
+                    else -> argError(
                         "all operands of an \"and\" operation must be either truthy or falsy"
                     )
                 }

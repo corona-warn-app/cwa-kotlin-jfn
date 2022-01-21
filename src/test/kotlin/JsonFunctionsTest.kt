@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import de.rki.jfn.JsonFunctionsEngine
 import de.rki.jfn.error.NoSuchFunctionException
 import org.junit.jupiter.api.assertThrows
+import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -13,9 +14,9 @@ class JsonFunctionsTest {
     private val nodeFactory = JsonNodeFactory.instance
 
     @Test
-    fun `registerFunction() should throw RuntimeException() on invalid input`() {
+    fun `registerFunction() should throw IllegalArgumentException on invalid input`() {
         JsonFunctionsEngine().run {
-            assertThrows<RuntimeException> {
+            assertThrows<IllegalArgumentException> {
 
                 // empty object
                 registerFunction("name", ObjectMapper().readTree("{}"))
@@ -103,17 +104,6 @@ class JsonFunctionsTest {
                 expectedData,
                 determineData(parameters, input)
             )
-
-            // "boolean" missing
-//            val invalidInput = ObjectMapper().readTree(
-//                """
-//                {
-//                    "string": "GREETING"
-//                }"""
-//            )
-//            assertThrows<RuntimeException> {
-//                determineData(parameters, invalidInput)
-//            }
         }
     }
 
