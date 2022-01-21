@@ -7,9 +7,7 @@ interface OperatorSet {
 
     val operators: Set<Operator>
 
-    operator fun contains(
-        operator: String
-    ): Boolean = findOperator(operator) != null
+    operator fun contains(operator: String): Boolean = find(operator) != null
 
     operator fun invoke(
         operator: String,
@@ -17,7 +15,7 @@ interface OperatorSet {
         args: JsonNode,
         data: JsonNode
     ): JsonNode {
-        val op = findOperator(operator) ?: error("Check `contains` first")
+        val op = find(operator) ?: error("Check `contains` first")
         return op(jfn, args, data)
     }
 
@@ -28,7 +26,7 @@ interface OperatorSet {
         }
     }
 
-    fun findOperator(operator: String) = operators.find { it.operator == operator }
+    fun find(operator: String) = operators.find { it.operator == operator }
 }
 
 interface Operator {
