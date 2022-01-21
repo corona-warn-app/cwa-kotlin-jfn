@@ -50,41 +50,15 @@ fun evaluateLogic(
                 ControlFlowOperator
 
             val (operator, args) = logic.fields().next()
+
             when (operator) {
-                "!" -> evaluateNot(jfn, args, data)
-                else -> {
-                    when (operator) {
-                        in operators -> operators(operator, jfn, args, data)
-                        "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
-                        else -> argError("unrecognised operator: $operator")
-                    }
-                }
+                in operators -> operators(operator, jfn, args, data)
+                "extractFromUVCI" -> evaluateExtractFromUVCI(jfn, args[0], args[1], data)
+                else -> argError("unrecognised operator: $operator")
             }
         }
     }
     else -> throw RuntimeException("invalid JsonFunctions expression: ${logic.toPrettyString()}")
-}
-
-internal fun evaluateNot(
-    jfn: JsonFunctions,
-    operandExpr: JsonNode,
-    data: JsonNode
-): JsonNode {
-
-    val operand = if (operandExpr.isArray) {
-        evaluateLogic(jfn, operandExpr, data)[0]
-    } else {
-        operandExpr
-    }
-    if (isValueFalsy(operand)) {
-        return BooleanNode.TRUE
-    }
-    if (isValueTruthy(operand)) {
-        return BooleanNode.FALSE
-    }
-    throw RuntimeException(
-        "operand of ! evaluates to something neither truthy, nor falsy: $operand"
-    )
 }
 
 internal fun evaluateExtractFromUVCI(
