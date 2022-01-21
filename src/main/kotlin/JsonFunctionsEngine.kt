@@ -55,7 +55,8 @@ class JsonFunctionsEngine : JsonFunctions {
         }
     }
 
-    fun getDescriptor(name: String) = registeredFunctions[name] ?: throw NoSuchFunctionException()
+    override fun getDescriptor(name: String) = registeredFunctions[name]
+        ?: throw NoSuchFunctionException()
 
     fun determineData(parameters: ArrayNode, input: JsonNode): JsonNode {
         return nodeFactory.objectNode().apply {

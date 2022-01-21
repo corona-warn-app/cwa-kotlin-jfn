@@ -21,8 +21,6 @@ internal fun evaluateCall(
 
     if (!parameters.isObject) argError("Parameters must be an object")
 
-    jfn as JsonFunctionsEngine
-
     val functionDescriptor = jfn.getDescriptor(name.asText())
     val functionDescriptorParameters =
         functionDescriptor.get("parameters") as ArrayNode

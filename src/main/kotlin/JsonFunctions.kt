@@ -17,4 +17,6 @@ interface JsonFunctions {
     fun isTruthy(value: JsonNode): Boolean
 
     fun evaluate(logic: JsonNode, data: JsonNode): JsonNode
+
+    fun getDescriptor(name: String): JsonNode
 }
