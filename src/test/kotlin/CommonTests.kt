@@ -44,7 +44,7 @@ class CommonTests {
 
         when {
             testCase.has("throws") -> {
-                assertThrows<Exception> {
+                assertThrows<RuntimeException> {
                     engine.evaluateFunction(name.textValue(), parameters)
                 }.printStackTrace()
             }
@@ -77,7 +77,7 @@ class CommonTests {
 
         when {
             testCase.has("throws") -> {
-                assertThrows<Exception> {
+                assertThrows<RuntimeException> {
                     engine.evaluate(logic, data)
                 }.printStackTrace()
             }
