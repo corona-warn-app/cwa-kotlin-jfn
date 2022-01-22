@@ -1,7 +1,7 @@
 package operators
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import de.rki.jfn.JsonFunctionsEngine
+import de.rki.jfn.JsonFunctions
 import de.rki.jfn.operators.AccessingDataOperator
 import de.rki.jfn.operators.ArrayOperator
 import de.rki.jfn.operators.ComparisonOperator
@@ -20,7 +20,7 @@ internal class OperatorsTest {
     @Test
     fun `Unsupported operation`() {
         val jsonNode = JsonNodeFactory.instance.arrayNode()
-        val engine = JsonFunctionsEngine()
+        val engine = JsonFunctions()
         assertThrows<IllegalStateException> {
             Operators("", engine, jsonNode, jsonNode)
         }.printStackTrace()

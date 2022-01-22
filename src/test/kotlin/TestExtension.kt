@@ -1,10 +1,10 @@
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ValueNode
-import de.rki.jfn.JsonFunctionsEngine
+import de.rki.jfn.JsonFunctions
 
 val objectMapper = ObjectMapper()
-val engine = JsonFunctionsEngine()
+val engine = JsonFunctions()
 
 fun String.toJsonNode(): JsonNode = objectMapper.readTree(this)
 
