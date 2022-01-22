@@ -66,6 +66,10 @@ tasks.jacocoTestReport {
     }
 }
 
+java {
+    withSourcesJar()
+}
+
 configure<SpotlessExtension> {
     kotlin {
         target("**/*.kt")
