@@ -2,6 +2,9 @@ package de.rki.jfn.operators
 
 object Operators : OperatorSet {
 
+    /**
+     * All operators set
+     */
     override val operators: Set<Operator> = ArrayOperator
         .plus(StringOperator)
         .plus(TimeOperator)
