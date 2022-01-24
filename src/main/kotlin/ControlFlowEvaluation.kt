@@ -226,36 +226,6 @@ internal fun evaluateArray(
     return JsonNodeFactory.instance.arrayNode().addAll(list)
 }
 
-internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
-    val path = when {
-        args.isArray && args.isEmpty -> return data
-        args.isArray && args.first().isObject -> {
-            // argument is an operation, so let's evaluate it
-            evaluateLogic(jfn, args.first(), data).asText()
-        }
-        args.isArray && args.size() == 1 -> args.first().asText()
-        args.isArray && args.size() > 1 -> {
-            // return last element of array if the argument is an array with more than 1 element
-            return args.last()
-        }
-        args.isNull || args.asText() == "" -> return data
-        else -> args.asText()
-    }
-
-    return path.split(".").fold(data) { acc, fragment ->
-        if (acc is NullNode) {
-            acc
-        } else {
-            try {
-                val index = fragment.toInt()
-                if (acc is ArrayNode) acc[index] else null
-            } catch (e: NumberFormatException) {
-                if (acc is ObjectNode) acc[fragment] else null
-            } ?: NullNode.instance
-        }
-    }
-}
-
 internal class ReturnException(val data: JsonNode) : Exception()
 
 private const val SPREAD = "spread"
