@@ -1,6 +1,6 @@
 package de.rki.jfn.operators
 
-object Operators : OperatorSet {
+internal object Operators : OperatorSet {
 
     /**
      * All operators set
