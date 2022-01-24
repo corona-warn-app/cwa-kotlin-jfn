@@ -14,10 +14,6 @@ class JsonFunctions {
 
     private val registeredFunctions = mutableMapOf<String, JsonNode>()
     private val nodeFactory = JsonNodeFactory.instance
-
-    private val parametersPropertyName = "parameters"
-    private val logicPropertyName = "logic"
-
     private val mutex = Mutex()
 
     /**
@@ -29,18 +25,18 @@ class JsonFunctions {
      */
     fun registerFunction(name: String, descriptor: JsonNode) = runBlocking {
         mutex.withLock {
-            if (!descriptor.has(parametersPropertyName)) {
-                argError("descriptor must have a '$parametersPropertyName' property!")
+            if (!descriptor.has(PARAMETERS)) {
+                argError("descriptor must have a '$PARAMETERS' property!")
             }
-            if (descriptor.get(parametersPropertyName) !is ArrayNode) {
-                argError("'$parametersPropertyName' of descriptor must be an array!")
+            if (descriptor.get(PARAMETERS) !is ArrayNode) {
+                argError("'$PARAMETERS' of descriptor must be an array!")
             }
 
-            if (!descriptor.has(logicPropertyName)) {
-                argError("descriptor must have a '$logicPropertyName' property!")
+            if (!descriptor.has(LOGIC)) {
+                argError("descriptor must have a '$LOGIC' property!")
             }
-            if (descriptor.get(logicPropertyName) !is ArrayNode) {
-                argError("'$logicPropertyName' of descriptor must be an array!")
+            if (descriptor.get(LOGIC) !is ArrayNode) {
+                argError("'$LOGIC' of descriptor must be an array!")
             }
 
             registeredFunctions[name] = descriptor
@@ -58,15 +54,10 @@ class JsonFunctions {
      */
     fun evaluateFunction(name: String, parameters: JsonNode): JsonNode = runBlocking {
         mutex.withLock {
-            val functionDescriptor = registeredFunctions[name] ?: throw NoSuchFunctionException()
-
-            val functionDescriptorParameters =
-                functionDescriptor.get(parametersPropertyName) as ArrayNode
-            val functionDescriptorLogic = functionDescriptor.get(logicPropertyName) as ArrayNode
-
+            val (logic, params) = functionLogicParamsPair(name)
             evaluate(
-                functionDescriptorLogic,
-                determineData(functionDescriptorParameters, parameters)
+                logic,
+                determineData(params, parameters)
             )
         }
     }
@@ -100,9 +91,6 @@ class JsonFunctions {
         return isValueTruthy(value)
     }
 
-    internal fun getDescriptor(name: String) = registeredFunctions[name]
-        ?: throw NoSuchFunctionException()
-
     internal fun determineData(parameters: ArrayNode, input: JsonNode): JsonNode {
         return nodeFactory.objectNode().apply {
             parameters.forEach {
@@ -114,5 +102,21 @@ class JsonFunctions {
                 }
             }
         }
+    }
+
+    /**
+     * Returns a pair of a `jsonFunction` (logic and params)
+     * @throws NoSuchFunctionException if function was not registered already
+     */
+    internal fun functionLogicParamsPair(name: String): Pair<ArrayNode, ArrayNode> {
+        val functionDescriptor = registeredFunctions[name] ?: throw NoSuchFunctionException()
+        val funcLogic = functionDescriptor.get(LOGIC) as ArrayNode
+        val funcParams = functionDescriptor.get(PARAMETERS) as ArrayNode
+        return funcLogic to funcParams
+    }
+
+    companion object {
+        private const val PARAMETERS = "parameters"
+        private const val LOGIC = "logic"
     }
 }
