@@ -1,7 +1,6 @@
-
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.TextNode
-import de.rki.jfn.JsonFunctionsEngine
+import de.rki.jfn.JsonFunctions
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
@@ -14,7 +13,7 @@ class CommonTests {
     @ArgumentsSource(CommonTestCaseProvider::class)
     fun `execute all tests from specification`(testCase: JsonNode) {
 
-        val engine = JsonFunctionsEngine()
+        val engine = JsonFunctions()
 
         println("Executing TestCase: ${testCase.toPrettyString()}")
 
@@ -34,7 +33,7 @@ class CommonTests {
         }
     }
 
-    private fun evaluateFunction(testCase: JsonNode, engine: JsonFunctionsEngine) {
+    private fun evaluateFunction(testCase: JsonNode, engine: JsonFunctions) {
         val function = testCase["evaluateFunction"]
         val name = function["name"] ?: fail("Invalid testcase - property 'name' missing")
         if (name !is TextNode) {
@@ -45,9 +44,9 @@ class CommonTests {
 
         when {
             testCase.has("throws") -> {
-                assertThrows<Exception> {
+                assertThrows<RuntimeException> {
                     engine.evaluateFunction(name.textValue(), parameters)
-                }
+                }.printStackTrace()
             }
             testCase.has("exp") -> {
                 assertEquals(
@@ -61,7 +60,7 @@ class CommonTests {
         }
     }
 
-    private fun registerFunction(it: JsonNode, engine: JsonFunctionsEngine) {
+    private fun registerFunction(it: JsonNode, engine: JsonFunctions) {
         val name = it["name"] ?: fail("Invalid testcase - property 'name' missing")
         if (name !is TextNode) {
             fail("Invalid testcase - value of property 'name' is not a string")
@@ -72,13 +71,13 @@ class CommonTests {
         engine.registerFunction(name.textValue(), definition)
     }
 
-    private fun evaluate(testCase: JsonNode, engine: JsonFunctionsEngine) {
+    private fun evaluate(testCase: JsonNode, engine: JsonFunctions) {
         val logic = testCase["logic"]
         val data = testCase["data"]
 
         when {
             testCase.has("throws") -> {
-                assertThrows<Exception> {
+                assertThrows<RuntimeException> {
                     engine.evaluate(logic, data)
                 }.printStackTrace()
             }

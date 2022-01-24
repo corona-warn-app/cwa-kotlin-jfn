@@ -9,4 +9,5 @@ fun argError(message: Any): Nothing = throw IllegalArgumentException(message.toS
 /**
  * Function isn't registered yet error
  */
-class NoSuchFunctionException : Exception("No such function was registered in the engine")
+class NoSuchFunctionException :
+    IllegalStateException("No such function was registered in the engine")

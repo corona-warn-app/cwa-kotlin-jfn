@@ -2,9 +2,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
-import de.rki.jfn.JsonFunctionsEngine
+import de.rki.jfn.JsonFunctions
 import de.rki.jfn.error.NoSuchFunctionException
 import org.junit.jupiter.api.assertThrows
+import java.lang.IllegalArgumentException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -13,9 +14,9 @@ class JsonFunctionsTest {
     private val nodeFactory = JsonNodeFactory.instance
 
     @Test
-    fun `registerFunction() should throw RuntimeException() on invalid input`() {
-        JsonFunctionsEngine().run {
-            assertThrows<RuntimeException> {
+    fun `registerFunction() should throw IllegalArgumentException on invalid input`() {
+        JsonFunctions().run {
+            assertThrows<IllegalArgumentException> {
 
                 // empty object
                 registerFunction("name", ObjectMapper().readTree("{}"))
@@ -43,7 +44,7 @@ class JsonFunctionsTest {
 
     @Test
     fun `evaluateFunction throws NoSuchFunctionException when no function was registered`() {
-        JsonFunctionsEngine().run {
+        JsonFunctions().run {
             assertThrows<NoSuchFunctionException> {
                 evaluateFunction("unregisteredFunctionName", nodeFactory.objectNode())
             }
@@ -52,7 +53,7 @@ class JsonFunctionsTest {
 
     @Test
     fun `determineData() should return empty node when function has no parameters`() {
-        JsonFunctionsEngine().run {
+        JsonFunctions().run {
             val parameters = ObjectMapper().readTree("[]") as ArrayNode
             val input = ObjectMapper().readTree("{}")
             assertEquals(
@@ -64,7 +65,7 @@ class JsonFunctionsTest {
 
     @Test
     fun `determineData() should return proper JsonNode`() {
-        JsonFunctionsEngine().run {
+        JsonFunctions().run {
 
             val parameters = ObjectMapper().readTree(
                 """
@@ -103,23 +104,12 @@ class JsonFunctionsTest {
                 expectedData,
                 determineData(parameters, input)
             )
-
-            // "boolean" missing
-//            val invalidInput = ObjectMapper().readTree(
-//                """
-//                {
-//                    "string": "GREETING"
-//                }"""
-//            )
-//            assertThrows<RuntimeException> {
-//                determineData(parameters, invalidInput)
-//            }
         }
     }
 
     @Test
     fun `evaluate() test simple 'and' logic without parameters`() {
-        JsonFunctionsEngine().run {
+        JsonFunctions().run {
 
             val logic = ObjectMapper().readTree(
                 """
@@ -151,7 +141,7 @@ class JsonFunctionsTest {
 
     @Test
     fun `evaluate() test simple 'and' logic with parameters`() {
-        JsonFunctionsEngine().run {
+        JsonFunctions().run {
 
             val logic = ObjectMapper().readTree(
                 """
@@ -192,7 +182,7 @@ class JsonFunctionsTest {
 
     @Test
     fun `evaluateFunction() test simple 'and' logic with parameters`() {
-        JsonFunctionsEngine().run {
+        JsonFunctions().run {
 
             registerFunction(
                 "simpleAndLogic",

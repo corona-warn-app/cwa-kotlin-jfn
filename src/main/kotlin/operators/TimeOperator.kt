@@ -9,59 +9,59 @@ import de.rki.jfn.evaluateNotAfter
 import de.rki.jfn.evaluateNotBefore
 import de.rki.jfn.evaluatePlusTime
 
-enum class TimeOperator : Operator {
+internal enum class TimeOperator : Operator {
     DiffTime {
+        override val operator = "diffTime"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> jfn.evaluate(arg, data) }
             return evaluateDiffTime(arguments)
         }
-
-        override val operator = "diffTime"
     },
 
     PlusTime {
+        override val operator = "plusTime"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> jfn.evaluate(arg, data) }
             return evaluatePlusTime(arguments)
         }
-
-        override val operator = "plusTime"
     },
 
     After {
+        override val operator = "after"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> jfn.evaluate(arg, data) }
             return evaluateAfter(arguments)
         }
-
-        override val operator = "after"
     },
 
     Before {
+        override val operator = "before"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> jfn.evaluate(arg, data) }
             return evaluateBefore(arguments)
         }
-
-        override val operator = "before"
     },
 
     NotBefore {
+        override val operator = "not-before"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> jfn.evaluate(arg, data) }
             return evaluateNotBefore(arguments)
         }
-
-        override val operator = "not-before"
     },
 
     NotAfter {
+        override val operator = "not-after"
+
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             val arguments = args.map { arg -> jfn.evaluate(arg, data) }
             return evaluateNotAfter(arguments)
         }
-
-        override val operator = "not-after"
     };
 
     companion object : OperatorSet {

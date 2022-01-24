@@ -16,20 +16,16 @@ internal fun evaluateCall(
     val name = arguments[0]
     if (!name.isTextual) argError("Function name must be a string")
 
-    val parameters = if (arguments.has(1) && !arguments[1].isNull) arguments[1]
-    else JsonNodeFactory.instance.objectNode()
+    val parameters = if (arguments.has(1) && !arguments[1].isNull) {
+        arguments[1]
+    } else {
+        JsonNodeFactory.instance.objectNode()
+    }
 
     if (!parameters.isObject) argError("Parameters must be an object")
-
-    jfn as JsonFunctionsEngine
-
-    val functionDescriptor = jfn.getDescriptor(name.asText())
-    val functionDescriptorParameters =
-        functionDescriptor.get("parameters") as ArrayNode
-    val functionDescriptorLogic = functionDescriptor.get("logic") as ArrayNode
-
+    val (funcLogic, funcParams) = jfn.functionLogicParamsPair(name.asText())
     val scopedData = JsonNodeFactory.instance.objectNode().apply {
-        functionDescriptorParameters.forEach {
+        funcParams.forEach {
             val propertyName = it.get("name").textValue()
             when {
                 parameters.has(propertyName) -> set<JsonNode>(
@@ -41,7 +37,7 @@ internal fun evaluateCall(
             }
         }
     }
-    return jfn.evaluate(functionDescriptorLogic, scopedData)
+    return jfn.evaluate(funcLogic, scopedData)
 }
 
 internal fun evaluateAssign(
@@ -64,9 +60,10 @@ internal fun evaluateAssign(
     if (newData.isArray) {
         newData as ArrayNode
         val index = Integer.valueOf(propertyName).toInt()
-        if (index < newData.size()) newData.set(index, value)
-        else newData.add(value)
-    } else (newData as ObjectNode).replace(propertyName, value)
+        if (index < newData.size()) newData.set(index, value) else newData.add(value)
+    } else {
+        (newData as ObjectNode).replace(propertyName, value)
+    }
 
     return NullNode.instance
 }
@@ -109,14 +106,18 @@ internal fun evaluateIf(
     while (index < arguments.size()) {
         val conditionEvaluation = evaluateLogic(jfn, arguments[index], data)
         if (isValueTruthy(conditionEvaluation)) // if condition met or else branch
-            return if (arguments.contains(index + 1))
+            return if (arguments.contains(index + 1)) {
                 evaluateLogic(jfn, arguments[index + 1], data) // if condition met
-            else conditionEvaluation // else branch
+            } else { // else branch
+                conditionEvaluation
+            }
 
         if (index + 2 >= arguments.size()) { // no further else if
-            return if (isValueFalsy(conditionEvaluation) && arguments.contains(index + 1))
-                NullNode.instance // else-if condition not met
-            else conditionEvaluation // else branch
+            return if (isValueFalsy(conditionEvaluation) && arguments.contains(index + 1)) {
+                NullNode.instance
+            } else { // else branch
+                conditionEvaluation
+            }
         }
         index += 2
     }
@@ -141,9 +142,7 @@ internal fun evaluateTernary(
         val elseStatement = if (arguments.contains(2)) arguments[2] else NullNode.instance
         return evaluateLogic(jfn, elseStatement, data)
     }
-    argError(
-        "if-condition evaluates to something neither truthy, nor falsy: $conditionEvaluation"
-    )
+    argError("if-condition evaluates to something neither truthy, nor falsy: $conditionEvaluation")
 }
 
 internal fun evaluateInit(
@@ -165,9 +164,7 @@ internal fun evaluateLiteral(
     data: JsonNode
 ): JsonNode {
     val value = evaluateLogic(jfn, arguments[1], data)
-    if (value.isArray) {
-        argError("Cannot initialize literal with object or array")
-    }
+    if (value.isArray) argError("Cannot initialize literal with object or array")
     return value
 }
 
@@ -186,7 +183,7 @@ internal fun evaluateObject(
                 var i = 0
                 objectNode.elements().forEach {
                     target.set<JsonNode>(i.toString(), it)
-                    i ++
+                    i++
                 }
             } else if (!objectNode.isNull) {
                 objectNode as ObjectNode
@@ -216,13 +213,8 @@ internal fun evaluateArray(
     }.forEach { jsonNode ->
         if (jsonNode.has(SPREAD) && jsonNode.get(SPREAD).isArray) {
             val arrayNode = evaluateLogic(jfn, jsonNode.get(SPREAD)[0], data)
-            if (!arrayNode.isArray) {
-                argError("Spread for arrays only supports other arrays")
-            }
-
-            arrayNode.elements().forEach {
-                list.add(it)
-            }
+            if (!arrayNode.isArray) argError("Spread for arrays only supports other arrays")
+            arrayNode.elements().forEach { list.add(it) }
         } else {
             list.add(evaluateLogic(jfn, jsonNode, data))
         }
@@ -230,39 +222,6 @@ internal fun evaluateArray(
     return JsonNodeFactory.instance.arrayNode().addAll(list)
 }
 
-internal fun evaluateVar(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
-
-    val path = when {
-        args.isArray && args.isEmpty -> return data
-        args.isArray && args.first().isObject -> {
-            // argument is an operation, so let's evaluate it
-            evaluateLogic(jfn, args.first(), data).asText()
-        }
-        args.isArray && args.size() == 1 -> args.first().asText()
-        args.isArray && args.size() > 1 -> {
-            // return last element of array if the argument is an array with more than 1 element
-            return args.last()
-        }
-        args.isNull || args.asText() == "" -> return data
-        else -> args.asText()
-    }
-
-    return path.split(".").fold(data) { acc, fragment ->
-        if (acc is NullNode) {
-            acc
-        } else {
-            try {
-                val index = Integer.parseInt(fragment, 10)
-                if (acc is ArrayNode) acc[index] else null
-            } catch (e: NumberFormatException) {
-                if (acc is ObjectNode) acc[fragment] else null
-            } ?: NullNode.instance
-        }
-    }
-}
-
-internal class ReturnException(
-    val data: JsonNode
-) : Exception()
+internal class ReturnException(val data: JsonNode) : Exception()
 
 private const val SPREAD = "spread"

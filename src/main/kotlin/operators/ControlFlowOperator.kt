@@ -11,10 +11,8 @@ import de.rki.jfn.evaluateInit
 import de.rki.jfn.evaluateLogic
 import de.rki.jfn.evaluateScript
 import de.rki.jfn.evaluateTernary
-import de.rki.jfn.evaluateVar
 
 enum class ControlFlowOperator : Operator {
-
     Assign {
         override val operator = "assign"
 
@@ -87,14 +85,6 @@ enum class ControlFlowOperator : Operator {
 
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
             return evaluateTernary(jfn, args, data)
-        }
-    },
-
-    Var {
-        override val operator = "var"
-
-        override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
-            return evaluateVar(jfn, args, data)
         }
     };
 

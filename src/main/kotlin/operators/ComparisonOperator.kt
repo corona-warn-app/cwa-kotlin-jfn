@@ -13,7 +13,7 @@ import de.rki.jfn.isTruthy
 import de.rki.jfn.isValueFalsy
 import de.rki.jfn.isValueTruthy
 
-enum class ComparisonOperator : Operator {
+internal enum class ComparisonOperator : Operator {
 
     /*
     Strict equality means that the type and the value of two properties must be equal
@@ -184,7 +184,7 @@ enum class ComparisonOperator : Operator {
                 when {
                     isValueFalsy(acc) -> acc
                     jfn.isTruthy(acc) -> jfn.evaluate(current, data)
-                    else -> throw RuntimeException(
+                    else -> argError(
                         "all operands of an \"and\" operation must be either truthy or falsy"
                     )
                 }

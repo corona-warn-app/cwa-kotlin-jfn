@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.NullNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
+import de.rki.jfn.error.argError
 
 internal val JsonNode.isTruthy
     get() = isValueTruthy(this)
@@ -48,9 +49,7 @@ internal fun <T : Comparable<T>> compare(operator: String, args: List<T>): Boole
             args[1].compareTo(args[2]),
             0
         )
-        else -> throw RuntimeException(
-            "invalid number of operands to a \"$operator\" operation"
-        )
+        else -> argError("invalid number of operands to a \"$operator\" operation")
     }
 
 internal fun intCompare(operator: String, l: Int, r: Int): Boolean =
@@ -59,7 +58,7 @@ internal fun intCompare(operator: String, l: Int, r: Int): Boolean =
         ">" -> l > r
         "<=" -> l <= r
         ">=" -> l >= r
-        else -> throw RuntimeException("unhandled comparison operator \"$operator\"")
+        else -> argError("unhandled comparison operator \"$operator\"")
     }
 
 internal const val OPTIONAL_PREFIX = "URN:UVCI:"

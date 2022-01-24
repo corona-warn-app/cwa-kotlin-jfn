@@ -1,5 +1,6 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.ByteArrayOutputStream
 
 plugins {
     kotlin("jvm") version "1.6.10"
@@ -9,7 +10,13 @@ plugins {
 }
 
 group = "de.rki.jfn"
-version = "1.0-SNAPSHOT"
+
+val versionMajor: String by project
+val versionMinor: String by project
+val versionPatch: String by project
+val commit = "git rev-parse --short HEAD".runCommand()
+
+version = "$versionMajor.$versionMinor.$versionPatch-SNAPSHOT-$commit"
 
 repositories {
     mavenCentral()
@@ -59,10 +66,24 @@ tasks.jacocoTestReport {
     }
 }
 
+java {
+    withSourcesJar()
+}
+
 configure<SpotlessExtension> {
     kotlin {
         target("**/*.kt")
         targetExclude("$buildDir/**/*.kt", "**/*.gradle.kts")
         ktlint("0.43.2").userData(mapOf("max_line_length" to "100"))
     }
+}
+
+fun String.runCommand(currentWorkingDir: File = file("./")): String {
+    val byteOut = ByteArrayOutputStream()
+    project.exec {
+        workingDir = currentWorkingDir
+        commandLine = this@runCommand.split("\\s".toRegex())
+        standardOutput = byteOut
+    }
+    return String(byteOut.toByteArray()).trim()
 }

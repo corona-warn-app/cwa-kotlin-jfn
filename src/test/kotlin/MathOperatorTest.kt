@@ -1,7 +1,7 @@
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.IntNode
-import de.rki.jfn.JsonFunctionsEngine
+import de.rki.jfn.JsonFunctions
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 internal class MathOperatorTest {
 
     private val objectMapper = ObjectMapper()
-    private val engine = JsonFunctionsEngine()
+    private val engine = JsonFunctions()
 
     @Test
     fun `happy addition`() {
