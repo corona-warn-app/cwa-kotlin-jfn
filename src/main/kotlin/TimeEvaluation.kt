@@ -1,10 +1,3 @@
-/*
-    Copied from:
-    https://github.com/ehn-dcc-development/dgc-business-rules/blob/main/certlogic/certlogic-kotlin/src/main/kotlin/eu/ehn/dcc/certlogic/TimeUnit.java
-
-    Modifications Copyright (c) 2022 SAP SE or an SAP affiliate company.
-*/
-
 package de.rki.jfn
 
 import com.fasterxml.jackson.databind.JsonNode
