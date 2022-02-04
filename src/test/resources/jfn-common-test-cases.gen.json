@@ -1,5 +1,6 @@
 {
-  "$comment": "Generated at Sat Jan 15 2022 18:28:29 GMT+0100 (Central European Standard Time)",
+  "$comment": "Generated at Fri Feb 04 2022 12:35:43 GMT+0100 (Central European Standard Time)",
+  "sourceHash": "0645e4cfcd0b020c5dae580397f774e093119b59de24b0dbb46cdeaf7bf6d34f",
   "testCases": [
     {
       "title": "all - allows to specify the variable name for the current value and to access the outer context",
@@ -4015,6 +4016,35 @@
         "right": "2000-11-12T00:00:00Z"
       },
       "exp": 21
+    },
+    {
+      "title": "double-bang (!!) - can be used in an or-statement",
+      "logic": {
+        "or": [
+          {
+            "!!": [
+              {
+                "var": "emptyArray"
+              }
+            ]
+          },
+          {
+            "!!": [
+              {
+                "var": "nonEmptyArray"
+              }
+            ]
+          }
+        ]
+      },
+      "data": {
+        "emptyArray": [],
+        "nonEmptyArray": [
+          1,
+          2
+        ]
+      },
+      "exp": true
     },
     {
       "title": "equality operation (===) - should work as expected - #1 with [\"foo\",\"foo\"]",
