@@ -201,9 +201,9 @@ internal enum class ComparisonOperator : Operator {
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode =
             when (args.isEmpty) {
                 true -> argError("Operator '$operator' requires at least one argument")
-                false -> args.firstOrNull {
-                    jfn.evaluate(logic = it, data = data).isTruthy
-                } ?: jfn.evaluate(logic = args.last(), data = data)
+                false -> args
+                    .map { jfn.evaluate(logic = it, data = data) }
+                    .run { firstOrNull { it.isTruthy } ?: last() }
             }
     },
 
