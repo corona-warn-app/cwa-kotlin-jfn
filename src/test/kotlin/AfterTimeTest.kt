@@ -50,7 +50,7 @@ internal class AfterTimeTest {
     }
 
     @Test
-    fun `wrong argument type retrurn true`() {
+    fun `wrong argument type returns true`() {
         val firstDate = 126837738737
         val secondDate = 126837738789
         val arguments = listOf(LongNode(firstDate), LongNode(secondDate))
