@@ -1,7 +1,38 @@
 {
-  "$comment": "Generated at Fri Feb 04 2022 12:35:43 GMT+0100 (Central European Standard Time)",
-  "sourceHash": "0645e4cfcd0b020c5dae580397f774e093119b59de24b0dbb46cdeaf7bf6d34f",
+  "$comment": "Generated at Fri Feb 04 2022 17:18:13 GMT+0000 (Coordinated Universal Time)",
+  "sourceHash": "eec45dc5f5c98a217596e03249bbf6984b89e452c953f1622736f8f69f31a516",
+  "sourceTreeish": "6ca377f",
   "testCases": [
+    {
+      "title": "after - returns false if one is not a date (1)",
+      "logic": {
+        "after": [
+          {
+            "var": "left"
+          },
+          null
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
+      },
+      "exp": false
+    },
+    {
+      "title": "after - returns false if one is not a date (2)",
+      "logic": {
+        "after": [
+          null,
+          {
+            "var": "left"
+          }
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
+      },
+      "exp": false
+    },
     {
       "title": "all - allows to specify the variable name for the current value and to access the outer context",
       "logic": {
@@ -698,6 +729,36 @@
         "hello",
         "hola"
       ]
+    },
+    {
+      "title": "before - returns false if one is not a date (1)",
+      "logic": {
+        "before": [
+          {
+            "var": "left"
+          },
+          null
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
+      },
+      "exp": false
+    },
+    {
+      "title": "before - returns false if one is not a date (2)",
+      "logic": {
+        "before": [
+          null,
+          {
+            "var": "left"
+          }
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
+      },
+      "exp": false
     },
     {
       "title": "call - allows to call other functions with array",
@@ -14053,6 +14114,66 @@
           0,
           ""
         ]
+      },
+      "exp": true
+    },
+    {
+      "title": "not-after - returns true if one is not a date (1)",
+      "logic": {
+        "not-after": [
+          {
+            "var": "left"
+          },
+          null
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
+      },
+      "exp": true
+    },
+    {
+      "title": "not-after - returns true if one is not a date (2)",
+      "logic": {
+        "not-after": [
+          null,
+          {
+            "var": "left"
+          }
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
+      },
+      "exp": true
+    },
+    {
+      "title": "not-before - returns true if one is not a date (1)",
+      "logic": {
+        "not-before": [
+          {
+            "var": "left"
+          },
+          null
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
+      },
+      "exp": true
+    },
+    {
+      "title": "not-before - returns true if one is not a date (2)",
+      "logic": {
+        "not-before": [
+          null,
+          {
+            "var": "left"
+          }
+        ]
+      },
+      "data": {
+        "left": "2021-11-12T10:59:00Z"
       },
       "exp": true
     },

@@ -50,13 +50,11 @@ internal class AfterTimeTest {
     }
 
     @Test
-    fun `wrong argument type raises exception`() {
+    fun `wrong argument type returns true`() {
         val firstDate = 126837738737
         val secondDate = 126837738789
         val arguments = listOf(LongNode(firstDate), LongNode(secondDate))
-        assertFailsWith<IllegalArgumentException>(
-            message = "wrong type of arguments"
-        ) { evaluateNotAfter(arguments).booleanValue() }
+        assertEquals(true, evaluateNotAfter(arguments).booleanValue())
     }
 
     @Test

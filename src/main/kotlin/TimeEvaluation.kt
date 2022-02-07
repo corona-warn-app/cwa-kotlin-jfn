@@ -57,7 +57,7 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
 
 internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
     if (arguments.size != 2) argError("There must be exactly 2 arguments.")
-    if (!arguments.all { it.isTextual }) argError("All arguments must be textual.")
+    if (!arguments.all { it.isTextual }) return BooleanNode.FALSE
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
 
@@ -73,7 +73,7 @@ internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
 
 internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
     if (arguments.size !in 2..3) argError("There must be exactly 2 or 3 arguments.")
-    if (!arguments.all { it.isTextual }) argError("All arguments must be textual.")
+    if (!arguments.all { it.isTextual }) return BooleanNode.TRUE
 
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
@@ -90,7 +90,7 @@ internal fun evaluateNotAfter(arguments: List<JsonNode>): BooleanNode {
 
 internal fun evaluateBefore(arguments: List<JsonNode>): BooleanNode {
     if (arguments.size != 2) argError("There must be exactly 2 arguments.")
-    if (!arguments.all { it.isTextual }) argError("All arguments must be textual.")
+    if (!arguments.all { it.isTextual }) return BooleanNode.FALSE
 
     val firstDate = arguments[0].asText().parseAsDateTime()
     val secondDate = arguments[1].asText().parseAsDateTime()
