@@ -32,9 +32,6 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
 
-    // Joda time
-    implementation("joda-time:joda-time:2.10.13")
-
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-assertions-core:5.3.0")
 

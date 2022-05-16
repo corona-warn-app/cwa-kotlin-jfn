@@ -5,14 +5,10 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.error.argError
-import org.joda.time.DateTime
-import org.joda.time.Days
-import org.joda.time.Hours
-import org.joda.time.Minutes
-import org.joda.time.Months
-import org.joda.time.Seconds
-import org.joda.time.Years
-import org.joda.time.format.ISODateTimeFormat
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoUnit
 
 /* returns the difference between two dates or timestamps in a specific unit of time */
 internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
@@ -23,14 +19,14 @@ internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
     val secondDate = arguments[1].asText().parseAsDateTime()
 
     val diff = when (arguments[2].asText().asTimeUnit()) {
-        TimeUnit.SECOND -> Seconds.secondsBetween(secondDate, firstDate).seconds
-        TimeUnit.MINUTE -> Minutes.minutesBetween(secondDate, firstDate).minutes
-        TimeUnit.HOUR -> Hours.hoursBetween(secondDate, firstDate).hours
-        TimeUnit.DAY -> Days.daysBetween(secondDate, firstDate).days
-        TimeUnit.MONTH -> Months.monthsBetween(secondDate, firstDate).months
-        TimeUnit.YEAR -> Years.yearsBetween(secondDate, firstDate).years
+        TimeUnit.SECOND -> ChronoUnit.SECONDS.between(secondDate, firstDate)
+        TimeUnit.MINUTE -> ChronoUnit.MINUTES.between(secondDate, firstDate)
+        TimeUnit.HOUR -> ChronoUnit.HOURS.between(secondDate, firstDate)
+        TimeUnit.DAY -> ChronoUnit.DAYS.between(secondDate, firstDate)
+        TimeUnit.MONTH -> ChronoUnit.MONTHS.between(secondDate, firstDate)
+        TimeUnit.YEAR -> ChronoUnit.YEARS.between(secondDate, firstDate)
     }
-    return IntNode.valueOf(diff)
+    return IntNode.valueOf(diff.toInt())
 }
 
 /* adds a certain amount of a unit of time to a date or timestamp */
@@ -41,7 +37,7 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
     if (!arguments[2].isTextual) argError("Third argument must be textual.")
 
     val date = arguments[0].asText().parseAsDateTime()
-    val amount = arguments[1].asInt()
+    val amount = arguments[1].asLong()
 
     val resultDate = when (arguments[2].asText().asTimeUnit()) {
         TimeUnit.SECOND -> date.plusSeconds(amount)
@@ -52,7 +48,7 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
         TimeUnit.YEAR -> date.plusYears(amount)
     }
 
-    return TextNode(resultDate.toString(ISODateTimeFormat.dateTimeNoMillis()))
+    return TextNode(resultDate.toString())
 }
 
 internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
@@ -114,11 +110,9 @@ private enum class TimeUnit(val string: String) {
 private fun String.asTimeUnit(): TimeUnit =
     TimeUnit.values().find { it.string == this } ?: argError("Time unit $this is not supported.")
 
-private fun String.parseAsDateTime(): DateTime {
-    return if (pattern.matches(this))
-        DateTime.parse(this)
-    else
-        DateTime.parse(this, ISODateTimeFormat.dateTimeParser().withZoneUTC())
+private fun String.parseAsDateTime(): ZonedDateTime = when {
+    pattern.matches(this) -> ZonedDateTime.parse(this)
+    else -> ZonedDateTime.parse(this, DateTimeFormatter.ISO_DATE_TIME)
 }
 
 private const val TIME_ZONE_REGEX = ".*[+|-][0-1][0-9]:[0-5][0-9]\$"
