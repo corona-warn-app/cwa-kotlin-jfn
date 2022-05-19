@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.error.argError
+import java.time.YearMonth
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoUnit
 
 /* returns the difference between two dates or timestamps in a specific unit of time */
@@ -23,7 +23,10 @@ internal fun evaluateDiffTime(arguments: List<JsonNode>): JsonNode {
         TimeUnit.MINUTE -> ChronoUnit.MINUTES.between(secondDate, firstDate)
         TimeUnit.HOUR -> ChronoUnit.HOURS.between(secondDate, firstDate)
         TimeUnit.DAY -> ChronoUnit.DAYS.between(secondDate, firstDate)
-        TimeUnit.MONTH -> ChronoUnit.MONTHS.between(secondDate, firstDate)
+        TimeUnit.MONTH -> ChronoUnit.MONTHS.between(
+            YearMonth.from(secondDate),
+            YearMonth.from(firstDate)
+        )
         TimeUnit.YEAR -> ChronoUnit.YEARS.between(secondDate, firstDate)
     }
     return IntNode.valueOf(diff.toInt())
@@ -48,7 +51,7 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
         TimeUnit.YEAR -> date.plusYears(amount)
     }
 
-    return TextNode(resultDate.toString())
+    return TextNode(resultDate.format(DateTimeFormatter.ISO_DATE_TIME))
 }
 
 internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
@@ -115,5 +118,5 @@ private fun String.parseAsDateTime(): ZonedDateTime = when {
     else -> ZonedDateTime.parse(this, DateTimeFormatter.ISO_DATE_TIME)
 }
 
-private const val TIME_ZONE_REGEX = ".*[+|-][0-1][0-9]:[0-5][0-9]\$"
+private const val TIME_ZONE_REGEX = ".*[+|-][0-1]\\d:[0-5]\\d\$"
 private val pattern = Regex(TIME_ZONE_REGEX)
