@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.error.argError
+import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -115,7 +117,11 @@ private fun String.asTimeUnit(): TimeUnit =
 
 private fun String.parseAsDateTime(): ZonedDateTime = when {
     PATTERN.matches(this) -> ZonedDateTime.parse(this)
+    PATTERN_DATE.matches(this) -> LocalDate
+        .parse(this, DateTimeFormatter.ISO_LOCAL_DATE)
+        .atStartOfDay(ZoneOffset.UTC)
     else -> ZonedDateTime.parse(this, DateTimeFormatter.ISO_DATE_TIME)
 }
 
 private val PATTERN = ".*[+|-][0-1]\\d:[0-5]\\d\$".toRegex()
+private val PATTERN_DATE = "\\d{4}-\\d{2}-\\d{2}\$".toRegex()
