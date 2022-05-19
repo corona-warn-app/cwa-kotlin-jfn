@@ -3,6 +3,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.evaluateAfter
 import de.rki.jfn.evaluateNotAfter
 import org.junit.jupiter.api.Test
+import java.time.format.DateTimeParseException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -62,7 +63,7 @@ internal class AfterTimeTest {
         val firstDate = "126837738737"
         val secondDate = "126837738789"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate))
-        assertFailsWith<IllegalArgumentException>(
+        assertFailsWith<DateTimeParseException>(
             message = "wrong date format"
         ) { evaluateNotAfter(arguments).booleanValue() }
     }

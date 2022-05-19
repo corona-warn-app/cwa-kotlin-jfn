@@ -3,6 +3,7 @@ import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.evaluateBefore
 import de.rki.jfn.evaluateNotBefore
 import org.junit.jupiter.api.Test
+import java.time.format.DateTimeParseException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -53,7 +54,7 @@ internal class BeforeTimeTest {
         val firstDate = "126837738737"
         val secondDate = "126837738789"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate))
-        assertFailsWith<IllegalArgumentException>(
+        assertFailsWith<DateTimeParseException>(
             message = "wrong date format"
         ) { evaluateBefore(arguments).booleanValue() }
     }
