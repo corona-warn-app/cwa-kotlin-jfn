@@ -101,7 +101,7 @@ internal fun evaluateNotBefore(arguments: List<JsonNode>): BooleanNode {
     return BooleanNode.valueOf(!evaluateBefore(arguments).asBoolean())
 }
 
-private enum class TimeUnit(val string: String) {
+private enum class TimeUnit(val unit: String) {
     SECOND("second"),
     MINUTE("minute"),
     HOUR("hour"),
@@ -111,12 +111,11 @@ private enum class TimeUnit(val string: String) {
 }
 
 private fun String.asTimeUnit(): TimeUnit =
-    TimeUnit.values().find { it.string == this } ?: argError("Time unit $this is not supported.")
+    TimeUnit.values().find { it.unit == this } ?: argError("Time unit $this is not supported.")
 
 private fun String.parseAsDateTime(): ZonedDateTime = when {
-    pattern.matches(this) -> ZonedDateTime.parse(this)
+    PATTERN.matches(this) -> ZonedDateTime.parse(this)
     else -> ZonedDateTime.parse(this, DateTimeFormatter.ISO_DATE_TIME)
 }
 
-private const val TIME_ZONE_REGEX = ".*[+|-][0-1]\\d:[0-5]\\d\$"
-private val pattern = Regex(TIME_ZONE_REGEX)
+private val PATTERN = ".*[+|-][0-1]\\d:[0-5]\\d\$".toRegex()
