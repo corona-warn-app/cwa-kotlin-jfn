@@ -117,9 +117,10 @@ private fun String.asTimeUnit(): TimeUnit =
 
 private fun String.parseAsDateTime(): ZonedDateTime = when {
     PATTERN.matches(this) -> ZonedDateTime.parse(this)
-    PATTERN_DATE.matches(this) -> LocalDate
-        .parse(this, DateTimeFormatter.ISO_LOCAL_DATE)
-        .atStartOfDay(ZoneOffset.UTC)
+    PATTERN_DATE.matches(this) ->
+        LocalDate
+            .parse(this, DateTimeFormatter.ISO_LOCAL_DATE)
+            .atStartOfDay(ZoneOffset.UTC)
     else -> ZonedDateTime.parse(this, DateTimeFormatter.ISO_DATE_TIME)
 }
 
