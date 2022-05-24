@@ -27,10 +27,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
 
     // Jackson
-    implementation("com.fasterxml.jackson.core:jackson-core:2.13.1")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 
     // Joda time
     implementation("joda-time:joda-time:2.10.13")
