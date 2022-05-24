@@ -53,7 +53,9 @@ internal fun evaluatePlusTime(arguments: List<JsonNode>): JsonNode {
         TimeUnit.YEAR -> date.plusYears(amount)
     }
 
-    return TextNode(resultDate.format(DateTimeFormatter.ISO_DATE_TIME))
+    return TextNode(
+        resultDate.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_DATE_TIME)
+    )
 }
 
 internal fun evaluateAfter(arguments: List<JsonNode>): BooleanNode {
