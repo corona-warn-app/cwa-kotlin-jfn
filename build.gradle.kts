@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.ByteArrayOutputStream
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.6.20"
     `java-library`
-    id("com.diffplug.spotless").version("6.0.0")
+    id("com.diffplug.spotless").version("6.6.1")
     jacoco
 }
 
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
 
     // Jackson
     implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
@@ -32,11 +32,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
 
-    // Joda time
-    implementation("joda-time:joda-time:2.10.13")
-
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-assertions-core:5.1.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.3.0")
 
     // jUnit5
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")

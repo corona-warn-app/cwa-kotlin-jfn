@@ -2,6 +2,7 @@ import com.fasterxml.jackson.databind.node.IntNode
 import com.fasterxml.jackson.databind.node.TextNode
 import de.rki.jfn.evaluateDiffTime
 import org.junit.jupiter.api.Test
+import java.time.format.DateTimeParseException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
@@ -85,7 +86,7 @@ internal class DiffTimeTest {
     fun `wrong type of arguments raises exception`() {
         val firstDate = "2013-08-11T17:22:04.51+01:00"
         val arguments = listOf(TextNode(firstDate), TextNode("year"), TextNode("4"))
-        assertFailsWith<IllegalArgumentException>(
+        assertFailsWith<DateTimeParseException>(
             message = "wrong type of arguments"
         ) { evaluateDiffTime(arguments) }
     }
@@ -95,7 +96,7 @@ internal class DiffTimeTest {
         val firstDate = "1.1.2022 16:30:15"
         val secondDate = "2019-08-10T16:22:04.51+00:00"
         val arguments = listOf(TextNode(firstDate), TextNode(secondDate), TextNode("year"))
-        assertFailsWith<IllegalArgumentException>(
+        assertFailsWith<DateTimeParseException>(
             message = "wrong type of arguments"
         ) { evaluateDiffTime(arguments) }
     }
