@@ -13,16 +13,15 @@ class CommonTestCaseProvider : ArgumentsProvider {
         val testsFile = javaClass.classLoader.getResource("jfn-common-test-cases.gen.json")
         val tree = ObjectMapper().readTree(testsFile)
         val testCases = tree.get("testCases") as ArrayNode
+        val commonFunctions = tree.get("commonFunctions")
 
-        testCases.forEachIndexed { index, it ->
-            val testCase = it as ObjectNode
-            if (tree.has("commonFunctions")) {
-                val commonFunctions = tree.get("commonFunctions") as ArrayNode
-                testCase.set<ArrayNode>("functions", commonFunctions)
+        return testCases.map { case ->
+            val newCase = if (commonFunctions != null) {
+                (case as ObjectNode).set<ArrayNode>("functions", commonFunctions)
+            } else {
+                case
             }
-            testCases.set(index, testCase)
-        }
-
-        return testCases.map { Arguments.of(Named.of(it.get("title").textValue(), it)) }.stream()
+            Arguments.of(Named.of(newCase.get("title").textValue(), newCase))
+        }.stream()
     }
 }
