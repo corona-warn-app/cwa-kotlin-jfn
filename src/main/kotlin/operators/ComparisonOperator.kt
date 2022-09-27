@@ -214,7 +214,6 @@ internal enum class ComparisonOperator : Operator {
         override val operator = "!"
 
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
-
             val operand = if (args.isArray) {
                 evaluateLogic(jfn, args, data)[0]
             } else {
@@ -261,7 +260,9 @@ private fun mapToDouble(it: JsonNode): Double = when (it) {
 }
 
 private fun throwOnIllegalSizeOfArgs(args: JsonNode, operator: String) {
-    if (args.size() !in 2..3) argError(
-        "an operation with operator \"$operator\" must have 2 or 3 operands"
-    )
+    if (args.size() !in 2..3) {
+        argError(
+            "an operation with operator \"$operator\" must have 2 or 3 operands"
+        )
+    }
 }

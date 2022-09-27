@@ -12,20 +12,24 @@ internal enum class StringOperator : Operator {
         override val operator = "split"
 
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): JsonNode {
-            if (args.size() < 2) argError(
-                "an \"$operator\"  operation must have at least 2 operands"
-            )
+            if (args.size() < 2) {
+                argError(
+                    "an \"$operator\"  operation must have at least 2 operands"
+                )
+            }
 
             val scopedString = jfn.evaluate(args[0], data)
             val scopedSeparator = jfn.evaluate(args[1], data)
             val resultArrayNode = JsonNodeFactory.instance.arrayNode()
 
-            if (isInvalidType(scopedString))
+            if (isInvalidType(scopedString)) {
                 return resultArrayNode
+            }
             val initialString = scopedString.asText()
 
-            if (isInvalidType(scopedSeparator))
+            if (isInvalidType(scopedSeparator)) {
                 return ArrayNode(null, listOf(TextNode(initialString)))
+            }
             val separator = scopedSeparator.asText()
 
             val textNodes =
@@ -39,9 +43,11 @@ internal enum class StringOperator : Operator {
         override val operator = "replaceAll"
 
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() !in 2..3) argError(
-                "an operation with operator \"$operator\" must have 2 or 3 operands"
-            )
+            if (args.size() !in 2..3) {
+                argError(
+                    "an operation with operator \"$operator\" must have 2 or 3 operands"
+                )
+            }
 
             val scopedString = jfn.evaluate(args[0], data)
             val scopedOldValue = jfn.evaluate(args[1], data)
@@ -64,9 +70,11 @@ internal enum class StringOperator : Operator {
         override val operator = "concatenate"
 
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() < 2) argError(
-                "an \"$operator\"  operation must have at least 2 operands"
-            )
+            if (args.size() < 2) {
+                argError(
+                    "an \"$operator\"  operation must have at least 2 operands"
+                )
+            }
 
             val scopedArguments = jfn.evaluate(args, data)
             val stringBuilder = StringBuilder()
@@ -119,9 +127,11 @@ internal enum class StringOperator : Operator {
         override val operator = "substr"
 
         override fun invoke(jfn: JsonFunctions, args: JsonNode, data: JsonNode): TextNode {
-            if (args.size() !in 2..3) argError(
-                "an operation with operator \"$operator\" must have 2 or 3 operands"
-            )
+            if (args.size() !in 2..3) {
+                argError(
+                    "an operation with operator \"$operator\" must have 2 or 3 operands"
+                )
+            }
 
             val scopedString = jfn.evaluate(args[0], data)
             val scopedIndex = jfn.evaluate(args[1], data)
@@ -135,10 +145,12 @@ internal enum class StringOperator : Operator {
 
             val index = scopedIndex.asInt()
             val cleanedIndex = if (index < 0) initialString.length + index else index
-            if (cleanedIndex >= initialString.length || cleanedIndex < 0) argError(
-                "Incorrect index. For this string the index should be in " +
-                    "range from ${-initialString.length} to ${initialString.length}"
-            )
+            if (cleanedIndex >= initialString.length || cleanedIndex < 0) {
+                argError(
+                    "Incorrect index. For this string the index should be in " +
+                        "range from ${-initialString.length} to ${initialString.length}"
+                )
+            }
 
             return if (scopedOffset != null && !scopedOffset.isNull) {
                 if (!scopedOffset.isInt) argError("Offset type must be integer")

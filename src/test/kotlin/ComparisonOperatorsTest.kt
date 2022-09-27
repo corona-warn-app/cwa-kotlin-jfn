@@ -104,7 +104,6 @@ class ComparisonOperatorsTest {
 
     @Test
     fun `'in' should be able to handle nulls`() = assertSoftly {
-
         val logic = """
         {
             "in" : [ 

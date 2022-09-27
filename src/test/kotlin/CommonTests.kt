@@ -12,7 +12,6 @@ class CommonTests {
     @ParameterizedTest(name = "{index}: {0}")
     @ArgumentsSource(CommonTestCaseProvider::class)
     fun `execute all tests from specification`(testCase: JsonNode) {
-
         val engine = JsonFunctions()
 
         println("Executing TestCase: ${testCase.toPrettyString()}")

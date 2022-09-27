@@ -88,7 +88,6 @@ private fun MathOperator.evaluateIfArray(
     requiresTwoOperands: Boolean,
     mathOperation: MathOperation
 ): JsonNode {
-
     // Just return the argument as number if no array but a single value is passed
     return if (args !is ArrayNode) {
         args.number.toNumericNode()
