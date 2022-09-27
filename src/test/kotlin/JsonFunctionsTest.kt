@@ -17,7 +17,6 @@ class JsonFunctionsTest {
     fun `registerFunction() should throw IllegalArgumentException on invalid input`() {
         JsonFunctions().run {
             assertThrows<IllegalArgumentException> {
-
                 // empty object
                 registerFunction("name", ObjectMapper().readTree("{}"))
 
@@ -66,7 +65,6 @@ class JsonFunctionsTest {
     @Test
     fun `determineData() should return proper JsonNode`() {
         JsonFunctions().run {
-
             val parameters = ObjectMapper().readTree(
                 """
                 [
@@ -110,7 +108,6 @@ class JsonFunctionsTest {
     @Test
     fun `evaluate() test simple 'and' logic without parameters`() {
         JsonFunctions().run {
-
             val logic = ObjectMapper().readTree(
                 """
                 {
@@ -142,7 +139,6 @@ class JsonFunctionsTest {
     @Test
     fun `evaluate() test simple 'and' logic with parameters`() {
         JsonFunctions().run {
-
             val logic = ObjectMapper().readTree(
                 """
                 {
@@ -183,7 +179,6 @@ class JsonFunctionsTest {
     @Test
     fun `evaluateFunction() test simple 'and' logic with parameters`() {
         JsonFunctions().run {
-
             registerFunction(
                 "simpleAndLogic",
                 ObjectMapper().readTree(

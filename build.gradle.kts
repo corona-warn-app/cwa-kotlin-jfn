@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.ByteArrayOutputStream
 
 plugins {
-    kotlin("jvm") version "1.6.20"
+    kotlin("jvm") version "1.7.10"
     `java-library`
-    id("com.diffplug.spotless").version("6.6.1")
+    id("com.diffplug.spotless").version("6.11.0")
     jacoco
 }
 
@@ -14,9 +14,9 @@ group = "de.rki.jfn"
 val versionMajor: String by project
 val versionMinor: String by project
 val versionPatch: String by project
-val commit = "git rev-parse --short HEAD".runCommand()
+val versionBuild: String by project
 
-version = "$versionMajor.$versionMinor.$versionPatch-SNAPSHOT-$commit"
+version = "$versionMajor.$versionMinor.$versionPatch-rc.$versionBuild"
 
 repositories {
     mavenCentral()
@@ -24,19 +24,19 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     // Jackson
-    implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.13.4")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.4")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4")
 
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-assertions-core:5.3.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.4.2")
 
     // jUnit5
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.0")
 
 }
 
@@ -71,16 +71,6 @@ configure<SpotlessExtension> {
     kotlin {
         target("**/*.kt")
         targetExclude("$buildDir/**/*.kt", "**/*.gradle.kts")
-        ktlint("0.43.2").userData(mapOf("max_line_length" to "100"))
+        ktlint("0.47.1")
     }
-}
-
-fun String.runCommand(currentWorkingDir: File = file("./")): String {
-    val byteOut = ByteArrayOutputStream()
-    project.exec {
-        workingDir = currentWorkingDir
-        commandLine = this@runCommand.split("\\s".toRegex())
-        standardOutput = byteOut
-    }
-    return String(byteOut.toByteArray()).trim()
 }

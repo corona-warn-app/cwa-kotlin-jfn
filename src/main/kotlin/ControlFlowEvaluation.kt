@@ -101,16 +101,17 @@ internal fun evaluateIf(
     arguments: JsonNode,
     data: JsonNode
 ): JsonNode {
-
     var index = 0
     while (index < arguments.size()) {
         val conditionEvaluation = evaluateLogic(jfn, arguments[index], data)
-        if (isValueTruthy(conditionEvaluation)) // if condition met or else branch
+        if (isValueTruthy(conditionEvaluation)) {
+            // if condition met or else branch
             return if (arguments.contains(index + 1)) {
                 evaluateLogic(jfn, arguments[index + 1], data) // if condition met
             } else { // else branch
                 conditionEvaluation
             }
+        }
 
         if (index + 2 >= arguments.size()) { // no further else if
             return if (isValueFalsy(conditionEvaluation) && arguments.contains(index + 1)) {
@@ -192,8 +193,9 @@ internal fun evaluateObject(
             index += 1
         } else {
             val property = evaluateLogic(jfn, jsonNode, data)
-            if (property.isObject || property.isArray || property.isNull)
+            if (property.isObject || property.isArray || property.isNull) {
                 argError("Key must not be an object, array, or null.")
+            }
             val value = evaluateLogic(jfn, arguments[index + 1], data)
             target.replace(property.asText(), value)
             index += 2
